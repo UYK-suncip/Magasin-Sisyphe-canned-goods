@@ -97,13 +97,13 @@ const bossDeck=[
 let state;let actionLocked=false;const $=id=>document.getElementById(id);
 let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false};
 const testEnemy={name:'길 잃은 점원',hp:92,max:92,speed:3,caption:'쇼핑 바구니를 끌며 복도를 배회한다.',portrait:'♟'};
-const rukakiEnemy={name:'르카키',hp:65,max:65,speed:3,caption:'날카로운 동작으로 상대를 몰아붙이는 점원.',portrait:'♟'};
+const rukakiEnemy={name:'르카키',hp:65,max:65,speed:3,caption:'어디에도 속하지 않은 고객.',portrait:'♟'};
 const rukakiDeck=[
 {id:'rukaki_hit',name:'때리기',power:1,dice:2,rolls:1,desc:'위력 1 + 1d2 · 진동 1 부여',apply:{진동:1}},
 {id:'rukaki_slam',name:'내리찍기',power:1,dice:3,rolls:1,desc:'위력 1 + 1d3 · 진동 1 부여 · 진동 폭발 · 출혈 1 부여',kind:'burst',apply:{진동:1,출혈:1}}
 ];
 function drawHand(){const pool=[...playerDeck];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,4).map(c=>c.id)}
-function fresh(){return {p:{hp:876,max:876,speed:4,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0}},e:{hp:180,max:180,speed:3,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0}},enemyName:'알리우네',enemyCaption:'잔향과 진동을 다루는 특수 개체.',enemyPortrait:'✿',enemyType:'aliune',light:4,round:1,selected:[],hand:drawHand(),done:false,logs:[],last:null}}
+function fresh(){return {p:{hp:876,max:876,speed:4,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0}},e:{hp:180,max:180,speed:3,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0}},enemyName:'알리우네',enemyCaption:'흙으로 돌아가고자 하는 소망을 품고, 살고자 하는 모든 것들과 무덤으로 돌아가리.',enemyPortrait:'✿',enemyType:'aliune',light:4,round:1,selected:[],hand:drawHand(),done:false,logs:[],last:null}}
 function rand(n){return Math.floor(Math.random()*n)+1}function roll(n,count=1){let a=[];for(let i=0;i<count;i++)a.push(rand(n));return a}function sum(a){return a.reduce((x,y)=>x+y,0)}function log(s,type=''){state.logs.unshift({s,type});state.logs=state.logs.slice(0,24);renderFeed();const box=$('actionResult');if(box){box.className='action-result '+type;box.innerHTML=`<strong>전투 기록</strong><span>${s.replace(/<[^>]*>/g,'')}</span>`}}
 function renderFeed(){$('feed').innerHTML=state.logs.map(x=>`<div class="logline ${x.type}">${x.s}</div>`).join('')}
 function kwHtml(obj){return Object.entries(obj).filter(([k,v])=>v>0).map(([k,v])=>`<span class="tag">${k} <strong>${v}</strong></span>`).join('')||'<span class="tag">상태 없음</span>'}
