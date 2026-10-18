@@ -122,7 +122,7 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  $(isPlayer?'attackSkillName':'defenseSkillName').textContent=card.name;
  $(isPlayer?'defenseSkillName':'attackSkillName').textContent='회피';
  let power=card.power+chargeSpentAtUse;
- if(chargeSpentAtUse>0)log(`${isPlayer?'당신':state.enemyName} · ${card.name} 사용 시 충전 ${chargeSpentAtUse} 소모, 위력 +${chargeSpentAtUse}`,'good');
+
  // 침잠은 상대가 아니라, 침잠이 걸린 공격자 자신의 최종 공격 결과값에서 차감한다.
  let sinkPenalty=Math.floor(Math.max(0,attacker.kw.침잠||0)/4);
  let finalPower=power;
@@ -162,7 +162,7 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  if(card.ultimate && attacker===state.e && state.enemyType!=='test'){const consumed=attacker.kw.잔향||0;attacker.kw.잔향=0;log(`알리우네의 궁극기 사용 · 잔향 ${consumed} 전부 제거`,'good');}
  render();await wait(520);return atk>dodge;
 }
-function payCardUseCost(attacker,card,isPlayer){if(card.kind!=='charge')return 0;const spent=Math.min(3,Math.max(0,Number(attacker.kw.충전)||0));if(spent>0)attacker.kw.충전-=spent;return spent}
+function payCardUseCost(attacker,card,isPlayer){if(card.kind!=='charge')return 0;let remaining=Math.min(3,Math.max(0,Number(attacker.kw.충전)||0)+Math.max(0,Number(attacker.kw.보존)||0));const fromCharge=Math.min(remaining,Math.max(0,Number(attacker.kw.충전)||0));attacker.kw.충전=Math.max(0,(Number(attacker.kw.충전)||0)-fromCharge);remaining-=fromCharge;const fromPreservation=Math.min(remaining,Math.max(0,Number(attacker.kw.보존)||0));attacker.kw.보존=Math.max(0,(Number(attacker.kw.보존)||0)-fromPreservation);const spent=fromCharge+fromPreservation;if(spent>0)log(`${isPlayer?'당신':state.enemyName} · ${card.name} 사용 시 충전 ${fromCharge}${fromPreservation?` + 보존 ${fromPreservation}`:''} 소모, 위력 +${spent}`,'good');return spent}
 async function useSupport(card){if(state.done)return;applyKw(state.p,card.self||{});log(`<strong>당신</strong> · ${card.name} 사용 — ${(Object.entries(card.self||{}).map(([k,v])=>`${k} +${v}`)).join(', ')||'효과 없음'}`,'good');$('arenaName').textContent='당신의 준비';$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('defenseSkillName').textContent='공격 없음';$('attackDie').textContent='—';$('defenseDie').textContent='—';$('attackLabel').textContent='비공격 스킬';$('defenseLabel').textContent='공격 없음';setActionMessage(`${card.name} · ${Object.entries(card.self||{}).map(([k,v])=>`${k} +${v}`).join(', ')}`,'good');render();await wait(420)}
 async function usePlayerCard(originalCard){
  let card=originalCard;
@@ -222,18 +222,18 @@ function finish(win){if(state.done)return;state.done=true;log(win?`<strong>승�
 const importedEvents=[
 {id:'rest',title:'비어 있는 휴게실',text:'휴게실에는 아무도 없지만 따뜻한 차가 한 잔 놓여 있다.',actions:[{name:'차를 마신다',desc:'체력 5 회복',effect(){return {hp:5,msg:'따뜻한 차를 마셔 체력 5를 회복했다.'}}},{name:'곧장 떠난다',desc:'효과 없이 지나간다',effect(){return {msg:'휴게실을 지나쳤다. 아무 일도 일어나지 않았다.'}}}]},
 {id:'display',title:'흔들리는 진열장',text:'진열장 안의 물건들이 같은 박자로 떨린다. 진동이 유리 표면을 타고 퍼진다.',actions:[{name:'진동을 따라 호흡한다',desc:'호흡 +2',effect(){return {kw:{호흡:2},msg:'진동에 호흡을 맞췄다. 호흡 +2.'}}},{name:'유리를 두드린다',desc:'진동 +3',effect(){return {kw:{진동:3},msg:'유리를 두드려 진동을 끌어냈다. 진동 +3.'}}}]},
-{id:'perfume',title:'향수 매장의 잔향',text:'매장 안에 달콤한 향이 남아 있다. 오래 맡으면 정신이 흐려질 것 같다.',actions:[{name:'향을 들이마신다',desc:'전투에서 사용할 체력 6 회복',effect(){return {hp:6,msg:'향을 들이마셔 체력 6을 회복했다.'}}},{name:'병을 챙긴다',desc:'향수를 전투 자원으로 바꾸어 충전 +2',effect(){return {kw:{충전:2},msg:'향수 병에 남은 에너지를 흡수했다. 충전 +2.'}}}]},
-{id:'machine',title:'고장 난 배달 기계',text:'낡은 배달 기계가 복도를 막고 있다. 내부에서 불규칙한 진동이 느껴진다.',actions:[{name:'기계를 밀어낸다',desc:'성공하면 충전 +3, 실패하면 체력 5 감소',effect(){if(Math.random()<.65)return {kw:{충전:3},msg:'기계를 옮기다 내부 에너지를 회수했다. 충전 +3.'};return {hp:-5,msg:'기계가 갑자기 움직였다. 체력 5를 잃었다.'}}},{name:'배선에 손을 댄다',desc:'충전 +2',effect(){return {kw:{충전:2},msg:'배선에서 에너지를 흡수했다. 충전 +2.'}}}]},
+{id:'perfume',title:'향수 매장의 잔향',text:'매장 안에 달콤한 향이 남아 있다. 오래 맡으면 정신이 흐려질 것 같다.',actions:[{name:'향을 들이마신다',desc:'전투에서 사용할 체력 6 회복',effect(){return {hp:6,msg:'향을 들이마셔 체력 6을 회복했다.'}}},{name:'병을 챙긴다',desc:'향수를 전투 자원으로 바꾸어 충전 +2',effect(){return {kw:{충전:2},msg:renoirModeEnabled?'향수 병의 에너지를 흡수했다. 보존 +2.':'향수 병에 남은 에너지를 흡수했다. 충전 +2.'}}}]},
+{id:'machine',title:'고장 난 배달 기계',text:'낡은 배달 기계가 복도를 막고 있다. 내부에서 불규칙한 진동이 느껴진다.',actions:[{name:'기계를 밀어낸다',desc:'성공하면 충전 +3, 실패하면 체력 5 감소',effect(){if(Math.random()<.65)return {kw:{충전:3},msg:renoirModeEnabled?'기계를 옮기다 내부 에너지를 회수했다. 보존 +3.':'기계를 옮기다 내부 에너지를 회수했다. 충전 +3.'};return {hp:-5,msg:'기계가 갑자기 움직였다. 체력 5를 잃었다.'}}},{name:'배선에 손을 댄다',desc:'충전 +2',effect(){return {kw:{충전:2},msg:renoirModeEnabled?'배선에서 에너지를 흡수했다. 보존 +2.':'배선에서 에너지를 흡수했다. 충전 +2.'}}}]},
 {id:'corridor',title:'핏자국이 남은 통로',text:'바닥에 말라붙은 핏자국이 이어진다. 벽 안쪽에서 긁는 소리가 들린다.',actions:[{name:'흔적을 조사한다',desc:'출혈 +2, 체력 2 감소',effect(){return {hp:-2,kw:{출혈:2},msg:'날카로운 파편을 주웠다. 출혈 +2, 체력 2 감소.'}}},{name:'빠르게 지나간다',desc:'25% 확률로 체력 3 감소',effect(){if(Math.random()<.25)return {hp:-3,msg:'이상한 소리에 정신이 흔들렸다. 체력 3을 잃었다.'};return {msg:'숨을 죽이고 통로를 빠져나왔다.'}}}]},
 {id:'fog',title:'검은 안개',text:'바닥에 검은 안개가 고인다. 안개 속에 서 있자 상대의 움직임이 둔해지는 상상이 든다.',actions:[{name:'안개를 모은다',desc:'침잠 +2',effect(){return {kw:{침잠:2},msg:'검은 안개를 모았다. 침잠 +2.'}}},{name:'안개를 피해 돌아간다',desc:'체력 4 회복',effect(){return {hp:4,msg:'안개를 피해 돌아가 체력 4를 회복했다.'}}}]},
-{id:'embers',title:'불씨가 남은 작업대',text:'작업대 위에서 작은 불씨가 타오른다. 금속 도구가 붉게 달아올라 있다.',actions:[{name:'불씨를 옮긴다',desc:'화상 +2',effect(){return {kw:{화상:2},msg:'불씨를 옮기는 과정에서 열기가 스며들었다. 화상 +2.'}}},{name:'금속을 챙긴다',desc:'금속의 에너지를 흡수해 충전 +2',effect(){return {kw:{충전:2},msg:'금속 도구에서 에너지를 회수했다. 충전 +2.'}}}]}
+{id:'embers',title:'불씨가 남은 작업대',text:'작업대 위에서 작은 불씨가 타오른다. 금속 도구가 붉게 달아올라 있다.',actions:[{name:'불씨를 옮긴다',desc:'화상 +2',effect(){return {kw:{화상:2},msg:'불씨를 옮기는 과정에서 열기가 스며들었다. 화상 +2.'}}},{name:'금속을 챙긴다',desc:'금속의 에너지를 흡수해 충전 +2',effect(){return {kw:{충전:2},msg:renoirModeEnabled?'금속 도구에서 에너지를 회수했다. 보존 +2.':'금속 도구에서 에너지를 회수했다. 충전 +2.'}}}]}
 ];
 
 const exploreEvents=[
 {id:'rest',title:'비어 있는 휴게실',text:'휴게실에는 아무도 없지만 따뜻한 차가 한 잔 놓여 있다.',actions:[{name:'차를 마신다',desc:'체력 5 회복',fn(){state.p.hp=Math.min(state.p.max,state.p.hp+5);return '따뜻한 차를 마셔 체력 5 회복.'}},{name:'곧장 떠난다',desc:'아무 효과 없이 지나간다',fn(){return '휴게실을 지나쳤다.'}}]},
 {id:'display',title:'흔들리는 진열장',text:'진열장 안의 물건들이 같은 박자로 떨린다.',actions:[{name:'진동을 따라 호흡한다',desc:'호흡 +2',fn(){applyKw(state.p,{호흡:2});return '호흡 +2.'}},{name:'유리를 두드린다',desc:'진동 +3',fn(){applyKw(state.p,{진동:3});return '진동 +3.'}}]},
 {id:'perfume',title:'향수 매장의 잔향',text:'달콤한 향이 매장 안에 남아 있다. 오래 맡으면 정신이 흐려질 것 같다.',actions:[{name:'향을 들이마신다',desc:'체력 6 회복',fn(){state.p.hp=Math.min(state.p.max,state.p.hp+6);return '체력 6 회복.'}},{name:'병을 챙긴다',desc:'충전 +2',fn(){applyKw(state.p,{충전:2});return '충전 +2.'}}]},
-{id:'machine',title:'고장 난 배달 기계',text:'낡은 배달 기계가 복도를 막고 있다. 내부에서 불규칙한 진동이 느껴진다.',actions:[{name:'기계를 밀어낸다',desc:'65% 확률로 충전 +3, 실패하면 체력 -5',fn(){if(Math.random()<.65){applyKw(state.p,{충전:3});return '에너지를 회수했다. 충전 +3.'}state.p.hp=Math.max(1,state.p.hp-5);return '기계가 갑자기 움직였다. 체력 5 감소.'}},{name:'배선에 손을 댄다',desc:'충전 +2',fn(){state.p.kw.충전+=2;return '배선에서 충전 +2.'}}]},
+{id:'machine',title:'고장 난 배달 기계',text:'낡은 배달 기계가 복도를 막고 있다. 내부에서 불규칙한 진동이 느껴진다.',actions:[{name:'기계를 밀어낸다',desc:'65% 확률로 충전 +3, 실패하면 체력 -5',fn(){if(Math.random()<.65){applyKw(state.p,{충전:3});return '에너지를 회수했다. 충전 +3.'}state.p.hp=Math.max(1,state.p.hp-5);return '기계가 갑자기 움직였다. 체력 5 감소.'}},{name:'배선에 손을 댄다',desc:'충전 +2',fn(){applyKw(state.p,{충전:2});return renoirModeEnabled?'보존 +2.':'충전 +2.'}}]},
 {id:'corridor',title:'핏자국이 남은 통로',text:'바닥에 말라붙은 핏자국이 이어진다. 벽 안쪽에서 긁는 소리가 들린다.',actions:[{name:'흔적을 조사한다',desc:'체력 -2, 출혈 +2',fn(){state.p.hp=Math.max(1,state.p.hp-2);state.p.kw.출혈+=2;return '파편에 베였다. 체력 2 감소, 출혈 +2.'}},{name:'빠르게 통과한다',desc:'25% 확률로 체력 -3',fn(){if(Math.random()<.25){state.p.hp=Math.max(1,state.p.hp-3);return '이상한 소리에 놀랐다. 체력 3 감소.'}return '숨을 죽이고 통로를 빠져나왔다.'}}]},
 {id:'fog',title:'검은 안개',text:'바닥에 검은 안개가 고인다. 안개 속에 서 있자 상대의 움직임이 둔해지는 상상이 든다.',actions:[{name:'안개를 모은다',desc:'침잠 +2',fn(){applyKw(state.p,{침잠:2});return '침잠 +2.'}},{name:'안개를 피해 돌아간다',desc:'체력 4 회복',fn(){state.p.hp=Math.min(state.p.max,state.p.hp+4);return '체력 4 회복.'}}]},
 {id:'embers',title:'불씨가 남은 작업대',text:'작업대 위에서 작은 불씨가 타오른다. 금속 도구가 붉게 달아올라 있다.',actions:[{name:'불씨를 옮긴다',desc:'화상 +2',fn(){applyKw(state.p,{화상:2});return '화상 +2.'}},{name:'금속을 챙긴다',desc:'충전 +2',fn(){applyKw(state.p,{충전:2});return '충전 +2.'}}]}
@@ -297,11 +297,19 @@ const fallbackPatchMarkdown = `# 패치 노트 · v1.3
 
 ## 전투 시스템
 - 로비에 테스터 모드와 르누아르 모드(임시)를 추가했습니다. 각 버튼을 누르면 해당 카드가 덱에 추가됩니다.
-- 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다.
-- 이제 공격 시작 이후로 카드를 선택할 수 없습니다.
+- 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다. 원 킥 사용 시 보존 7 이상이면 보존 7을 소모해 원 킥-쿠튀르 뮐티플을 즉시 발동하며, 변형 스킬은 덱에 별도로 추가되지 않습니다. 시즌 번호는 층을 넘어 연속으로 표시됩니다.
+- 충전은 이제 **방전 일격 카드를 실제로 사용할 때** 먼저 소모됩니다. 카드를 선택만 한 상태에서는 충전이 줄어들지 않습니다.
+- 방전 일격은 충전을 최대 3 소모해 소모량만큼 위력이 증가합니다. 공격이 빗나가더라도 카드 사용 시점에 소모된 충전은 돌아오지 않습니다.
+- 충전·호흡·침잠 등 자가 키워드 누적 처리를 통일해, 별도 제한이 없는 키워드는 정상적으로 누적됩니다. 잔향은 기존처럼 최대 30입니다.
+
+## 기존 전투 규칙
+- 알리우네는 라운드마다 3회, 르카키는 라운드마다 2회 행동합니다.
+- 플레이어 주사위는 오른쪽, 상대 주사위는 왼쪽에 표시됩니다.
+- 침잠은 공격자의 수치에 따라 최종 공격 위력을 감소시키며, 라운드 종료 시 양측 침잠이 2 감소합니다.
+- 지원 카드는 적중 여부와 관계없이 카드 사용만으로 자가 버프를 적용합니다.
 
 ## 사용 안내
-- 패치 노트는 첫 접속 시 표시되며, 상단의 패치 노트 버튼으로 언제든 다시 열 수 있습니다.
+- 패치 노트는 첫 접속 시 표시되며, 상단의 **패치 노트** 버튼으로 언제든 다시 열 수 있습니다.
 `;
 function markdownToSafeHtml(md){return md.split(/\n{2,}/).map(block=>{const t=block.trim();if(!t)return '';if(t.startsWith('# '))return `<h2>${escapePatch(t.slice(2))}</h2>`;if(t.startsWith('## '))return `<h2>${escapePatch(t.slice(3))}</h2>`;if(t.split('\n').every(x=>x.trim().startsWith('- ')))return `<ul>${t.split('\n').map(x=>`<li>${inlinePatch(x.trim().slice(2))}</li>`).join('')}</ul>`;return `<p>${t.split('\n').map(inlinePatch).join('<br>')}</p>`}).join('')}
 function escapePatch(x){return x.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
