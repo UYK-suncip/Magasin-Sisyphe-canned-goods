@@ -32,7 +32,12 @@
   .controls { flex-wrap: wrap; }
   .controls button { flex: 1 1 120px; }
 }
+
+.patch-backdrop{position:fixed;inset:0;z-index:9999;background:#05060bd9;display:grid;place-items:center;padding:16px;backdrop-filter:blur(5px)}
+.patch-modal{width:min(680px,100%);max-height:min(82vh,760px);overflow:auto;background:var(--panel);border:1px solid #555b70;border-radius:18px;box-shadow:0 24px 90px #0009;padding:clamp(18px,4vw,30px)}
+.patch-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:16px}.patch-kicker{color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.15em}.patch-title{font-size:clamp(23px,5vw,32px);margin:5px 0 0}.patch-body{line-height:1.75;color:#d8dbe5}.patch-body h2{font-size:16px;color:var(--gold);margin:20px 0 6px}.patch-body ul{padding-left:22px;margin:6px 0}.patch-body li{margin:4px 0}.patch-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:15px;margin-top:18px}.patch-close{background:var(--gold);border-color:var(--gold);color:#211b10;font-weight:850;min-width:120px}.patch-note{font-size:11px;color:var(--muted)}
 </style></head><body>
+<div id="patchBackdrop" class="patch-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="patchTitle"><section class="patch-modal"><div class="patch-top"><div><div class="patch-kicker">SIZIF DEPARTMENT STORE · UPDATE</div><h1 class="patch-title" id="patchTitle">패치 노트</h1></div><button id="patchX" class="secondary" aria-label="패치 노트 닫기">✕</button></div><div id="patchBody" class="patch-body"><p>패치 노트를 불러오는 중...</p></div><div class="patch-footer"><span class="patch-note">로비에 처음 접속했을 때 표시됩니다.</span><button id="patchClose" class="patch-close">확인하고 입장</button></div></section></div>
 <div class="app">
 <header class="top"><div><div class="brand">SIZIF DEPARTMENT STORE</div><div class="sub">시지프 백화점 · 텍스트 로그 v1.1</div></div><button id="resetTop" class="secondary">기록 초기화</button></header>
 <section id="intro" class="panel intro"><div class="brand">EXPLORATION MODE</div><h1>시지프 백화점</h1><p>층마다 최대 5개의 시즌을 통과해야 다음 층으로 이동할 수 있습니다. 각 시즌은 무작위로 정해진 5~7턴 동안 진행되며, 사건이 자동으로 발생하면 그 상황에 맞는 행동을 직접 선택합니다. 전투는 탐색 도중 무작위 사건으로 등장합니다.</p><div class="unit"><strong>탐색 규칙</strong><div class="meta">5개 시즌 완료 → 다음 층 이동 · 시즌당 5~7턴 · 일반 사건 및 시험 전투</div></div><button id="start" class="primary">탐색 시작</button><button id="directCombat" class="secondary" style="width:100%;margin-top:9px">알리우네와 전투</button><button id="testCombat" class="secondary" style="width:100%;margin-top:9px">테스트 몹과 전투</button><button id="rukakiCombat" class="secondary" style="width:100%;margin-top:9px">르카키와 전투</button><button id="openEvents" class="secondary hidden" style="width:100%;margin-top:9px">사건 선택 후 전투</button><div id="eventPicker" class="hidden" style="margin-top:16px;text-align:left"><div class="section-title">탐색 중 마주친 사건</div><p class="meta">사건을 선택하고 행동을 고르면 효과가 적용된 뒤 알리우네 전투가 시작됩니다. 정신력·자산처럼 이 전투판에 없는 수치는 체력 또는 전투 키워드 효과로 조정했습니다.</p><div id="eventChoices" class="cards"></div><div id="eventActions" class="hidden" style="margin-top:12px"></div><button id="closeEvents" class="secondary" style="width:100%;margin-top:8px">선택 취소</button></div></section>
@@ -238,5 +243,30 @@ function showEventPicker(){ $('eventPicker').classList.remove('hidden'); $('even
 function showEventActions(id){const e=importedEvents.find(x=>x.id===id);if(!e)return;const box=$('eventActions');box.classList.remove('hidden');box.innerHTML=`<h3>${e.title}</h3><p class="meta">${e.text}</p><div class="actions">${e.actions.map((a,i)=>`<button class="card" data-action="${i}"><h3>${a.name}</h3><p>${a.desc}</p></button>`).join('')}</div>`;box.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>startWithEvent(id,+b.dataset.action));}
 function startWithEvent(id,index){const e=importedEvents.find(x=>x.id===id);if(!e||!e.actions[index])return;const result=e.actions[index].effect();begin();if(result.hp)state.p.hp=Math.max(1,Math.min(state.p.max,state.p.hp+result.hp));if(result.kw)for(const [k,v] of Object.entries(result.kw))state.p.kw[k]=(state.p.kw[k]||0)+v;log(`<strong>사건 · ${e.title}</strong> — ${result.msg}`,result.hp<0?'bad':'good');$('intro').classList.add('hidden');$('game').classList.remove('hidden');render();}
 function begin(){state=fresh();state.enemyName='알리우네';state.enemyCaption='잔향과 진동을 다루는 특수 개체.';state.enemyPortrait='✿';state.enemyType='aliune';$('intro').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');$('attackDie').textContent='—';$('defenseDie').textContent='—';$('statusNote').textContent='카드를 선택하세요.';state.logs=[];log('특수 전투 시작 · 알리우네가 모습을 드러냈습니다. (라운드당 3회 행동)');render()}
+
+const fallbackPatchMarkdown = `# 패치 노트 · v1.7
+
+## 전투 시스템
+- 상대 행동 횟수를 고정했습니다. 알리우네는 라운드마다 3회, 르카키는 라운드마다 2회 행동합니다.
+- 플레이어 주사위는 오른쪽, 상대 주사위는 왼쪽에 표시됩니다.
+- 침잠은 4당 최종 공격 위력 -1로 적용됩니다.
+
+## 르카키
+- **때리기**: 위력 1 + 1d2, 진동 1 부여
+- **내리찍기**: 위력 1 + 1d3, 진동 1 부여 후 진동 폭발, 출혈 1 부여
+- 회피 주사위: 1d4
+
+## 사용 안내
+- 로비에 처음 접속하면 패치 노트가 표시됩니다.
+- 패치 노트를 닫으면 이후 로비 접속에서는 자동으로 다시 표시되지 않습니다.
+`;
+function markdownToSafeHtml(md){return md.split(/\n{2,}/).map(block=>{const t=block.trim();if(!t)return '';if(t.startsWith('# '))return `<h2>${escapePatch(t.slice(2))}</h2>`;if(t.startsWith('## '))return `<h2>${escapePatch(t.slice(3))}</h2>`;if(t.split('\n').every(x=>x.trim().startsWith('- ')))return `<ul>${t.split('\n').map(x=>`<li>${inlinePatch(x.trim().slice(2))}</li>`).join('')}</ul>`;return `<p>${t.split('\n').map(inlinePatch).join('<br>')}</p>`}).join('')}
+function escapePatch(x){return x.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function inlinePatch(x){return escapePatch(x).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>')}
+async function showPatchOnFirstLobbyVisit(){let seen=false;try{seen=localStorage.getItem('sizif_patch_seen_v1_7')==='yes'}catch(e){}if(seen)return;let md=fallbackPatchMarkdown;try{const res=await fetch('patch_notes.md',{cache:'no-store'});if(res.ok)md=await res.text()}catch(e){}$('patchBody').innerHTML=markdownToSafeHtml(md);$('patchBackdrop').classList.remove('hidden')}
+function closePatch(){ $('patchBackdrop').classList.add('hidden');try{localStorage.setItem('sizif_patch_seen_v1_7','yes')}catch(e){} }
+$('patchClose').onclick=closePatch;$('patchX').onclick=closePatch;$('patchBackdrop').addEventListener('click',e=>{if(e.target===$('patchBackdrop'))closePatch()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('patchBackdrop').classList.contains('hidden'))closePatch()});
+
 $('start').onclick=startExploration;$('directCombat').onclick=begin;$('testCombat').onclick=()=>startTestCombat(false);$('rukakiCombat').onclick=()=>startRukakiCombat(false);$('exploreRules').onclick=()=>alert('진동: 진동 폭발 시 수치만큼 추가 피해 후 소모. 호흡: 수치당 치명타 확률 5%, 치명타 시 피해 2배 후 호흡 1 소모. 침잠: 침잠이 걸린 자신의 공격 최종 위력을 수치당 1 감소. 출혈: 공격을 처리할 때 수치만큼 자신이 피해를 받고 1 감소. 화상: 각 행동 라운드 종료 시 수치만큼 피해, 1 감소. 충전: 방전 일격에서 최대 3 소모해 위력 강화.');$('skipExplore').onclick=()=>{if(confirm('탐색을 중단하고 시작 화면으로 돌아갈까요?')){$('explore').classList.add('hidden');$('intro').classList.remove('hidden')}};$('openEvents').onclick=showEventPicker;$('closeEvents').onclick=()=>{$('eventPicker').classList.add('hidden');$('eventActions').classList.add('hidden')};$('fight').onclick=startRound;$('clear').onclick=()=>{state.selected=[];$('statusNote').textContent='선택을 해제했습니다.';render()};$('next').onclick=()=>{if(run.active&&state.returnToExplore){$('game').classList.add('hidden');$('explore').classList.remove('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='전투에서 쓰러졌다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}run.logs.push(`시험 전투 종료 · ${state.done&&state.e.hp<=0?'승리':'전투 후 탐색 재개'}`);advanceExploreTurn();}else startTestCombat(false)};$('back').onclick=()=>{if(run.active){$('game').classList.add('hidden');$('explore').classList.remove('hidden')}else{$('game').classList.add('hidden');$('intro').classList.remove('hidden')}};$('resetTop').onclick=()=>{if(confirm('전투 기록을 초기화할까요?')){if(state){state.logs=[];renderFeed()}$('statusNote').textContent='기록이 초기화되었습니다.'}};
+showPatchOnFirstLobbyVisit();
 </script></body></html>

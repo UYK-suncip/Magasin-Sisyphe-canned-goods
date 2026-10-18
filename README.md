@@ -1,1 +1,0 @@
-# Magasin-Sisyphe-canned-goods
