@@ -24,7 +24,7 @@ const CARDS=[
 ];
 // No canonical enemies are loaded yet. This single dummy exists only to test combat.
 const TEST_ENEMY={name:'미등록 적 (시험용)',maxHp:34,attackPower:2,dice:'1d6',desc:'전투 규칙 확인용 임시 표적. 실제 적은 아직 등록하지 않았다.'};
-const fresh=()=>({floor:1,season:1,turn:1,seasonLength:5,hp:74,maxHp:74,sp:45,maxSp:45,asset:30,level:1,xp:0,deck:['slash','slash','heavy','evade','bleed','breath','vibration','sink','burn','charge','charged'],phase:'intro',seasonLog:[],event:null,enemy:null,enemyHp:0,enemyStatus:{vibration:0,breath:0,sink:0,bleed:0,burn:0,charge:0},playerStatus:{vibration:0,breath:0,sink:0,bleed:0,burn:0,charge:0},hand:[],selected:[],energy:3,round:1,playerEvade:[],summary:[],log:[],lastEvent:null,reward:null,routeDone:0});
+const fresh=()=>({floor:1,season:1,turn:1,seasonLength:5,hp:504,maxHp:504,sp:45,maxSp:45,asset:30,level:1,xp:0,deck:['slash','slash','heavy','evade','bleed','breath','vibration','sink','burn','charge','charged'],phase:'intro',seasonLog:[],event:null,enemy:null,enemyHp:0,enemyStatus:{vibration:0,breath:0,sink:0,bleed:0,burn:0,charge:0},playerStatus:{vibration:0,breath:0,sink:0,bleed:0,burn:0,charge:0},hand:[],selected:[],energy:3,round:1,playerEvade:[],summary:[],log:[],lastEvent:null,reward:null,routeDone:0});
 let S;try{S=JSON.parse(localStorage.getItem('sizifSaveV04'))||fresh()}catch(e){S=fresh()}
 function save(){localStorage.setItem('sizifSaveV04',JSON.stringify(S))}
 function rand(n){return Math.floor(Math.random()*n)}
