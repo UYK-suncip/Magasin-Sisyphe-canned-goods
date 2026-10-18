@@ -33,7 +33,7 @@
   .controls button { flex: 1 1 120px; }
 }
 
-.patch-backdrop{position:fixed;inset:0;z-index:9999;background:#05060bd9;display:grid;place-items:center;padding:16px;backdrop-filter:blur(5px)}
+.mode-added{border-color:#c9a85f!important;box-shadow:inset 3px 0 #c9a85f}.skill-note{font-size:11px;color:#91c9b7;margin-top:5px}.patch-backdrop{position:fixed;inset:0;z-index:9999;background:#05060bd9;display:grid;place-items:center;padding:16px;backdrop-filter:blur(5px)}
 .patch-modal{width:min(680px,100%);max-height:min(82vh,760px);overflow:auto;background:var(--panel);border:1px solid #555b70;border-radius:18px;box-shadow:0 24px 90px #0009;padding:clamp(18px,4vw,30px)}
 .patch-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:16px}.patch-kicker{color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.15em}.patch-title{font-size:clamp(23px,5vw,32px);margin:5px 0 0}.patch-body{line-height:1.75;color:#d8dbe5}.patch-body h2{font-size:16px;color:var(--gold);margin:20px 0 6px}.patch-body ul{padding-left:22px;margin:6px 0}.patch-body li{margin:4px 0}.patch-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:15px;margin-top:18px}.patch-close{background:var(--gold);border-color:var(--gold);color:#211b10;font-weight:850;min-width:120px}.patch-note{font-size:11px;color:var(--muted)}
 
@@ -43,7 +43,10 @@
 
 <div class="app">
 <header class="top"><div><div class="brand">SIZIF DEPARTMENT STORE</div><div class="sub">시지프 백화점 · 텍스트 로그 v1.1</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button id="openPatchAgain" class="secondary">패치 노트</button><button id="resetTop" class="secondary">기록 초기화</button></div></header>
-<section id="intro" class="panel intro"><div class="brand">EXPLORATION MODE</div><h1>시지프 백화점</h1><p>층마다 최대 5개의 시즌을 통과해야 다음 층으로 이동할 수 있습니다. 각 시즌은 무작위로 정해진 5~7턴 동안 진행되며, 사건이 자동으로 발생하면 그 상황에 맞는 행동을 직접 선택합니다. 전투는 탐색 도중 무작위 사건으로 등장합니다.</p><div class="unit"><strong>탐색 규칙</strong><div class="meta">5개 시즌 완료 → 다음 층 이동 · 시즌당 5~7턴 · 일반 사건 및 시험 전투</div></div><button id="start" class="primary">탐색 시작</button><button id="directCombat" class="secondary" style="width:100%;margin-top:9px">알리우네와 전투</button><button id="testCombat" class="secondary" style="width:100%;margin-top:9px">테스트 몹과 전투</button><button id="rukakiCombat" class="secondary" style="width:100%;margin-top:9px">르카키와 전투</button><button id="openEvents" class="secondary hidden" style="width:100%;margin-top:9px">사건 선택 후 전투</button><div id="eventPicker" class="hidden" style="margin-top:16px;text-align:left"><div class="section-title">탐색 중 마주친 사건</div><p class="meta">사건을 선택하고 행동을 고르면 효과가 적용된 뒤 알리우네 전투가 시작됩니다. 정신력·자산처럼 이 전투판에 없는 수치는 체력 또는 전투 키워드 효과로 조정했습니다.</p><div id="eventChoices" class="cards"></div><div id="eventActions" class="hidden" style="margin-top:12px"></div><button id="closeEvents" class="secondary" style="width:100%;margin-top:8px">선택 취소</button></div></section>
+<section id="intro" class="panel intro"><div class="brand">EXPLORATION MODE</div><h1>시지프 백화점</h1><p>층마다 최대 5개의 시즌을 통과해야 다음 층으로 이동할 수 있습니다. 각 시즌은 무작위로 정해진 5~7턴 동안 진행되며, 사건이 자동으로 발생하면 그 상황에 맞는 행동을 직접 선택합니다. 전투는 탐색 도중 무작위 사건으로 등장합니다.</p><div class="unit"><strong>탐색 규칙</strong><div class="meta">5개 시즌 완료 → 다음 층 이동 · 시즌당 5~7턴 · 일반 사건 및 시험 전투</div></div><button id="start" class="primary">탐색 시작</button><button id="directCombat" class="secondary" style="width:100%;margin-top:9px">알리우네와 전투</button><button id="testCombat" class="secondary" style="width:100%;margin-top:9px">테스트 몹과 전투</button><button id="rukakiCombat" class="secondary" style="width:100%;margin-top:9px">르카키와 전투</button>
+<button id="testerMode" class="secondary" style="width:100%;margin-top:18px;border-color:#c9a85f;color:#e5c77d">테스터 모드 · 카드 추가</button>
+<button id="renoirMode" class="secondary" style="width:100%;margin-top:9px;border-color:#91c9b7;color:#91c9b7">르누아르 모드 (임시) · 카드 추가</button>
+<div id="modeNotice" class="meta" style="margin-top:7px;text-align:center" aria-live="polite"></div><button id="openEvents" class="secondary hidden" style="width:100%;margin-top:9px">사건 선택 후 전투</button><div id="eventPicker" class="hidden" style="margin-top:16px;text-align:left"><div class="section-title">탐색 중 마주친 사건</div><p class="meta">사건을 선택하고 행동을 고르면 효과가 적용된 뒤 알리우네 전투가 시작됩니다. 정신력·자산처럼 이 전투판에 없는 수치는 체력 또는 전투 키워드 효과로 조정했습니다.</p><div id="eventChoices" class="cards"></div><div id="eventActions" class="hidden" style="margin-top:12px"></div><button id="closeEvents" class="secondary" style="width:100%;margin-top:8px">선택 취소</button></div></section>
 
 <section id="explore" class="panel hidden" style="max-width:900px;margin:20px auto">
   <div class="brand">SIZIF DEPARTMENT STORE</div>
@@ -77,6 +80,15 @@ const playerDeck=[
 {id:'discharge',name:'방전 일격',cost:1,power:2,dice:6,rolls:1,desc:'충전을 최대 3 소모해 수치만큼 위력 강화',kind:'charge'},
 {id:'vibeburst',name:'진동 폭발',cost:2,power:3,dice:6,rolls:1,desc:'대상의 진동을 모두 소모해 수치만큼 추가 피해',kind:'burst'},
 {id:'charge',name:'축전',cost:1,power:0,dice:0,rolls:0,desc:'공격하지 않고 충전 3 획득',kind:'support', self:{충전:3}}];
+const testerCards=[
+{id:'mom_hate',name:'엄마 미워 - 극 공간참',cost:1,power:999,dice:0,rolls:0,desc:'999+1d0 · 출혈 99 부여',kind:'attack',apply:{출혈:99},mode:'tester'},
+{id:'roja_axe',name:'로쟈의 도끼 던지기',cost:1,power:999,dice:0,rolls:0,desc:'999+1d0 · 침잠 99 부여',kind:'attack',apply:{침잠:99},mode:'tester'}];
+const renoirCards=[
+{id:'won_kick',name:'원 킥',cost:1,power:4,dice:3,rolls:3,desc:'4+3d3 · 진동 5 부여 · 진동폭발 · 보존 7 이상이면 보존 7 소모 후 원 킥-쿠튀르 뮐티플로 변경',kind:'burst',apply:{진동:5},transformAtUse:true,mode:'renoir'},
+{id:'won_kick_multi',name:'원 킥-쿠튀르 뮐티플',cost:1,power:5,dice:2,rolls:3,desc:'5+3d2 · 진동 4 부여 · 진동폭발 · 적중 시 2회 재사용',kind:'burst',apply:{진동:4},reuse:2,mode:'renoir'},
+{id:'dagadak',name:'다그닥, 쿵!',cost:1,power:5,dice:1,rolls:2,desc:'5+2d1 · 진동 3 부여 · 자신에게 진동폭발',kind:'selfburst',apply:{진동:3},mode:'renoir'}];
+let testerModeEnabled=false,renoirModeEnabled=false;
+function addModeCards(cards,mode){let added=0;for(const c of cards){if(!playerDeck.some(x=>x.id===c.id)){playerDeck.push({...c});added++;}}if(mode==='renoir')renoirModeEnabled=true;const n=$('modeNotice');if(n)n.textContent=added?`모드 활성화 · 덱에 카드 ${added}장 추가됨`:'모드 활성화 · 해당 카드가 이미 덱에 있습니다.';$(mode==='tester'?'testerMode':'renoirMode').textContent=mode==='tester'?'테스터 모드 ✓':'르누아르 모드 (임시) ✓';$(mode==='tester'?'testerMode':'renoirMode').classList.add('mode-added');}
 const bossDeck=[
 {id:'spring',name:'봄의 탄생',power:4,dice:4,rolls:2,desc:'위력 4 + 2d4 · 침잠 2, 진동 2, 잔향 2 부여',apply:{침잠:2,진동:2,잔향:2}},
 {id:'doll',name:'사람이 되고 싶었던 인형',power:6,dice:5,rolls:2,desc:'위력 6 + 2d5 · 진동 폭발, 침잠만큼 추가 피해 · 잔향 2 부여',kind:'burst',apply:{잔향:2, 침잠:-999}},
@@ -91,7 +103,7 @@ const rukakiDeck=[
 {id:'rukaki_slam',name:'내리찍기',power:1,dice:3,rolls:1,desc:'위력 1 + 1d3 · 진동 1 부여 · 진동 폭발 · 출혈 1 부여',kind:'burst',apply:{진동:1,출혈:1}}
 ];
 function drawHand(){const pool=[...playerDeck];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,4).map(c=>c.id)}
-function fresh(){return {p:{hp:876,max:876,speed:4,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0}},e:{hp:180,max:180,speed:3,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0}},enemyName:'알리우네',enemyCaption:'잔향과 진동을 다루는 특수 개체.',enemyPortrait:'✿',enemyType:'aliune',light:4,round:1,selected:[],hand:drawHand(),done:false,logs:[],last:null}}
+function fresh(){return {p:{hp:876,max:876,speed:4,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0}},e:{hp:180,max:180,speed:3,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0}},enemyName:'알리우네',enemyCaption:'잔향과 진동을 다루는 특수 개체.',enemyPortrait:'✿',enemyType:'aliune',light:4,round:1,selected:[],hand:drawHand(),done:false,logs:[],last:null}}
 function rand(n){return Math.floor(Math.random()*n)+1}function roll(n,count=1){let a=[];for(let i=0;i<count;i++)a.push(rand(n));return a}function sum(a){return a.reduce((x,y)=>x+y,0)}function log(s,type=''){state.logs.unshift({s,type});state.logs=state.logs.slice(0,24);renderFeed();const box=$('actionResult');if(box){box.className='action-result '+type;box.innerHTML=`<strong>전투 기록</strong><span>${s.replace(/<[^>]*>/g,'')}</span>`}}
 function renderFeed(){$('feed').innerHTML=state.logs.map(x=>`<div class="logline ${x.type}">${x.s}</div>`).join('')}
 function kwHtml(obj){return Object.entries(obj).filter(([k,v])=>v>0).map(([k,v])=>`<span class="tag">${k} <strong>${v}</strong></span>`).join('')||'<span class="tag">상태 없음</span>'}
@@ -99,7 +111,7 @@ function render(){let p=state.p,e=state.e;const selectedCost=state.selected.redu
 function toggle(id){if(state.done)return;let c=playerDeck.find(x=>x.id===id);if(!c||!state.hand.includes(id))return;if(state.selected.includes(id))state.selected=state.selected.filter(x=>x!==id);else if(state.selected.length>=4){return;}else if(state.selected.reduce((a,x)=>a+(playerDeck.find(card=>card.id===x)?.cost||0),0)+c.cost<=state.light)state.selected.push(id);render()}
 const wait=ms=>new Promise(r=>setTimeout(r,ms));async function diceAnim(el,n,count){el.classList.add('rolling');for(let i=0;i<7;i++){el.textContent=sum(roll(n,count));await wait(55)}el.classList.remove('rolling');let a=roll(n,count);el.textContent=sum(a);return sum(a)}
 function damage(target,n){if(n<=0)return 0;let actual=Math.min(target.hp,n);target.hp=Math.max(0,target.hp-n);return actual}
-function applyKw(target,obj){if(!target||!target.kw||!obj)return [];let out=[];for(const [k,raw] of Object.entries(obj)){const v=Number(raw);if(!Number.isFinite(v)||v===0)continue;const before=Number(target.kw[k])||0;const cap=k==='잔향'?30:Infinity;const after=Math.max(0,Math.min(cap,before+v));target.kw[k]=after;const delta=after-before;if(delta>0)out.push(`${k} ${delta}`);else if(delta<0)out.push(`${k} ${delta}`);if(k==='잔향'&&before+v>30)log('잔향 최대치 30 도달 · 초과분은 적용되지 않습니다.')}return out}
+function applyKw(target,obj){if(!target||!target.kw||!obj)return [];let out=[];for(let [k,raw] of Object.entries(obj)){if(target===state.p&&renoirModeEnabled&&k==='충전')k='보존';const v=Number(raw);if(!Number.isFinite(v)||v===0)continue;const before=Number(target.kw[k])||0;const cap=k==='잔향'?30:Infinity;const after=Math.max(0,Math.min(cap,before+v));target.kw[k]=after;const delta=after-before;if(delta>0)out.push(`${k} ${delta}`);else if(delta<0)out.push(`${k} ${delta}`);if(k==='잔향'&&before+v>30)log('잔향 최대치 30 도달 · 초과분은 적용되지 않습니다.')}return out}
 function addLog(s,type=''){log(s,type)}
 function setActionMessage(message,type=''){const box=$('actionResult');if(!box)return;box.className='action-result '+type;box.innerHTML=`<strong>전투 기록</strong><span>${String(message).replace(/<[^>]*>/g,'')}</span>`;}
 async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
@@ -128,10 +140,11 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  if(isPlayer){$('attackLabel').textContent=attackText;$('defenseLabel').textContent=`회피 ${dodgeCount}d${dodgeSides} (${dodgeDice.join('+')})`;}else{$('defenseLabel').textContent=attackText;$('attackLabel').textContent=`회피 ${dodgeCount}d${dodgeSides} (${dodgeDice.join('+')})`;}await wait(420);
  if(atk>dodge){
    let extra=0;
-   if(card.kind==='burst'){if(card.id==='rukaki_slam'){applyKw(defender,{진동:1});log(`${isPlayer?state.enemyName:'당신'} · 진동 1 부여`,'good');}extra=defender.kw.진동||0;defender.kw.진동=0;if(extra)log(`${isPlayer?state.enemyName:'당신'}의 진동 폭발! 진동 ${extra} 소모 · 추가 피해 ${extra}`,'good');}
+   if(card.kind==='burst'||card.kind==='selfburst'){const burstTarget=card.kind==='selfburst'?attacker:defender;if(card.kind==='burst'&&card.id==='rukaki_slam'){applyKw(defender,{진동:1});log(`${isPlayer?state.enemyName:'당신'} · 진동 1 부여`,'good');}if(card.kind==='selfburst')applyKw(attacker,{진동:3});extra=burstTarget.kw.진동||0;burstTarget.kw.진동=0;if(extra)log(`${burstTarget===attacker?(isPlayer?'당신':state.enemyName): (isPlayer?state.enemyName:'당신')}의 진동 폭발! 진동 ${extra} 소모 · 추가 피해 ${extra}`,'good');}
    let crit=false, critChance=Math.min(100,(attacker.kw.호흡||0)*5);
    if(critChance>0 && Math.random()*100<critChance){crit=true;attacker.kw.호흡=Math.max(0,attacker.kw.호흡-1);}
-   let dealt=damage(defender,(atk+extra)*(crit?2:1));
+   let dealt=damage(defender,(atk+(card.kind==='selfburst'?0:extra))*(crit?2:1));
+   if(card.kind==='selfburst'&&extra){const selfDamage=damage(attacker,extra);log(`${isPlayer?'당신':state.enemyName} 자신에게 진동폭발 · 피해 ${selfDamage}`,'bad');if(attacker.hp<=0)finish(!isPlayer);}
    let applied=applyKw(defender,card.id==='rukaki_slam'?{출혈:1}:card.apply);
 
    if(card.self)applyKw(attacker,card.self);
@@ -147,10 +160,17 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
    log(`${isPlayer?state.enemyName:'당신'} 회피 성공 — 공격 ${atk}, 회피 ${dodge}`);
  }
  if(card.ultimate && attacker===state.e && state.enemyType!=='test'){const consumed=attacker.kw.잔향||0;attacker.kw.잔향=0;log(`알리우네의 궁극기 사용 · 잔향 ${consumed} 전부 제거`,'good');}
- render();await wait(520);
+ render();await wait(520);return atk>dodge;
 }
 function payCardUseCost(attacker,card,isPlayer){if(card.kind!=='charge')return 0;const spent=Math.min(3,Math.max(0,Number(attacker.kw.충전)||0));if(spent>0)attacker.kw.충전-=spent;return spent}
 async function useSupport(card){if(state.done)return;applyKw(state.p,card.self||{});log(`<strong>당신</strong> · ${card.name} 사용 — ${(Object.entries(card.self||{}).map(([k,v])=>`${k} +${v}`)).join(', ')||'효과 없음'}`,'good');$('arenaName').textContent='당신의 준비';$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('defenseSkillName').textContent='공격 없음';$('attackDie').textContent='—';$('defenseDie').textContent='—';$('attackLabel').textContent='비공격 스킬';$('defenseLabel').textContent='공격 없음';setActionMessage(`${card.name} · ${Object.entries(card.self||{}).map(([k,v])=>`${k} +${v}`).join(', ')}`,'good');render();await wait(420)}
+async function usePlayerCard(originalCard){
+ let card=originalCard;
+ if(card.transformAtUse&&(state.p.kw.보존||0)>=7){state.p.kw.보존-=7;card=playerDeck.find(c=>c.id==='won_kick_multi')||card;log('보존 7 소모 · 원 킥이 원 킥-쿠튀르 뮐티플로 변경되었다.','good');}
+ const chargeSpent=payCardUseCost(state.p,card,true);
+ let hit=card.kind==='support'?(await useSupport(card),true):await strike(state.p,state.e,card,true,chargeSpent);
+ if(card.reuse&&hit&&!state.done){for(let i=0;i<card.reuse&&state.e.hp>0&&!state.done;i++){await wait(180);log(`${card.name} · 재사용 ${i+1}/${card.reuse}`,'good');await strike(state.p,state.e,card,true,0);}}
+}
 function enemyActionCount(){if(state.enemyType==='aliune')return 3;if(state.enemyType==='rukaki')return 2;return 1}
 function bossCard(){if(state.enemyType==='rukaki')return rukakiDeck[Math.floor(Math.random()*rukakiDeck.length)];if(state.enemyType==='test')return testEnemyDeck[Math.floor(Math.random()*testEnemyDeck.length)];let target=state.p;if((target.kw.잔향||0)>=30)return bossDeck[3];return bossDeck[Math.floor(Math.random()*3)]}
 const testEnemyDeck=[
@@ -168,9 +188,9 @@ async function startRound(){
  const slots=Math.max(chosen.length,enemyActs);
  let playerIndex=0, enemyIndex=0;
  for(let i=0;i<slots&&!state.done;i++){
-   if(playerFirst && playerIndex<chosen.length){const c=chosen[playerIndex++];if(c.kind==='support')await useSupport(c);else{const chargeSpent=payCardUseCost(state.p,c,true);await strike(state.p,state.e,c,true,chargeSpent);}if(state.e.hp<=0){finish(true);break}}
+   if(playerFirst && playerIndex<chosen.length){const c=chosen[playerIndex++];await usePlayerCard(c);if(state.e.hp<=0){finish(true);break}}
    if(enemyIndex<enemyActs && !state.done){await strike(state.e,state.p,bossCard(),false);enemyIndex++;if(state.p.hp<=0){finish(false);break}}
-   if(!playerFirst && playerIndex<chosen.length && !state.done){const c=chosen[playerIndex++];if(c.kind==='support')await useSupport(c);else{const chargeSpent=payCardUseCost(state.p,c,true);await strike(state.p,state.e,c,true,chargeSpent);}if(state.e.hp<=0){finish(true);break}}
+   if(!playerFirst && playerIndex<chosen.length && !state.done){const c=chosen[playerIndex++];await usePlayerCard(c);if(state.e.hp<=0){finish(true);break}}
  }
  if(!state.done){
    await wait(550);
@@ -252,7 +272,7 @@ function advanceExploreTurn(){
 }
 function startTestCombat(fromExplore=false){
  const carriedPlayer=(run.active&&fromExplore&&state)?state.p:null;
- state=fresh();if(carriedPlayer)state.p=carriedPlayer;state.e={hp:testEnemy.hp,max:testEnemy.max,speed:testEnemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0}};state.enemyName=testEnemy.name;state.enemyCaption=testEnemy.caption;state.enemyPortrait=testEnemy.portrait;state.enemyType='test';
+ state=fresh();if(carriedPlayer)state.p=carriedPlayer;state.e={hp:testEnemy.hp,max:testEnemy.max,speed:testEnemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0}};state.enemyName=testEnemy.name;state.enemyCaption=testEnemy.caption;state.enemyPortrait=testEnemy.portrait;state.enemyType='test';
  $('enemyUnit').querySelector('.unit-head span').textContent='■ 길 잃은 점원';
  $('intro').classList.add('hidden');$('explore').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');
  state.logs=[];log('시험 전투 시작 · 길 잃은 점원이 길을 막아섰다.');render();
@@ -260,7 +280,7 @@ function startTestCombat(fromExplore=false){
 }
 function startRukakiCombat(fromExplore=false){
  const carriedPlayer=(run.active&&fromExplore&&state)?state.p:null;
- state=fresh();if(carriedPlayer)state.p=carriedPlayer;state.e={hp:rukakiEnemy.hp,max:rukakiEnemy.max,speed:rukakiEnemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0}};state.enemyName=rukakiEnemy.name;state.enemyCaption=rukakiEnemy.caption;state.enemyPortrait=rukakiEnemy.portrait;state.enemyType='rukaki';
+ state=fresh();if(carriedPlayer)state.p=carriedPlayer;state.e={hp:rukakiEnemy.hp,max:rukakiEnemy.max,speed:rukakiEnemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0}};state.enemyName=rukakiEnemy.name;state.enemyCaption=rukakiEnemy.caption;state.enemyPortrait=rukakiEnemy.portrait;state.enemyType='rukaki';
  $('intro').classList.add('hidden');$('explore').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');
  state.logs=[];log('전투 시작 · 르카키가 길을 막아섰다. (라운드당 2회 행동)');render();state.returnToExplore=fromExplore;
 }
@@ -270,11 +290,11 @@ function startWithEvent(id,index){const e=importedEvents.find(x=>x.id===id);if(!
 function begin(){$('gameOverModal').classList.add('hidden');state=fresh();state.enemyName='알리우네';state.enemyCaption='잔향과 진동을 다루는 특수 개체.';state.enemyPortrait='✿';state.enemyType='aliune';$('intro').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');$('attackDie').textContent='—';$('defenseDie').textContent='—';state.logs=[];log('특수 전투 시작 · 알리우네가 모습을 드러냈습니다. (라운드당 3회 행동)');render()}
 
 
-const fallbackPatchMarkdown = `# 패치 노트 · v1.2
+const fallbackPatchMarkdown = `# 패치 노트 · v1.3
 
-## 전투 시스템\n
-- 이제 명상을 해도 침잠이 쌓이지 않습니다.\n
-- 이제 스킬 주사위 위에 스킬 이름이 표시됩니다.
+## 전투 시스템
+- 로비에 테스터 모드와 르누아르 모드(임시)를 추가했습니다. 각 버튼을 누르면 해당 카드가 덱에 추가됩니다.
+- 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다. 원 킥 변형 및 진동폭발/재사용 효과를 추가했습니다.
 
 ## 사용 안내\n
 - 패치 노트는 첫 접속 시 표시되며, 상단의 패치 노트 버튼으로 언제든 다시 열 수 있습니다.
@@ -286,6 +306,6 @@ async function showPatchOnFirstLobbyVisit(){let seen=false;try{seen=localStorage
 function closePatch(){$('patchBackdrop').classList.add('hidden');try{localStorage.setItem('sizif_patch_seen_v1_2','yes')}catch(e){}}
 $('openPatchAgain').onclick=()=>{$('patchBody').innerHTML=markdownToSafeHtml(fallbackPatchMarkdown);$('patchBackdrop').classList.remove('hidden')};$('patchClose').onclick=closePatch;$('patchX').onclick=closePatch;$('patchBackdrop').addEventListener('click',e=>{if(e.target===$('patchBackdrop'))closePatch()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('patchBackdrop').classList.contains('hidden'))closePatch()});
 
-$('gameOverExit').onclick=()=>{$('gameOverModal').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.add('hidden');$('intro').classList.remove('hidden');run.active=false;};$('start').onclick=startExploration;$('directCombat').onclick=begin;$('testCombat').onclick=()=>startTestCombat(false);$('rukakiCombat').onclick=()=>startRukakiCombat(false);$('exploreRules').onclick=()=>alert('진동: 진동 폭발 시 수치만큼 추가 피해 후 소모. 호흡: 수치당 치명타 확률 5%, 치명타 시 피해 2배 후 호흡 1 소모. 침잠: 침잠이 걸린 자신의 공격 최종 위력을 수치당 1 감소. 출혈: 공격을 처리할 때 수치만큼 자신이 피해를 받고 1 감소. 화상: 각 행동 라운드 종료 시 수치만큼 피해, 1 감소. 충전: 방전 일격에서 최대 3 소모해 위력 강화.');$('skipExplore').onclick=()=>{if(confirm('탐색을 중단하고 시작 화면으로 돌아갈까요?')){$('explore').classList.add('hidden');$('intro').classList.remove('hidden')}};$('openEvents').onclick=showEventPicker;$('closeEvents').onclick=()=>{$('eventPicker').classList.add('hidden');$('eventActions').classList.add('hidden')};$('fight').onclick=startRound;$('clear').onclick=()=>{state.selected=[];setActionMessage('선택을 해제했습니다.');render()};$('next').onclick=()=>{if(run.active&&state.returnToExplore){$('game').classList.add('hidden');$('explore').classList.remove('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='전투에서 쓰러졌다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}run.logs.push(`시험 전투 종료 · ${state.done&&state.e.hp<=0?'승리':'전투 후 탐색 재개'}`);advanceExploreTurn();}else startTestCombat(false)};$('back').onclick=()=>{if(run.active){$('game').classList.add('hidden');$('explore').classList.remove('hidden')}else{$('game').classList.add('hidden');$('intro').classList.remove('hidden')}};$('resetTop').onclick=()=>{if(confirm('전투 기록을 초기화할까요?')){if(state){state.logs=[];renderFeed()}setActionMessage('기록이 초기화되었습니다.')}};
+$('gameOverExit').onclick=()=>{$('gameOverModal').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.add('hidden');$('intro').classList.remove('hidden');run.active=false;};$('testerMode').onclick=()=>addModeCards(testerCards,'tester');$('renoirMode').onclick=()=>addModeCards(renoirCards,'renoir');$('start').onclick=startExploration;$('directCombat').onclick=begin;$('testCombat').onclick=()=>startTestCombat(false);$('rukakiCombat').onclick=()=>startRukakiCombat(false);$('exploreRules').onclick=()=>alert('진동: 진동 폭발 시 수치만큼 추가 피해 후 소모. 호흡: 수치당 치명타 확률 5%, 치명타 시 피해 2배 후 호흡 1 소모. 침잠: 침잠이 걸린 자신의 공격 최종 위력을 수치당 1 감소. 출혈: 공격을 처리할 때 수치만큼 자신이 피해를 받고 1 감소. 화상: 각 행동 라운드 종료 시 수치만큼 피해, 1 감소. 충전: 방전 일격에서 최대 3 소모해 위력 강화. 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다. 보존: 원 킥 변형에 사용됩니다.');$('skipExplore').onclick=()=>{if(confirm('탐색을 중단하고 시작 화면으로 돌아갈까요?')){$('explore').classList.add('hidden');$('intro').classList.remove('hidden')}};$('openEvents').onclick=showEventPicker;$('closeEvents').onclick=()=>{$('eventPicker').classList.add('hidden');$('eventActions').classList.add('hidden')};$('fight').onclick=startRound;$('clear').onclick=()=>{state.selected=[];setActionMessage('선택을 해제했습니다.');render()};$('next').onclick=()=>{if(run.active&&state.returnToExplore){$('game').classList.add('hidden');$('explore').classList.remove('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='전투에서 쓰러졌다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}run.logs.push(`시험 전투 종료 · ${state.done&&state.e.hp<=0?'승리':'전투 후 탐색 재개'}`);advanceExploreTurn();}else startTestCombat(false)};$('back').onclick=()=>{if(run.active){$('game').classList.add('hidden');$('explore').classList.remove('hidden')}else{$('game').classList.add('hidden');$('intro').classList.remove('hidden')}};$('resetTop').onclick=()=>{if(confirm('전투 기록을 초기화할까요?')){if(state){state.logs=[];renderFeed()}setActionMessage('기록이 초기화되었습니다.')}};
 
 </script></body></html>
