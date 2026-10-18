@@ -85,7 +85,7 @@ const testerCards=[
 {id:'roja_axe',name:'로쟈의 도끼 던지기',cost:1,power:999,dice:0,rolls:0,desc:'999+1d0 · 침잠 99 부여',kind:'attack',apply:{침잠:99},mode:'tester'}];
 const renoirCards=[
 {id:'won_kick',name:'원 킥',cost:1,power:4,dice:3,rolls:3,desc:'4+3d3 · 진동 5 부여 · 진동폭발 · 보존 7 이상이면 보존 7 소모 후 원 킥-쿠튀르 뮐티플로 변경',kind:'burst',apply:{진동:5},transformAtUse:true,mode:'renoir'},
-{id:'won_kick_multi',name:'원 킥-쿠튀르 뮐티플',cost:1,power:5,dice:2,rolls:3,desc:'5+3d2 · 진동 4 부여 · 진동폭발 · 적중 시 2회 재사용',kind:'burst',apply:{진동:4},reuse:2,mode:'renoir'},
+
 {id:'dagadak',name:'다그닥, 쿵!',cost:1,power:5,dice:1,rolls:2,desc:'5+2d1 · 진동 3 부여 · 자신에게 진동폭발',kind:'selfburst',apply:{진동:3},mode:'renoir'}];
 let testerModeEnabled=false,renoirModeEnabled=false;
 function addModeCards(cards,mode){let added=0;for(const c of cards){if(!playerDeck.some(x=>x.id===c.id)){playerDeck.push({...c});added++;}}if(mode==='renoir')renoirModeEnabled=true;const n=$('modeNotice');if(n)n.textContent=added?`모드 활성화 · 덱에 카드 ${added}장 추가됨`:'모드 활성화 · 해당 카드가 이미 덱에 있습니다.';$(mode==='tester'?'testerMode':'renoirMode').textContent=mode==='tester'?'테스터 모드 ✓':'르누아르 모드 (임시) ✓';$(mode==='tester'?'testerMode':'renoirMode').classList.add('mode-added');}
@@ -166,7 +166,7 @@ function payCardUseCost(attacker,card,isPlayer){if(card.kind!=='charge')return 0
 async function useSupport(card){if(state.done)return;applyKw(state.p,card.self||{});log(`<strong>당신</strong> · ${card.name} 사용 — ${(Object.entries(card.self||{}).map(([k,v])=>`${k} +${v}`)).join(', ')||'효과 없음'}`,'good');$('arenaName').textContent='당신의 준비';$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('defenseSkillName').textContent='공격 없음';$('attackDie').textContent='—';$('defenseDie').textContent='—';$('attackLabel').textContent='비공격 스킬';$('defenseLabel').textContent='공격 없음';setActionMessage(`${card.name} · ${Object.entries(card.self||{}).map(([k,v])=>`${k} +${v}`).join(', ')}`,'good');render();await wait(420)}
 async function usePlayerCard(originalCard){
  let card=originalCard;
- if(card.transformAtUse&&(state.p.kw.보존||0)>=7){state.p.kw.보존-=7;card=playerDeck.find(c=>c.id==='won_kick_multi')||card;log('보존 7 소모 · 원 킥이 원 킥-쿠튀르 뮐티플로 변경되었다.','good');}
+ if(card.transformAtUse&&(state.p.kw.보존||0)>=7){state.p.kw.보존-=7;card={id:'won_kick_multi_runtime',name:'원 킥-쿠튀르 뮐티플',cost:originalCard.cost,power:5,dice:2,rolls:3,desc:'5+3d2 · 진동 4 부여 · 진동폭발 · 적중 시 2회 재사용',kind:'burst',apply:{진동:4},reuse:2,mode:'renoir'};log('보존 7 소모 · 원 킥 대신 원 킥-쿠튀르 뮐티플 발동!','good');}
  const chargeSpent=payCardUseCost(state.p,card,true);
  let hit=card.kind==='support'?(await useSupport(card),true):await strike(state.p,state.e,card,true,chargeSpent);
  if(card.reuse&&hit&&!state.done){for(let i=0;i<card.reuse&&state.e.hp>0&&!state.done;i++){await wait(180);log(`${card.name} · 재사용 ${i+1}/${card.reuse}`,'good');await strike(state.p,state.e,card,true,0);}}
@@ -246,7 +246,7 @@ function nextExploreEvent(){
  else {const pool=exploreEvents.filter(e=>!run.lastEvent||e.id!==run.lastEvent);run.event=pool[Math.floor(Math.random()*pool.length)];run.lastEvent=run.event.id;}
 }
 function renderExplore(){
- $('exploreTitle').textContent=`${run.floor}층 · 시즌 ${run.season}/5`;
+ $('exploreTitle').textContent=`${run.floor}층 · 시즌 ${(run.floor-1)*5+run.season} (${run.season}/5)`;
  $('exploreProgress').textContent=`${run.turn}턴 / ${run.length}턴 · 체력 ${state.p.hp}/${state.p.max}`;
  $('seasonBar').style.width=`${100*run.turn/run.length}%`;
  $('eventTitle').textContent=run.event.title;$('eventText').textContent=run.event.text;
@@ -257,7 +257,7 @@ function renderExplore(){
 }
 function resolveExploreAction(i){
  const ev=run.event,a=ev.actions[i];if(!a)return;const result=a.fn();
- run.logs.push(`시즌 ${run.season} · ${run.turn}턴 — ${ev.title}: ${a.name}. ${result}`);
+ run.logs.push(`시즌 ${(run.floor-1)*5+run.season} · ${run.turn}턴 — ${ev.title}: ${a.name}. ${result}`);
  if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}
  advanceExploreTurn();
 }
@@ -265,8 +265,8 @@ function advanceExploreTurn(){
  run.turn++;
  if(run.turn>run.length){
    run.season++;
-   if(run.season>5){$('eventTitle').textContent=`${run.floor}층 탐색 완료`;$('eventText').textContent='다섯 시즌을 모두 통과했다. 다음 층으로 향하는 문이 열렸다.';$('exploreActions').innerHTML='<button class="card" id="nextFloor"><h3>다음 층으로 이동</h3><p>다음 층의 첫 시즌을 시작한다.</p></button>';$('nextFloor').onclick=()=>{run.floor++;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.logs.push(`— ${run.floor}층 진입 —`);nextExploreEvent();renderExplore();};$('exploreProgress').textContent='층 이동 가능';return;}
-   run.turn=1;run.length=5+Math.floor(Math.random()*3);run.logs.push(`— 시즌 ${run.season} 시작 (${run.length}턴) —`);
+   if(run.season>5){$('eventTitle').textContent=`${run.floor}층 탐색 완료`;$('eventText').textContent='다섯 시즌을 모두 통과했다. 다음 층으로 향하는 문이 열렸다.';$('exploreActions').innerHTML='<button class="card" id="nextFloor"><h3>다음 층으로 이동</h3><p>다음 층의 첫 시즌을 시작한다.</p></button>';$('nextFloor').onclick=()=>{run.floor++;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.logs.push(`— ${run.floor}층 진입 · 시즌 ${(run.floor-1)*5+1} 시작 —`);nextExploreEvent();renderExplore();};$('exploreProgress').textContent='층 이동 가능';return;}
+   run.turn=1;run.length=5+Math.floor(Math.random()*3);run.logs.push(`— 시즌 ${(run.floor-1)*5+run.season} 시작 (${run.length}턴) —`);
  }
  nextExploreEvent();renderExplore();
 }
@@ -294,9 +294,10 @@ const fallbackPatchMarkdown = `# 패치 노트 · v1.3
 
 ## 전투 시스템
 - 로비에 테스터 모드와 르누아르 모드(임시)를 추가했습니다. 각 버튼을 누르면 해당 카드가 덱에 추가됩니다.
-- 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다. 원 킥 변형 및 진동폭발/재사용 효과를 추가했습니다.
+- 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다.
+-시즌 번호는 층을 넘어 연속으로 표시됩니다.
 
-## 사용 안내\n
+## 사용 안내
 - 패치 노트는 첫 접속 시 표시되며, 상단의 패치 노트 버튼으로 언제든 다시 열 수 있습니다.
 `;
 function markdownToSafeHtml(md){return md.split(/\n{2,}/).map(block=>{const t=block.trim();if(!t)return '';if(t.startsWith('# '))return `<h2>${escapePatch(t.slice(2))}</h2>`;if(t.startsWith('## '))return `<h2>${escapePatch(t.slice(3))}</h2>`;if(t.split('\n').every(x=>x.trim().startsWith('- ')))return `<ul>${t.split('\n').map(x=>`<li>${inlinePatch(x.trim().slice(2))}</li>`).join('')}</ul>`;return `<p>${t.split('\n').map(inlinePatch).join('<br>')}</p>`}).join('')}
