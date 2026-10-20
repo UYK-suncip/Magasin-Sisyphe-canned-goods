@@ -44,7 +44,7 @@
 <div id="patchBackdrop" class="patch-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="patchTitle"><section class="patch-modal"><div class="patch-top"><div><div class="patch-kicker">SIZIF DEPARTMENT STORE · UPDATE</div><h1 class="patch-title" id="patchTitle">패치 노트</h1></div><button id="patchX" class="secondary" aria-label="패치 노트 닫기">✕</button></div><div id="patchBody" class="patch-body"><p>패치 노트를 불러오는 중...</p></div><div class="patch-footer"><span class="patch-note">로비에 처음 접속했을 때 표시됩니다.</span><button id="patchClose" class="patch-close">확인하고 입장</button></div></section></div>
 
 <div class="app">
-<header class="top"><div><div class="brand">SIZIF DEPARTMENT STORE</div><div class="sub">시지프 백화점 · 텍스트 로그 v1.10</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button id="openPatchAgain" class="secondary">패치 노트</button><button id="resetTop" class="secondary">기록 초기화</button></div></header>
+<header class="top"><div><div class="brand">SIZIF DEPARTMENT STORE</div><div class="sub">시지프 백화점 · 텍스트 로그 v1.1</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button id="openPatchAgain" class="secondary">패치 노트</button><button id="resetTop" class="secondary">기록 초기화</button></div></header>
 <section id="intro" class="panel intro"><div class="brand">EXPLORATION MODE</div><h1>시지프 백화점</h1><p>층마다 최대 5개의 시즌을 통과해야 다음 층으로 이동할 수 있습니다. 각 시즌은 무작위로 정해진 5~7턴 동안 진행되며, 사건이 자동으로 발생하면 그 상황에 맞는 행동을 직접 선택합니다. 전투는 탐색 도중 무작위 사건으로 등장합니다.</p><div class="unit"><strong>탐색 규칙</strong><div class="meta">5개 시즌 완료 → 다음 층 이동 · 시즌당 5~7턴 · 일반 사건 및 시험 전투</div></div><button id="start" class="primary">탐색 시작</button><button id="directCombat" class="secondary" style="width:100%;margin-top:9px">알리우네와 전투</button><button id="testCombat" class="secondary" style="width:100%;margin-top:9px">테스트 몹과 전투</button><button id="rukakiCombat" class="secondary" style="width:100%;margin-top:9px">르카키와 전투</button>
 <button id="testerMode" class="secondary" style="width:100%;margin-top:18px;border-color:#c9a85f;color:#e5c77d">테스터 모드 · 카드 추가</button>
 <button id="renoirMode" class="secondary" style="width:100%;margin-top:9px;border-color:#91c9b7;color:#91c9b7">르누아르 모드 (임시) · 카드 추가</button>
@@ -52,7 +52,7 @@
 
 <section id="explore" class="panel hidden" style="max-width:900px;margin:20px auto">
   <div class="brand">SIZIF DEPARTMENT STORE</div>
-  <div class="section-title">탐색 진행</div>
+  <div class="section-title">탐색 진행</div><div class="controls" style="margin:0 0 10px"><div class="light-ui" style="flex:1"><span class="light-ui-label">눈알</span><span id="eyeCount" class="light-count">0</span></div><button id="openInventory" class="secondary">아이템</button></div>
   <h1 id="exploreTitle">1층 · 시즌 1/5</h1>
   <div class="meta" id="exploreProgress">1턴 / 5~7턴</div>
   <div class="hp" style="margin-top:12px"><i id="seasonBar" style="width:0%;background:var(--gold)"></i></div>
@@ -62,7 +62,7 @@
     <div class="meta" id="eventHint">사건이 발생했다. 아래 행동 중 하나를 선택하자.</div>
     <div id="exploreActions" class="cards" style="margin-top:12px"></div>
   </div>
-  <div class="unit"><strong>이번 층의 기록</strong><div id="seasonLog" class="feed" style="margin-top:8px"></div></div>
+  <div id="inventoryModal" class="unit hidden"><strong>보유 아이템</strong><div class="meta">아이템 효과는 중첩 적용됩니다.</div><div id="inventoryList" style="margin-top:8px"></div><button id="closeInventory" class="secondary" style="margin-top:8px">닫기</button></div><div class="unit"><strong>이번 층의 기록</strong><div id="seasonLog" class="feed" style="margin-top:8px"></div></div>
   <div class="controls"><button id="exploreRules" class="secondary">키워드 규칙</button><button id="skipExplore" class="secondary">탐색 중단</button></div>
 </section>
 
@@ -99,7 +99,7 @@ const bossDeck=[
 let state;let actionLocked=false;const $=id=>document.getElementById(id);
 const seasonNames=['스트라이프','파이톤','헤링본','트위드','샤무드','스웨이드','누벅','벨벳','새틴','태피터','오간자','데님','코듀로이','플란넬','트윌','자카드','체크','하운즈투스','글렌체크','핀스트라이프','도비','캔버스','그레인','페블','크링클'];
 let seasonNameOrder=[];function shuffleSeasonNames(){seasonNameOrder=[...seasonNames];for(let i=seasonNameOrder.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[seasonNameOrder[i],seasonNameOrder[j]]=[seasonNameOrder[j],seasonNameOrder[i]]}}
-let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,seasonShops:{},seasonName:'스트라이프',lastEvent:null};
+let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,seasonShops:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
 const testEnemy={name:'길 잃은 점원',hp:60,max:60,speed:3,caption:'쇼핑 바구니를 끌며 복도를 배회한다.',portrait:'♟'};
 const rukakiEnemy={name:'르카키',hp:40,max:40,speed:3,caption:'날카로운 동작으로 상대를 몰아붙이는 점원.',portrait:'♟'};
 const rukakiDeck=[
@@ -122,7 +122,9 @@ const qualiaDeck=[
 {id:'qualia_decoudre',name:'데쿠드르',power:1,dice:4,rolls:1,desc:'1+1d4 · 출혈 5 이상이면 위력 +1 · 맥동 8 이상이면 추가 1d3 · 트리코테 소모 후 위력 증가 및 출혈 비례 피해',apply:{},qualiaUnravel:true},
 {id:'qualia_epingle',name:'에팽글레',power:1,dice:2,rolls:1,desc:'1+1d2 · 적중 시 출혈 5 · 맥동 8 · 트리코테 2',apply:{출혈:5},hitKw:{맥동:8,트리코테:2}}];
 const enemyDecks={mimosa:mimosaDeck,gustav:gustavDeck,qualia:qualiaDeck};
-const shopCatalog={mimosa:{name:'미모사',title:'미모사 상점',group:'미모사',enemy:'mimosa',text:'작은 장식과 바느질 도구가 가지런히 놓여 있다.'},renoir:{name:'르누아르',title:'르누아르 컨템포러리관',group:'컨템포러리관',enemy:'gustav',text:'현대적인 의복과 가죽 제품을 다루는 컨템포러리관이다.'},rouge:{name:'르루주',title:'르루주 컨템포러리관',group:'컨템포러리관',enemy:'qualia',text:'붉은 실과 섬세한 가죽 제품이 진열된 컨템포러리관이다.'}};
+const shopCatalog={mimosa:{name:'미모사',title:'미모사 상점',group:'미모사',enemy:'mimosa',text:'작은 장식과 바느질 도구가 가지런히 놓여 있다.'},renoir:{name:'구스타프',title:'르누아르 컨템포러리관',group:'컨템포러리관',enemy:'gustav',text:'현대적인 의복과 가죽 제품을 다루는 컨템포러리관이다.'},rouge:{name:'퀄리아',title:'르루주 컨템포러리관',group:'컨템포러리관',enemy:'qualia',text:'붉은 실과 섬세한 가죽 제품이 진열된 컨템포러리관이다.'}};
+const itemCatalog={spaJacket:{name:'르루주의 SPA 자켓',cost:60,desc:'최대 체력 +2',hp:2},spaHoodie:{name:'르루주의 SPA 후드집업',cost:80,desc:'최종 위력 +1',power:1},renoCardigan:{name:'르누아르의 컨템포러리 가디건',cost:90,desc:'최대 체력 +3',hp:3},renoHat:{name:'르누아르의 컨템포러리 신사 모자',cost:100,desc:'체력 +2 · 3턴마다 체력 1 회복',hp:2,regen:1},rougeSocks:{name:'르루주의 컨템포러리 양말',cost:90,desc:'최대 체력 +3',hp:3},rougeZip:{name:'르루주의 컨템포러리 지퍼',cost:100,desc:'속도 +1',speed:1}};
+const shopItems={mimosa:['spaJacket','spaHoodie'],renoir:['renoCardigan','renoHat'],rouge:['rougeSocks','rougeZip']};
 const testShopItems=[{name:'시험용 회복약',desc:'체력 10 회복',cost:0,fn(){state.p.hp=Math.min(state.p.max,state.p.hp+10);return '체력 10 회복.'}},{name:'시험용 맥동 조각',desc:'맥동 +3',cost:0,fn(){applyKw(state.p,{맥동:3});return '맥동 +3.'}},{name:'시험용 충전 팩',desc:'충전 +3 (르누아르 모드에서는 보존)',cost:0,fn(){applyKw(state.p,{충전:3});return renoirModeEnabled?'보존 +3.':'충전 +3.'}}];
 function drawHand(){const pool=[...playerDeck];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,4).map(c=>c.id)}
 function fresh(){return {p:{hp:876,max:876,speed:4,guardBonusDice:0,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}},e:{hp:180,max:180,speed:3,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}},enemyName:'알리우네',enemyCaption:'잔향과 진동을 다루는 특수 개체.',enemyPortrait:'✿',enemyType:'aliune',light:4,round:1,selected:[],hand:drawHand(),done:false,logs:[],last:null}}
@@ -165,7 +167,7 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  $('arenaCaption').textContent=card.name;
  $(isPlayer?'attackSkillName':'defenseSkillName').textContent=card.name;
  $(isPlayer?'defenseSkillName':'attackSkillName').textContent='회피';
- let power=card.power+chargeSpentAtUse;
+ let power=card.power+chargeSpentAtUse+(state.p.itemPower||0);
  if(card.useKw)applyKw(attacker,card.useKw);
  if(attacker===state.e&&state.enemyType==='gustav'){power+=Math.floor(Math.max(0,attacker.kw.우스티드원단||0)/4);}
  if(card.preserveScale){power+=Math.min(card.preserveCap||2,Math.floor((attacker.kw.보존||0)/card.preserveScale));}
@@ -265,7 +267,7 @@ async function startRound(){
    if(state.enemyType==='qualia'&&(state.e.kw.트리코테||0)>0){const heal=Math.min(state.e.max-state.e.hp,state.e.kw.트리코테);state.e.hp+=heal;if(heal)log(`퀄리아 패시브 · 트리코테 ${state.e.kw.트리코테} 회복 (${heal})`,'good');}
    gustavRoundEnd();
    if(state.p.hp<=0)finish(false);else if(state.e.hp<=0)finish(true);
-   else{state.round++;state.light=4;state.hand=drawHand();log(`— ${state.round}라운드 시작 · 빛 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`)}
+   else{state.round++;state.light=4;state.hand=drawHand();if(state.p.itemRegen&&state.round%3===0){state.p.hp=Math.min(state.p.max,state.p.hp+state.p.itemRegen);log(`아이템 효과 · 체력 ${state.p.itemRegen} 회복`,'good');}log(`— ${state.round}라운드 시작 · 빛 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`)}
  }
  actionLocked=false;
  render();
@@ -273,7 +275,7 @@ async function startRound(){
 function clearCombatKeywords(){for(const side of [state.p,state.e])for(const key of Object.keys(side.kw))side.kw[key]=0;}
 function exitAfterVictory(){
  $('game').classList.add('hidden');
- if(run.active && state.returnToExplore){$('explore').classList.remove('hidden');run.logs.push(`전투 승리 · ${state.enemyName} 격파`);advanceExploreTurn();}
+ if(run.active && state.returnToExplore){$('explore').classList.remove('hidden');run.logs.push(`전투 승리 · ${state.enemyName} 격파`);if(state.enemyType==='rukaki'){run.eyes+=40;run.logs.push('르카키 격파 보상 · 40눈알 획득');}else if(['mimosa','gustav','qualia','test'].includes(state.enemyType)){run.eyes+=90;run.logs.push(`${state.enemyName} 격파 보상 · 90눈알 획득`);const k={mimosa:'mimosa',gustav:'renoir',qualia:'rouge',test:'boss'}[state.enemyType];if(k&&run.floor===1)run.shopDefeated[k]=true;}applyItemStats();if(run.floor===2&&state.enemyType==='test'){run.floor=3;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.logs.push('공사 중인 2층을 통과했다. 에스컬레이터를 타고 3층으로 올라왔다.');nextExploreEvent();renderExplore();return;}advanceExploreTurn();}
  else $('intro').classList.remove('hidden');
 }
 function finish(win){if(state.done)return;state.done=true;log(win?`<strong>승리</strong> · ${state.enemyName}이 물러났습니다.`:'<strong>패배</strong> · 전투가 종료되었습니다.',win?'good':'bad');setActionMessage(win?'전투 승리':'전투 패배',win?'good':'bad');$('fight').classList.add('hidden');$('next').classList.add('hidden');$('arenaName').textContent=win?'전투 승리':'전투 패배';$('arenaCaption').textContent=win?`${state.enemyName}이 복도 너머로 사라졌다.`:'의식이 끊어졌다…';
@@ -303,48 +305,52 @@ const exploreEvents=[
 ];
 
 function startExploration(){
- shuffleSeasonNames();run={floor:1,season:1,turn:1,length:5+Math.floor(Math.random()*3),event:null,logs:[],active:true,seasonShops:{},seasonName:seasonNameOrder[0],lastEvent:null};
- state=fresh();$('intro').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.remove('hidden');
- nextExploreEvent();renderExplore();
+ shuffleSeasonNames();run={floor:1,season:1,turn:1,length:5+Math.floor(Math.random()*3),event:null,logs:[],active:true,seasonShops:{},seasonName:seasonNameOrder[0],lastEvent:null,eyes:0,items:[],seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
+ state=fresh();$('intro').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.remove('hidden');nextExploreEvent();renderExplore();
 }
-function getSeasonName(){return seasonNameOrder[((run.floor-1)*5+run.season-1)%seasonNameOrder.length]||seasonNames[(run.season-1)%seasonNames.length]}
-function specialShopKey(){if(run.season===1)return 'mimosa';if(run.season===2)return 'renoir';if(run.season===4)return 'rouge';if(run.season===5)return 'boss';return null}
-function makeShopEvent(key){if(key==='boss')return {shopKey:'boss',title:'길 잃은 점원',text:'손수레를 끌던 점원이 마지막 통로를 막아섰다.',actions:[{name:'길 잃은 점원과 전투',desc:'막보 전투에 도전한다.',kind:'combat',enemy:'test'},{name:'일단 물러난다',desc:'전투를 피하고 이번 시즌을 마무리한다.',kind:'pass'}]};const sh=shopCatalog[key];return {shopKey:key,title:sh.title,text:sh.text,actions:[{name:'상점을 방문한다',desc:'테스트 아이템 중 하나를 선택해 무료로 받는다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'},{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 전투를 선택한 상점은 이번 탐색에서 다시 이용할 수 없다.',kind:'combat',enemy:sh.enemy}]}}
+function getSeasonName(){return seasonNameOrder[(run.seasonCount)%seasonNameOrder.length]||seasonNames[(run.seasonCount)%seasonNames.length]}
+function specialShopKey(){if(run.floor!==1)return null;if(run.season===1)return 'mimosa';if(run.season===2)return 'renoir';if(run.season===4)return 'rouge';return null}
+function makeShopEvent(key){const sh=shopCatalog[key];return {shopKey:key,title:sh.title,text:sh.text,actions:[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'},{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 승리한 상점의 이벤트는 다시 나타나지 않는다.',kind:'combat',enemy:sh.enemy}]}}
 function nextExploreEvent(){
- run.seasonName=getSeasonName();
- const finalTurn=run.turn>=run.length;let key=null;
- if(finalTurn)key=specialShopKey();
- if(!key&&!run.seasonShops[run.season]&&[3,5].includes(run.season)&&run.turn===2){const available=Object.keys(shopCatalog).filter(k=>!run.seasonShops[k+'_closed']);if(available.length)key=available[Math.floor(Math.random()*available.length)];}
- if(key&&key!=='boss'){run.seasonShops[run.season]=key;run.event=makeShopEvent(key);return;}
- if(key==='boss'){run.event=makeShopEvent('boss');return;}
+ run.seasonName=getSeasonName();const finalTurn=run.turn>=run.length;let key=null;
+ if(run.floor===1&&finalTurn)key=specialShopKey();
+ if(key&&run.shopDefeated[key])key=null;
+ if(key){run.seasonShops[run.season]=key;run.event=makeShopEvent(key);return;}
  if(finalTurn){run.event={title:'시즌 마감 · '+run.seasonName,text:'시즌의 마지막 구간을 지나간다. 다음 시즌을 향해 이동할 수 있다.',actions:[{name:'다음 시즌으로',desc:'탐색을 계속한다.',kind:'continue'}]};return;}
+ if(run.floor===2){run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'길 잃은 점원과 마주친다',desc:'공사 구역을 빠져나가기 위해 전투한다.',kind:'combat',enemy:'test'}]};return;}
  if(Math.random()<.22){run.event={combat:true,title:'복도를 막아선 르카키',text:'날렵한 점원이 복도를 가로막았다. 길을 지나려면 상대해야 한다.'};return;}
  const pool=exploreEvents.filter(e=>!run.lastEvent||e.id!==run.lastEvent);const e=pool[Math.floor(Math.random()*pool.length)];run.lastEvent=e.id;run.event={...e,actions:e.actions.map(a=>({...a,kind:'normal'}))};
-}
-function renderExplore(){
- $('exploreTitle').textContent=`${run.floor}층 · 시즌 ${(run.floor-1)*5+run.season} · ${run.seasonName} (${run.season}/5)`;
- $('exploreProgress').textContent=`${run.turn}턴 / ${run.length}턴 · 체력 ${state.p.hp}/${state.p.max}`;
- $('seasonBar').style.width=`${100*run.turn/run.length}%`;$('eventTitle').textContent=run.event.title;$('eventText').textContent=run.event.text;
- const acts=$('exploreActions');
- if(run.event.combat){acts.innerHTML=`<button class="card" id="enterRandomCombat"><h3>르카키와 싸운다</h3><p>체력 40 · 승리하면 탐색을 계속한다.</p></button>`;$('enterRandomCombat').onclick=()=>startRukakiCombat(true);}
- else {acts.innerHTML=run.event.actions.map((a,i)=>`<button class="card" data-explore-action="${i}"><h3>${a.name}</h3><p>${a.desc}</p></button>`).join('');acts.querySelectorAll('[data-explore-action]').forEach(b=>b.onclick=()=>resolveExploreAction(+b.dataset.exploreAction));}
- $('seasonLog').innerHTML=run.logs.slice(-8).map(s=>`<div class="logline">${s}</div>`).join('')||'<div class="logline">아직 기록이 없습니다.</div>';
 }
 function resolveExploreAction(i){
  const ev=run.event,a=ev.actions[i];if(!a)return;
  if(a.kind==='visit'){showShopItems(ev.shopKey);return;}
+ if(a.kind==='announcement'){nextExploreEvent();renderExplore();return;}
+ if(a.kind==='continueFloor'){ run.floor=3;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.logs.push('무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자');run.logs.push('— 3층 진입 —');nextExploreEvent();renderExplore();return;}
  if(a.kind==='pass'||a.kind==='continue'){run.logs.push(`시즌 ${(run.floor-1)*5+run.season} · ${run.seasonName} — ${ev.title}: ${a.name}`);advanceExploreTurn();return;}
  if(a.kind==='combat'){if(ev.shopKey)run.seasonShops[ev.shopKey+'_closed']=true;startNamedCombat(a.enemy,true);return;}
  const result=a.fn?a.fn():'';run.logs.push(`시즌 ${(run.floor-1)*5+run.season} · ${run.seasonName} · ${run.turn}턴 — ${ev.title}: ${a.name}. ${result}`);
  if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}
  advanceExploreTurn();
 }
-function showShopItems(key){const ev=run.event;const acts=$('exploreActions');acts.innerHTML='<div class="unit"><strong>테스트 상품</strong><div class="meta">현재는 전부 무료입니다. 하나만 선택할 수 있습니다.</div></div>'+testShopItems.map((it,i)=>`<button class="card" data-shop-item="${i}"><h3>${it.name}</h3><p>${it.desc}</p><span class="power">무료</span></button>`).join('')+'<button class="secondary" id="leaveShop">구매하지 않고 나가기</button>';acts.querySelectorAll('[data-shop-item]').forEach(b=>b.onclick=()=>{const item=testShopItems[+b.dataset.shopItem];const msg=item.fn();run.logs.push(`${ev.title} · ${item.name} 획득 — ${msg}`);advanceExploreTurn();});$('leaveShop').onclick=()=>advanceExploreTurn();}
+function showShopItems(key){const ev=run.event;const acts=$('exploreActions');const ids=shopItems[key]||[];acts.innerHTML='<div class="unit"><strong>판매 상품</strong><div class="meta">눈알로 구매합니다. 보유 아이템은 중복 구매할 수 있으며 효과가 중첩됩니다.</div></div>'+ids.map(id=>{const it=itemCatalog[id],owned=run.items.filter(x=>x===id).length;return `<button class="card" data-buy-item="${id}" ${run.eyes<it.cost?'disabled':''}><h3>${it.name}</h3><p>${it.desc}${owned?` · 보유 ${owned}개`:''}</p><span class="power">${it.cost} 눈알</span></button>`}).join('')+'<button class="secondary" id="leaveShop">구매하지 않고 나가기</button>';acts.querySelectorAll('[data-buy-item]').forEach(b=>b.onclick=()=>{const id=b.dataset.buyItem,it=itemCatalog[id];if(run.eyes<it.cost)return;run.eyes-=it.cost;run.items.push(id);applyItemStats();run.logs.push(`${it.name} 구매 · ${it.cost}눈알 사용`);renderExplore();showShopItems(key);});$('leaveShop').onclick=()=>advanceExploreTurn();}
+function applyItemStats(){const items=run.items.map(id=>itemCatalog[id]);state.p.max=876+items.reduce((n,x)=>n+(x.hp||0),0);state.p.hp=Math.min(state.p.max,state.p.hp);state.p.speed=4+items.reduce((n,x)=>n+(x.speed||0),0);state.p.itemPower=items.reduce((n,x)=>n+(x.power||0),0);state.p.itemRegen=items.reduce((n,x)=>n+(x.regen||0),0);run.rank=Math.floor(run.items.length/5);}
+function renderInventory(){const box=$('inventoryList');if(!box)return;box.innerHTML=run.items.length?run.items.map(id=>`<div class="logline">${itemCatalog[id].name} — ${itemCatalog[id].desc}</div>`).join(''):'<div class="meta">아직 보유한 아이템이 없습니다.</div>';}
+
 function advanceExploreTurn(){
  run.turn++;
- if(run.turn>run.length){run.season++;
-  if(run.season>5){$('eventTitle').textContent=`${run.floor}층 탐색 완료`;$('eventText').textContent='다섯 시즌을 모두 통과했다. 다음 층으로 향하는 문이 열렸다.';$('exploreActions').innerHTML='<button class="card" id="nextFloor"><h3>다음 층으로 이동</h3><p>다음 층의 첫 시즌을 시작한다.</p></button>';$('nextFloor').onclick=()=>{run.floor++;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.logs.push(`— ${run.floor}층 진입 · 시즌 ${(run.floor-1)*5+1} 시작 —`);nextExploreEvent();renderExplore();};$('exploreProgress').textContent='층 이동 가능';return;}
-  run.turn=1;run.length=5+Math.floor(Math.random()*3);run.logs.push(`— 시즌 ${(run.floor-1)*5+run.season} · ${getSeasonName()} 시작 (${run.length}턴) —`);
+ if(run.turn>run.length){
+  const previous=run.seasonName;run.seasonCount++;run.season++;
+  if(run.floor===1&&run.season>5){
+   run.canAscend=run.seasonCount>=5&&run.items.length>=5;
+   $('eventTitle').textContent='1층 시즌 마감';$('eventText').textContent=`곧 ${previous} 시즌이 마감됩니다. 이번 시즌은 ${getSeasonName()}입니다.`;
+   const eligible=run.canAscend;
+   $('exploreActions').innerHTML=`<button class="card" id="stayFloor"><h3>1층에 더 머무른다</h3><p>계속 1층을 탐색한다.</p></button>${eligible?'<button class="card" id="nextFloor"><h3>2층으로 올라간다</h3><p>등급 조건을 충족했다. 아이템 5개 이상 보유.</p></button>':'<div class="meta">2층 진입 조건: 아이템 5개 이상 보유. 현재 '+run.items.length+'개.</div>'}`;
+   $('stayFloor').onclick=()=>{run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.logs.push('— 1층에 계속 머무르기로 했다 —');run.seasonName=getSeasonName();nextExploreEvent();renderExplore();};
+   if(eligible)$('nextFloor').onclick=()=>{run.floor=2;run.season=1;run.turn=1;run.length=5;run.seasonShops={};run.logs.push('— 2층 진입 —');run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'}]};renderExplore();};
+   $('exploreProgress').textContent=`등급 ${run.rank} · 아이템 ${run.items.length}/5`;return;
+  }
+  if(run.season>5){run.season=1;}
+  run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonName=getSeasonName();run.logs.push(`곧 ${previous} 시즌이 마감됩니다. 이번 시즌은 ${run.seasonName}입니다.`);run.logs.push(`— 시즌 ${run.seasonCount+1} · ${run.seasonName} 시작 (${run.length}턴) —`);run.event={title:'안내 방송',text:`곧 ${previous} 시즌이 마감됩니다. 이번 시즌은 ${run.seasonName}입니다.`,actions:[{name:'안내 방송을 듣고 이동한다',desc:'새로운 시즌을 시작한다.',kind:'announcement'}]};renderExplore();return;
  }
  nextExploreEvent();renderExplore();
 }
@@ -393,8 +399,7 @@ const fallbackPatchMarkdown = `# 패치 노트 · v1.10
 
 - 상점 방문/통과/전투와 테스트 상품을 추가했습니다.
 
-- 피격 체력바 위 피해 숫자 및 모바일 전투 UI 압축을 반영했습니다.
-
+- 피격 체력바 위 피해 숫자, 모바일 전투 UI 압축을 반영했습니다.
 
 ## 사용 안내
 
@@ -407,7 +412,7 @@ async function showPatchOnFirstLobbyVisit(){let seen=false;try{seen=localStorage
 function closePatch(){$('patchBackdrop').classList.add('hidden');try{localStorage.setItem('sizif_patch_seen_v1_2','yes')}catch(e){}}
 $('openPatchAgain').onclick=()=>{$('patchBody').innerHTML=markdownToSafeHtml(fallbackPatchMarkdown);$('patchBackdrop').classList.remove('hidden')};$('patchClose').onclick=closePatch;$('patchX').onclick=closePatch;$('patchBackdrop').addEventListener('click',e=>{if(e.target===$('patchBackdrop'))closePatch()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('patchBackdrop').classList.contains('hidden'))closePatch()});
 
-$('gameOverExit').onclick=()=>{$('gameOverModal').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.add('hidden');$('intro').classList.remove('hidden');run.active=false;};$('testerMode').onclick=()=>addModeCards(testerCards,'tester');$('renoirMode').onclick=()=>addModeCards(renoirCards,'renoir');$('start').onclick=startExploration;$('directCombat').onclick=begin;$('testCombat').onclick=()=>startTestCombat(false);$('rukakiCombat').onclick=()=>startRukakiCombat(false);$('exploreRules').onclick=()=>alert('진동: 진동 폭발 시 수치만큼 추가 피해 후 소모. 호흡: 수치당 치명타 확률 5%, 치명타 시 피해 2배 후 호흡 1 소모. 침잠: 침잠이 걸린 자신의 공격 최종 위력을 수치당 1 감소. 출혈: 공격을 처리할 때 수치만큼 자신이 피해를 받고 1 감소. 화상: 각 행동 라운드 종료 시 수치만큼 피해, 1 감소. 충전: 방전 일격에서 최대 3 소모해 위력 강화. 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다. 보존: 원 킥 변형에 사용됩니다.');$('skipExplore').onclick=()=>{if(confirm('탐색을 중단하고 시작 화면으로 돌아갈까요?')){$('explore').classList.add('hidden');$('intro').classList.remove('hidden')}};$('openEvents').onclick=showEventPicker;$('closeEvents').onclick=()=>{$('eventPicker').classList.add('hidden');$('eventActions').classList.add('hidden')};$('fight').onclick=startRound;$('clear').onclick=()=>{if(actionLocked||state.done)return;state.selected=[];setActionMessage('선택을 해제했습니다.');render()};$('next').onclick=()=>{if(run.active&&state.returnToExplore){$('game').classList.add('hidden');$('explore').classList.remove('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='전투에서 쓰러졌다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}run.logs.push(`시험 전투 종료 · ${state.done&&state.e.hp<=0?'승리':'전투 후 탐색 재개'}`);advanceExploreTurn();}else startTestCombat(false)};$('back').onclick=()=>{if(run.active){$('game').classList.add('hidden');$('explore').classList.remove('hidden')}else{$('game').classList.add('hidden');$('intro').classList.remove('hidden')}};$('resetTop').onclick=()=>{if(confirm('전투 기록을 초기화할까요?')){if(state){state.logs=[];renderFeed()}setActionMessage('기록이 초기화되었습니다.')}};
+$('gameOverExit').onclick=()=>{$('gameOverModal').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.add('hidden');$('intro').classList.remove('hidden');run.active=false;};$('testerMode').onclick=()=>addModeCards(testerCards,'tester');$('renoirMode').onclick=()=>addModeCards(renoirCards,'renoir');$('start').onclick=startExploration;$('openInventory').onclick=()=>{renderInventory();$('inventoryModal').classList.remove('hidden')};$('closeInventory').onclick=()=>$('inventoryModal').classList.add('hidden');$('directCombat').onclick=begin;$('testCombat').onclick=()=>startTestCombat(false);$('rukakiCombat').onclick=()=>startRukakiCombat(false);$('exploreRules').onclick=()=>alert('진동: 진동 폭발 시 수치만큼 추가 피해 후 소모. 호흡: 수치당 치명타 확률 5%, 치명타 시 피해 2배 후 호흡 1 소모. 침잠: 침잠이 걸린 자신의 공격 최종 위력을 수치당 1 감소. 출혈: 공격을 처리할 때 수치만큼 자신이 피해를 받고 1 감소. 화상: 각 행동 라운드 종료 시 수치만큼 피해, 1 감소. 충전: 방전 일격에서 최대 3 소모해 위력 강화. 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다. 보존: 원 킥 변형에 사용됩니다.');$('skipExplore').onclick=()=>{if(confirm('탐색을 중단하고 시작 화면으로 돌아갈까요?')){$('explore').classList.add('hidden');$('intro').classList.remove('hidden')}};$('openEvents').onclick=showEventPicker;$('closeEvents').onclick=()=>{$('eventPicker').classList.add('hidden');$('eventActions').classList.add('hidden')};$('fight').onclick=startRound;$('clear').onclick=()=>{if(actionLocked||state.done)return;state.selected=[];setActionMessage('선택을 해제했습니다.');render()};$('next').onclick=()=>{if(run.active&&state.returnToExplore){$('game').classList.add('hidden');$('explore').classList.remove('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='전투에서 쓰러졌다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}run.logs.push(`시험 전투 종료 · ${state.done&&state.e.hp<=0?'승리':'전투 후 탐색 재개'}`);advanceExploreTurn();}else startTestCombat(false)};$('back').onclick=()=>{if(run.active){$('game').classList.add('hidden');$('explore').classList.remove('hidden')}else{$('game').classList.add('hidden');$('intro').classList.remove('hidden')}};$('resetTop').onclick=()=>{if(confirm('전투 기록을 초기화할까요?')){if(state){state.logs=[];renderFeed()}setActionMessage('기록이 초기화되었습니다.')}};
 
 </script><!-- v1.12: enemy passives and special keywords completed -->
 </body></html>
