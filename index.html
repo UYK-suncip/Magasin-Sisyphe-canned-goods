@@ -45,7 +45,7 @@
 
 <div class="app">
 <header class="top"><div><div class="brand">SIZIF DEPARTMENT STORE</div><div class="sub">시지프 백화점 · 텍스트 로그 v1.1</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button id="openPatchAgain" class="secondary">패치 노트</button><button id="resetTop" class="secondary">기록 초기화</button></div></header>
-<section id="intro" class="panel intro"><div class="brand">EXPLORATION MODE</div><h1>시지프 백화점</h1><p>층마다 최대 5개의 시즌을 통과해야 다음 층으로 이동할 수 있습니다. 각 시즌은 무작위로 정해진 5~7턴 동안 진행되며, 사건이 자동으로 발생하면 그 상황에 맞는 행동을 직접 선택합니다. 전투는 탐색 도중 무작위 사건으로 등장합니다.</p><div class="unit"><strong>탐색 규칙</strong><div class="meta">5개 시즌 완료 → 다음 층 이동 · 시즌당 5~7턴 · 일반 사건 및 시험 전투</div></div><button id="start" class="primary">탐색 시작</button><button id="directCombat" class="secondary" style="width:100%;margin-top:9px">알리우네와 전투</button><button id="testCombat" class="secondary" style="width:100%;margin-top:9px">테스트 몹과 전투</button><button id="rukakiCombat" class="secondary" style="width:100%;margin-top:9px">르카키와 전투</button>
+<section id="intro" class="panel intro"><div class="brand">EXPLORATION MODE</div><h1>시지프 백화점</h1><p>층마다 최대 5개의 시즌을 통과해야 다음 층으로 이동할 수 있습니다. 각 시즌은 무작위로 정해진 5~7턴 동안 진행되며, 사건이 자동으로 발생하면 그 상황에 맞는 행동을 직접 선택합니다. 전투는 탐색 도중 무작위 사건으로 등장합니다.</p><div class="unit"><strong>탐색 규칙</strong><div class="meta">1층에서 아이템을 모아 등급을 올리면 다음 층 진입 가능 · 시즌당 5~7턴 · 일반 사건 및 전투</div></div><button id="start" class="primary">탐색 시작</button><button id="directCombat" class="secondary" style="width:100%;margin-top:9px">알리우네와 전투</button><button id="testCombat" class="secondary" style="width:100%;margin-top:9px">테스트 몹과 전투</button><button id="rukakiCombat" class="secondary" style="width:100%;margin-top:9px">르카키와 전투</button>
 <button id="testerMode" class="secondary" style="width:100%;margin-top:18px;border-color:#c9a85f;color:#e5c77d">테스터 모드 · 카드 추가</button>
 <button id="renoirMode" class="secondary" style="width:100%;margin-top:9px;border-color:#91c9b7;color:#91c9b7">르누아르 모드 (임시) · 카드 추가</button>
 <div id="modeNotice" class="meta" style="margin-top:7px;text-align:center" aria-live="polite"></div><button id="openEvents" class="secondary hidden" style="width:100%;margin-top:9px">사건 선택 후 전투</button><div id="eventPicker" class="hidden" style="margin-top:16px;text-align:left"><div class="section-title">탐색 중 마주친 사건</div><p class="meta">사건을 선택하고 행동을 고르면 효과가 적용된 뒤 알리우네 전투가 시작됩니다. 정신력·자산처럼 이 전투판에 없는 수치는 체력 또는 전투 키워드 효과로 조정했습니다.</p><div id="eventChoices" class="cards"></div><div id="eventActions" class="hidden" style="margin-top:12px"></div><button id="closeEvents" class="secondary" style="width:100%;margin-top:8px">선택 취소</button></div></section>
@@ -304,6 +304,28 @@ const exploreEvents=[
 {id:'embers',title:'불씨가 남은 작업대',text:'작업대 위에서 작은 불씨가 타오른다. 금속 도구가 붉게 달아올라 있다.',actions:[{name:'불씨를 옮긴다',desc:'화상 +2',fn(){applyKw(state.p,{화상:2});return '화상 +2.'}},{name:'금속을 챙긴다',desc:'충전 +2',fn(){applyKw(state.p,{충전:2});return '충전 +2.'}}]}
 ];
 
+function renderExplore(){
+ const ev=run.event;
+ if(!ev)return;
+ $('eyeCount').textContent=String(run.eyes);
+ $('exploreTitle').textContent=`${run.floor}층 · 시즌 ${run.season}/5`;
+ $('exploreProgress').textContent=`${run.turn}턴 / ${run.length}턴 · 등급 ${run.rank||0} · 아이템 ${run.items.length}개`;
+ $('seasonBar').style.width=`${Math.min(100,((run.turn-1)/Math.max(1,run.length))*100)}%`;
+ $('eventTitle').textContent=ev.title||'백화점의 소음';
+ $('eventText').textContent=ev.text||'복도를 따라 이동한다.';
+ $('eventHint').textContent=ev.combat?'복도를 지나려면 전투에서 승리해야 한다.':'사건이 발생했다. 아래 행동 중 하나를 선택하자.';
+ const actions=$('exploreActions');
+ if(ev.combat){
+   actions.innerHTML='<button class="card" id="fightRukaki"><h3>르카키와 전투한다</h3><p>복도를 막아선 점원을 상대한다.</p></button>';
+   $('fightRukaki').onclick=()=>startRukakiCombat(true);
+ }else{
+   actions.innerHTML=(ev.actions||[]).map((a,i)=>`<button class="card" data-explore-action="${i}"><h3>${a.name}</h3><p>${a.desc||''}</p></button>`).join('');
+   actions.querySelectorAll('[data-explore-action]').forEach(b=>b.onclick=()=>resolveExploreAction(Number(b.dataset.exploreAction)));
+ }
+ $('seasonLog').innerHTML=(run.logs||[]).slice(-12).reverse().map(x=>`<div class="logline">${String(x).replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`).join('')||'<div class="meta">아직 기록이 없습니다.</div>';
+ if(!$('inventoryModal').classList.contains('hidden'))renderInventory();
+}
+
 function startExploration(){
  shuffleSeasonNames();run={floor:1,season:1,turn:1,length:5+Math.floor(Math.random()*3),event:null,logs:[],active:true,seasonShops:{},seasonName:seasonNameOrder[0],lastEvent:null,eyes:0,items:[],seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
  state=fresh();$('intro').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.remove('hidden');nextExploreEvent();renderExplore();
@@ -401,11 +423,12 @@ const fallbackPatchMarkdown = `# 패치 노트 · v1.10
 
 - 피격 체력바 위 피해 숫자, 모바일 전투 UI 압축을 반영했습니다.
 
+
 ## 사용 안내
 
 - 패치 노트는 첫 접속 시 표시되며, 상단의 패치 노트 버튼으로 언제든 다시 열 수 있습니다.
 
-- 만약 이 글이 보인다면 지금이 최신 버전입니다!
+- 만약 이 글이 보인다면 이게 진짜로 최신 버전입니다.
 `;
 function markdownToSafeHtml(md){return md.split(/\n{2,}/).map(block=>{const t=block.trim();if(!t)return '';if(t.startsWith('# '))return `<h2>${escapePatch(t.slice(2))}</h2>`;if(t.startsWith('## '))return `<h2>${escapePatch(t.slice(3))}</h2>`;if(t.split('\n').every(x=>x.trim().startsWith('- ')))return `<ul>${t.split('\n').map(x=>`<li>${inlinePatch(x.trim().slice(2))}</li>`).join('')}</ul>`;return `<p>${t.split('\n').map(inlinePatch).join('<br>')}</p>`}).join('')}
 function escapePatch(x){return x.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
