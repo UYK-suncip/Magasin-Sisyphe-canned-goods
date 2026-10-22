@@ -283,8 +283,8 @@ function exitAfterVictory(){
 function finish(win){if(state.done)return;state.done=true;log(win?`<strong>승리</strong> · ${state.enemyName}이 물러났습니다.`:'<strong>패배</strong> · 전투가 종료되었습니다.',win?'good':'bad');setActionMessage(win?'전투 승리':'전투 패배',win?'good':'bad');$('fight').classList.add('hidden');$('next').classList.add('hidden');$('arenaName').textContent=win?'전투 승리':'전투 패배';$('arenaCaption').textContent=win?`${state.enemyName}이 복도 너머로 사라졌다.`:'의식이 끊어졌다…';
  // 전투가 끝나면 전투 전용 키워드를 양측 모두 초기화한다.
  clearCombatKeywords();render();
- if(win){$('actionResult').className='action-result good';$('actionResult').innerHTML='<strong>전투 종료 · 승리</strong><span>키워드가 초기화되었습니다. 잠시 후 자동으로 나갑니다.</span>';setTimeout(exitAfterVictory,1300);}
- else{$('gameOverText').textContent=`${state.enemyName}과의 전투에서 패배했습니다. 체력이 모두 소진되었습니다.`;$('gameOverModal').classList.remove('hidden');$('actionResult').className='action-result bad';$('actionResult').innerHTML='<strong>전투 종료 · 패배</strong><span>키워드가 초기화되었습니다.</span>';}
+ if(win){setTimeout(exitAfterVictory,1300);}
+ else{$('gameOverText').textContent=`${state.enemyName}과의 전투에서 패배했습니다. 체력이 모두 소진되었습니다.`;$('gameOverModal').classList.remove('hidden');}
 }
 const importedEvents=[
 {id:'rest',title:'비어 있는 휴게실',text:'휴게실에는 아무도 없지만 따뜻한 차가 한 잔 놓여 있다.',actions:[{name:'차를 마신다',desc:'체력 5 회복',effect(){return {hp:5,msg:'따뜻한 차를 마셔 체력 5를 회복했다.'}}},{name:'곧장 떠난다',desc:'효과 없이 지나간다',effect(){return {msg:'휴게실을 지나쳤다. 아무 일도 일어나지 않았다.'}}}]},
