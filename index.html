@@ -163,7 +163,7 @@ function applyKw(target,obj){if(!target||!target.kw||!obj)return [];let out=[];f
 function addLog(s,type=''){log(s,type)}
 function triggerBleedPassive(){
  const type=state.enemyType, e=state.e;
- if(!state.bleedPassiveCount)state.bleedPassiveCount={mimosa:0,qualia:0};state.p.chefDodgeRound=chefModeEnabled&&chosen.some(c=>c.chefDodge)?1:0;state.p.chefDamageReduce=chefModeEnabled&&chosen.some(c=>c.chefDamageReduce)?1:0;
+ if(!state.bleedPassiveCount)state.bleedPassiveCount={mimosa:0,qualia:0};
  if(type==='mimosa'&&state.bleedPassiveCount.mimosa<2){e.kw.맥동=(e.kw.맥동||0)+1;state.bleedPassiveCount.mimosa++;log(`미모사 패시브 · 출혈 발동 감지, 맥동 +1 (${state.bleedPassiveCount.mimosa}/2)`,'good');}
  if(type==='qualia'&&state.bleedPassiveCount.qualia<2){e.kw.맥동=(e.kw.맥동||0)+1;state.bleedPassiveCount.qualia++;log(`퀄리아 패시브 · 출혈 발동 감지, 맥동 +1 (${state.bleedPassiveCount.qualia}/2)`,'good');}
 }
@@ -271,6 +271,8 @@ async function startRound(){
   state.gustavFabricTriggers=0;state.gustavPreservationSpent=0;
   render();
   const chosen=state.selected.map(id=>playerDeck.find(c=>c.id===id)).filter(Boolean);
+  state.p.chefDodgeRound=chefModeEnabled&&chosen.some(c=>c.chefDodge)?1:0;
+  state.p.chefDamageReduce=chefModeEnabled&&chosen.some(c=>c.chefDamageReduce)?1:0;
   const spent=chosen.reduce((a,c)=>a+c.cost,0);
   if(chosen.length===0){setActionMessage('사용할 카드를 먼저 선택해 주세요.');return;}
   if(spent>state.light){setActionMessage('빛이 부족해 카드를 사용할 수 없습니다.','bad');return;}
