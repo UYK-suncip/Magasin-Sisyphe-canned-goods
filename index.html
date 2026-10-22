@@ -514,7 +514,7 @@ $('gameOverExit').onclick=()=>{$('gameOverModal').classList.add('hidden');$('gam
  function sfx(name){
   if(muted)return;const a=ctx();if(!a)return;const t=a.currentTime;
   if(name==='click'){tone(520,t,.045,'sine',.018,680)}
-  else if(name==='roll'){for(let i=0;i<5;i++){tone(220+Math.random()*260,t+i*.075,.055,'triangle',.025,120+Math.random()*180);noise(t+i*.075,.045,.018,2300)}}
+  else if(name==='roll'){/* Louder, longer dice-rattle: irregular hard clacks plus a continuous gritty shuffle. */ noise(t,.82,.085,3200);for(let i=0;i<13;i++){const at=t+i*(.045+Math.random()*.025);tone(260+Math.random()*420,at,.045,'triangle',.075,95+Math.random()*150);noise(at,.055,.065,2600+Math.random()*1200)}tone(150,t+.72,.12,'triangle',.055,72);}
   else if(name==='success'){tone(523,t,.13,'sine',.045,660);tone(784,t+.11,.2,'sine',.04,1047)}
   else if(name==='failure'){tone(260,t,.18,'triangle',.04,190);tone(175,t+.13,.28,'sawtooth',.025,95)}
   else if(name==='hit'){noise(t,.12,.065,1100);tone(115,t,.14,'sine',.045,55)}
