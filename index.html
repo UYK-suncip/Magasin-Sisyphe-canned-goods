@@ -442,6 +442,8 @@ const fallbackPatchMarkdown = `# 패치 노트 · v1.10
 
 - 패치 노트는 첫 접속 시 표시되며, 상단의 패치 노트 버튼으로 언제든 다시 열 수 있습니다.
 
+- 이 패치노트는 정보시간에 작성된 사항입니다. 변한건 없습니다.
+
 - 어딘가에서 소리가 들려온다. ‘코드 500줄 이내는 게임 취급 안함’, ‘들여쓰기 왜 안함?’ ‘생성형 ai 작품인가요?’, ‘코드 왜 html이에요?’ ‘이거 css 처리 안됐네’, ‘JavaScript면 코딩도 아니죠’ ‘JavaScript도 코드라고요? 프론트엔드랑 백엔드랑 다른데 그것도 모르시네.’ ‘python으로 당연히 구동해주죠?’, ‘이거 Rust예요? 아, Java인가?’ ‘자세히 보니 코드가 너무 복잡하네요 ai 썼죠?’, ‘손코딩 아니면 프로그램 아님.’ ‘아 이거 서버 시스템 아니네’, ‘코드가 2000자는 넘어야 게임 코드죠’ ‘아 겉에 하드코딩 보이네’, ‘렌더링 안되어있네. 탈락.’ ‘최적화 왜 이래.’, ‘30mb는 넘겨줘야지’
 `;
 function markdownToSafeHtml(md){return md.split(/\n{2,}/).map(block=>{const t=block.trim();if(!t)return '';if(t.startsWith('# '))return `<h2>${escapePatch(t.slice(2))}</h2>`;if(t.startsWith('## '))return `<h2>${escapePatch(t.slice(3))}</h2>`;if(t.split('\n').every(x=>x.trim().startsWith('- ')))return `<ul>${t.split('\n').map(x=>`<li>${inlinePatch(x.trim().slice(2))}</li>`).join('')}</ul>`;return `<p>${t.split('\n').map(inlinePatch).join('<br>')}</p>`}).join('')}
