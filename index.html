@@ -499,5 +499,51 @@ $('openPatchAgain').onclick=()=>{$('patchBody').innerHTML=markdownToSafeHtml(fal
 
 $('gameOverExit').onclick=()=>{$('gameOverModal').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.add('hidden');$('intro').classList.remove('hidden');run.active=false;};$('testerMode').onclick=()=>addModeCards(testerCards,'tester');$('renoirMode').onclick=()=>addModeCards(renoirCards,'renoir');$('start').onclick=startExploration;$('openInventory').onclick=()=>{renderInventory();$('inventoryModal').classList.remove('hidden')};$('closeInventory').onclick=()=>$('inventoryModal').classList.add('hidden');$('directCombat').onclick=begin;$('testCombat').onclick=()=>startTestCombat(false);$('rukakiCombat').onclick=()=>startRukakiCombat(false);$('exploreRules').onclick=()=>alert('진동: 진동 폭발 시 수치만큼 추가 피해 후 소모. 호흡: 수치당 치명타 확률 5%, 치명타 시 피해 2배 후 호흡 1 소모. 침잠: 침잠이 걸린 자신의 공격 최종 위력을 수치당 1 감소. 출혈: 공격을 처리할 때 수치만큼 자신이 피해를 받고 1 감소. 화상: 각 행동 라운드 종료 시 수치만큼 피해, 1 감소. 충전: 방전 일격에서 최대 3 소모해 위력 강화. 르누아르 모드에서는 충전 획득이 보존 획득으로 대체됩니다. 보존: 원 킥 변형에 사용됩니다.');$('skipExplore').onclick=()=>{if(confirm('탐색을 중단하고 시작 화면으로 돌아갈까요?')){$('explore').classList.add('hidden');$('intro').classList.remove('hidden')}};$('openEvents').onclick=showEventPicker;$('closeEvents').onclick=()=>{$('eventPicker').classList.add('hidden');$('eventActions').classList.add('hidden')};$('fight').onclick=startRound;$('clear').onclick=()=>{if(actionLocked||state.done)return;state.selected=[];setActionMessage('선택을 해제했습니다.');render()};$('next').onclick=()=>{if(run.active&&state.returnToExplore){$('game').classList.add('hidden');$('explore').classList.remove('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='전투에서 쓰러졌다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}run.logs.push(`시험 전투 종료 · ${state.done&&state.e.hp<=0?'승리':'전투 후 탐색 재개'}`);advanceExploreTurn();}};$('resetTop').onclick=()=>{if(confirm('전투 기록을 초기화할까요?')){if(state){state.logs=[];renderFeed()}setActionMessage('기록이 초기화되었습니다.')}};
 
+
+/* Procedural sound effects: generated locally with Web Audio; no external files required. */
+(function(){
+ let audioCtx=null, muted=false, lastSound=0;
+ function ctx(){if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;audioCtx=new AC()}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+ function tone(freq,start,duration,type='sine',volume=.04,endFreq=null){
+  const a=ctx();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(freq,start);if(endFreq)o.frequency.exponentialRampToValueAtTime(Math.max(1,endFreq),start+duration);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(volume,start+.012);g.gain.exponentialRampToValueAtTime(.0001,start+duration);o.connect(g);g.connect(a.destination);o.start(start);o.stop(start+duration+.02)
+ }
+ function noise(start,duration,volume=.025,filterFreq=1600){
+  const a=ctx();if(!a)return;const n=Math.max(1,Math.floor(a.sampleRate*duration)),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+  const src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=b;f.type='lowpass';f.frequency.value=filterFreq;g.gain.setValueAtTime(volume,start);g.gain.exponentialRampToValueAtTime(.0001,start+duration);src.connect(f);f.connect(g);g.connect(a.destination);src.start(start);src.stop(start+duration)
+ }
+ function sfx(name){
+  if(muted)return;const a=ctx();if(!a)return;const t=a.currentTime;
+  if(name==='click'){tone(520,t,.045,'sine',.018,680)}
+  else if(name==='roll'){for(let i=0;i<5;i++){tone(220+Math.random()*260,t+i*.075,.055,'triangle',.025,120+Math.random()*180);noise(t+i*.075,.045,.018,2300)}}
+  else if(name==='success'){tone(523,t,.13,'sine',.045,660);tone(784,t+.11,.2,'sine',.04,1047)}
+  else if(name==='failure'){tone(260,t,.18,'triangle',.04,190);tone(175,t+.13,.28,'sawtooth',.025,95)}
+  else if(name==='hit'){noise(t,.12,.065,1100);tone(115,t,.14,'sine',.045,55)}
+  else if(name==='evade'){tone(780,t,.07,'triangle',.03,1250);tone(1050,t+.06,.08,'sine',.025,1450)}
+  else if(name==='victory'){tone(392,t,.12,'sine',.04);tone(523,t+.12,.12,'sine',.04);tone(659,t+.24,.25,'sine',.04)}
+  else if(name==='defeat'){tone(330,t,.18,'triangle',.04,220);tone(220,t+.16,.3,'triangle',.035,110)}
+ }
+ window.sizifSfx=sfx;
+ const toggle=document.createElement('button');toggle.id='soundToggle';toggle.className='secondary';toggle.type='button';toggle.textContent='🔊 효과음 켜짐';toggle.setAttribute('aria-pressed','true');toggle.style.cssText='padding:7px 10px;font-size:12px;white-space:nowrap';
+ const header=document.querySelector('.top > div:last-child');if(header)header.insertBefore(toggle,header.firstChild);
+ toggle.addEventListener('click',()=>{muted=!muted;toggle.textContent=muted?'🔇 효과음 꺼짐':'🔊 효과음 켜짐';toggle.setAttribute('aria-pressed',String(!muted));if(!muted)sfx('click')});
+ document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b||b===toggle||b.disabled||muted)return;
+  if(b.id==='fight'){sfx('roll');return}
+  if(b.id==='eventResultConfirm')return;
+  if(b.id==='start'||b.id==='directCombat'||b.id==='testCombat'||b.id==='rukakiCombat'){sfx('roll');return}
+  if(b.matches('.card,[data-buy-item]'))sfx('click');
+  else if(b.id!=='clear'&&b.id!=='resetTop'&&b.id!=='openPatchAgain'&&b.id!=='patchClose'&&b.id!=='patchX')sfx('click');
+ },true);
+ const originalTimeout=window.setTimeout;
+ // Combat visual feedback hooks: listen for existing hit/miss animations.
+ const observer=new MutationObserver(records=>{for(const rec of records){if(rec.type!=='attributes'||rec.attributeName!=='class')continue;const el=rec.target;if(!(el instanceof HTMLElement))continue;if(el.classList.contains('hit'))sfx('hit');else if(el.classList.contains('miss'))sfx('evade')}}); 
+ document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('.die').forEach(el=>observer.observe(el,{attributes:true,attributeFilter:['class']}))});
+ const watch=()=>{document.querySelectorAll('.die').forEach(el=>{if(!el.dataset.sfxObserved){el.dataset.sfxObserved='1';observer.observe(el,{attributes:true,attributeFilter:['class']})}});requestAnimationFrame(watch)};requestAnimationFrame(watch);
+ const resultModal=document.getElementById('eventResultModal');
+ if(resultModal){const mo=new MutationObserver(()=>{if(!resultModal.classList.contains('hidden'))sfx('roll')});mo.observe(resultModal,{attributes:true,attributeFilter:['class']})}
+ const resultBtn=document.getElementById('eventResultConfirm');
+ if(resultBtn)resultBtn.addEventListener('click',()=>{const die=document.getElementById('checkDice');sfx(die&&die.classList.contains('success')?'success':'failure')});
+})();
+
 </script><!-- v1.12: enemy passives and special keywords completed -->
 </body></html>
