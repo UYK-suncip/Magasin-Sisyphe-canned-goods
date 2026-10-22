@@ -112,14 +112,14 @@ const mimosaEnemy={name:'미모사',hp:45,max:45,speed:3,caption:'르루주 소�
 const gustavEnemy={name:'구스타프',hp:55,max:55,speed:3,caption:'상품의 주름 하나도 용납하지 않는 점원.',portrait:'♜'};
 const qualiaEnemy={name:'퀄리아',hp:55,max:55,speed:3,caption:'바느질과 출혈, 회복을 엮어내는 점원.',portrait:'✦'};
 const mimosaDeck=[
-{id:'mimosa_stitch',name:'스티칭',power:1,dice:4,rolls:1,desc:'1+1d4 · 출혈 3 · 사용 시 맥동 2, 적중 시 맥동 1',apply:{출혈:3},useKw:{맥동:2},hitKw:{맥동:1},copies:2},
+{id:'mimosa_stitch',name:'스티칭',power:1,dice:4,rolls:1,desc:'1+1d4 · 출혈 3 · 사용 시 맥동 2, 적중 시 맥동 1',apply:{출혈:3},useKw:{맥동:4},hitKw:{맥동:1},copies:2},
 {id:'mimosa_marketing',name:'공격적 마케팅',power:2,dice:3,rolls:1,desc:'2+1d3 · 출혈 1 · 맥동 10 이상이면 전부 소모해 추가 2d3',apply:{출혈:1},pulseExtra:true}];
 const gustavDeck=[
-{id:'gustav_shirt',name:'셔츠는 여기에 있습니다.',power:2,dice:5,rolls:1,desc:'2+1d5 · 사용 시 보존 2, 적중 시 보존 1 · 진동 2',apply:{진동:2},useKw:{보존:2},hitKw:{보존:1},copies:2},
+{id:'gustav_shirt',name:'셔츠는 여기에 있습니다.',power:2,dice:5,rolls:1,desc:'2+1d5 · 사용 시 보존 4, 적중 시 보존 1 · 진동 2',apply:{진동:2},useKw:{보존:4},hitKw:{보존:1},copies:2},
 {id:'gustav_unavailable',name:'시착 불가 상품입니다, 고객님.',power:2,dice:3,rolls:2,desc:'2+2d3 · 보존 10당 위력 +1(최대 2) · 자신에게 안내 불이행 1 · 보존 5 이상이면 소모 후 진동폭발',apply:{},preserveScale:10,preserveCap:2,preserveBurst:true,useKw:{보존:2}},
 {id:'gustav_wrinkle',name:'고객님! 상품에 주름이 잡히지 않도록 부탁드립니다!',power:4,dice:2,rolls:1,desc:'4+1d2 · 상대 안내 불이행만큼 위력 증가 · 4 이상이면 추가 1d3 · 보존 10당 위력 +1(최대 2) · 보존 3 이상이면 소모 후 진동 1(최대 5) · 적중 시 진동 폭발',apply:{},kind:'burst',wrinkle:true,preserveScale:10,preserveCap:2,preserveVibration:true,useKw:{보존:2}}];
 const qualiaDeck=[
-{id:'qualia_saddle',name:'새들 스티치',power:2,dice:2,rolls:2,desc:'2+2d2 · 출혈 3 · 사용 시 맥동 2',apply:{출혈:3},useKw:{맥동:2}},
+{id:'qualia_saddle',name:'새들 스티치',power:2,dice:2,rolls:2,desc:'2+2d2 · 출혈 3 · 사용 시 맥동 4',apply:{출혈:3},useKw:{맥동:2}},
 {id:'qualia_decoudre',name:'데쿠드르',power:2,dice:4,rolls:1,desc:'2+1d4 · 출혈 5 이상이면 위력 +1 · 맥동 8 이상이면 추가 1d3 · 트리코테 소모 후 위력 증가 및 출혈 비례 피해',apply:{},qualiaUnravel:true,useKw:{맥동:2}},
 {id:'qualia_epingle',name:'에팽글레',power:2,dice:2,rolls:1,desc:'2+1d2 · 적중 시 출혈 5 · 맥동 8 · 트리코테 2',apply:{출혈:5},hitKw:{맥동:8,트리코테:2},useKw:{맥동:2}}];
 const enemyDecks={mimosa:mimosaDeck,gustav:gustavDeck,qualia:qualiaDeck};
