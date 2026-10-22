@@ -100,7 +100,7 @@ const bossDeck=[
 let state;let actionLocked=false;const $=id=>document.getElementById(id);
 const seasonNames=['스트라이프','파이톤','헤링본','트위드','샤무드','스웨이드','누벅','벨벳','새틴','태피터','오간자','데님','코듀로이','플란넬','트윌','자카드','체크','하운즈투스','글렌체크','핀스트라이프','도비','캔버스','그레인','페블','크링클'];
 let seasonNameOrder=[];function shuffleSeasonNames(){seasonNameOrder=[...seasonNames];for(let i=seasonNameOrder.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[seasonNameOrder[i],seasonNameOrder[j]]=[seasonNameOrder[j],seasonNameOrder[i]]}}
-let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,seasonShops:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
+let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,seasonShops:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],outdatedClothesEventSeen:false,seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
 const testEnemy={name:'길 잃은 점원',hp:60,max:60,speed:3,caption:'쇼핑 바구니를 끌며 복도를 배회한다.',portrait:'♟'};
 const rukakiEnemy={name:'르카키',hp:40,max:40,speed:3,caption:'어디에도 속하지 않는 고객',portrait:'♟'};
 const rukakiDeck=[
@@ -124,7 +124,7 @@ const qualiaDeck=[
 {id:'qualia_epingle',name:'에팽글레',power:1,dice:2,rolls:1,desc:'1+1d2 · 적중 시 출혈 5 · 맥동 8 · 트리코테 2',apply:{출혈:5},hitKw:{맥동:8,트리코테:2}}];
 const enemyDecks={mimosa:mimosaDeck,gustav:gustavDeck,qualia:qualiaDeck};
 const shopCatalog={mimosa:{name:'미모사',title:'르루주 SPA관',group:'SPA관',enemy:'mimosa',text:'자영업의 길은 고되다.'},renoir:{name:'구스타프',title:'르누아르 컨템포러리관',group:'컨템포러리관',enemy:'gustav',text:'세련된 절제미의 원단 제품을 다루는 컨템포러리관이다.'},rouge:{name:'퀄리아',title:'르루주 컨템포러리관',group:'컨템포러리관',enemy:'qualia',text:'붉은 실과 섬세한 가죽 제품이 진열된 컨템포러리관이다.'}};
-const itemCatalog={spaJacket:{name:'르루주의 SPA 자켓',cost:60,desc:'최대 체력 +2',hp:2},spaHoodie:{name:'르루주의 SPA 후드집업',cost:80,desc:'최종 위력 +1',power:1},renoCardigan:{name:'르누아르의 컨템포러리 가디건',cost:90,desc:'최대 체력 +3',hp:3},renoHat:{name:'르누아르의 컨템포러리 신사 모자',cost:100,desc:'체력 +2 · 3턴마다 체력 1 회복',hp:2,regen:1},rougeSocks:{name:'르루주의 컨템포러리 양말',cost:90,desc:'최대 체력 +3',hp:3},rougeZip:{name:'르루주의 컨템포러리 지퍼',cost:100,desc:'속도 +1',speed:1},energyDrink:{name:'에너지 음료',cost:0,desc:'최종 위력 +1',power:1}};
+const itemCatalog={spaJacket:{name:'르루주의 SPA 자켓',cost:60,desc:'최대 체력 +2',hp:2},spaHoodie:{name:'르루주의 SPA 후드집업',cost:80,desc:'최종 위력 +1',power:1},renoCardigan:{name:'르누아르의 컨템포러리 가디건',cost:90,desc:'최대 체력 +3',hp:3},renoHat:{name:'르누아르의 컨템포러리 신사 모자',cost:100,desc:'체력 +2 · 3턴마다 체력 1 회복',hp:2,regen:1},rougeSocks:{name:'르루주의 컨템포러리 양말',cost:90,desc:'최대 체력 +3',hp:3},rougeZip:{name:'르루주의 컨템포러리 지퍼',cost:100,desc:'속도 +1',speed:1},energyDrink:{name:'에너지 음료',cost:0,desc:'최종 위력 +1',power:1},outdatedRougeClothes:{name:'철 지난 르루주 옷',desc:'철이 지나 유행에서 밀려났지만, 착용감은 뛰어나다. (최대체력 +4)',hp:4}};
 const shopItems={mimosa:['spaJacket','spaHoodie'],renoir:['renoCardigan','renoHat'],rouge:['rougeSocks','rougeZip']};
 const testShopItems=[{name:'시험용 회복약',desc:'체력 10 회복',cost:0,fn(){state.p.hp=Math.min(state.p.max,state.p.hp+10);return '체력 10 회복.'}},{name:'시험용 맥동 조각',desc:'맥동 +3',cost:0,fn(){applyKw(state.p,{맥동:3});return '맥동 +3.'}},{name:'시험용 충전 팩',desc:'충전 +3 (르누아르 모드에서는 보존)',cost:0,fn(){applyKw(state.p,{충전:3});return renoirModeEnabled?'보존 +3.':'충전 +3.'}}];
 function drawHand(){const pool=[...playerDeck];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,4).map(c=>c.id)}
@@ -348,6 +348,7 @@ function specialShopKey(){if(run.floor!==1)return null;if(run.season===1)return 
 function makeShopEvent(key){const sh=shopCatalog[key];return {shopKey:key,title:sh.title,text:sh.text,actions:[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'},{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 승리한 상점의 이벤트는 다시 나타나지 않는다.',kind:'combat',enemy:sh.enemy}]}}
 function nextExploreEvent(){
  run.seasonName=getSeasonName();const finalTurn=run.turn>=run.length;let key=null;
+ if(run.floor===1&&run.turn===2&&!run.outdatedClothesEventSeen){run.outdatedClothesEventSeen=true;run.event={title:'철지난 옷',text:`젠장 유행이 또 지나버렸잖아!\n\n르루주 점원 미모사가 리스트를 보며 진열대에 걸린 옷들을 신경질적으로 내팽개치고 있다.\n\n스트라이프 시즌이 지나간 지 얼마나 됐다고. 이젠 ${run.seasonName} 시즌이라고? 하!\n\n이젠 쓸모가 없어진 것 같은데, 당신이 가져가면 쓸만하지 않을까?`,actions:[{name:'유행이 지났다면 가져가도 되는지 물어본다',desc:'일반 판정 d100 · 20 이상 성공',kind:'outdatedAsk'},{name:'무시한다',desc:'아무 일 없이 지나간다.',kind:'outdatedIgnore'}]};return;}
  if(run.floor===1&&finalTurn)key=specialShopKey();
  if(key&&run.shopDefeated[key])key=null;
  if(key){run.seasonShops[run.season]=key;run.event=makeShopEvent(key);return;}
@@ -359,7 +360,7 @@ function nextExploreEvent(){
 }
 function resolveExploreAction(i){
  const ev=run.event,a=ev.actions[i];if(!a)return;
- if(a.kind==='visit'){showShopItems(ev.shopKey);return;}
+ if(a.kind==='outdatedAsk'){const roll=Math.floor(Math.random()*100)+1;let resultText;if(roll>=20){run.items.push('outdatedRougeClothes');applyItemStats();resultText=`일반 판정 ${roll} · 성공. 미모사가 당신을 훑어본다.\n\n\"이 철 지난 옷을 입겠다고?\"\n\n\"하, 가져가. 입은 꼬라지 보니까 쇼핑백에 묻은 옷 쪼가리도 넙죽 받아입겠네.\"\n\n철 지난 르루주 옷 획득.`;}else{state.p.hp=Math.max(0,state.p.hp-7);run.items.push('outdatedRougeClothes');applyItemStats();resultText=`일반 판정 ${roll} · 실패. 미모사가 당신을 훑어본다.\n\n\"이 철 지난 옷을 입겠다고?\"\n\n\"입은 꼬라지 보니까 쇼핑백에 묻은 옷 쪼가리도 넙죽 받아입겠네. 줄게, 하지만 공짜는 아니야.\"\n\n\"네 일부를 옷감으로 쓰게 해줘, 그 정도면 돼.\"\n\n체력 7 감소, 철 지난 르루주 옷 획득.`;}run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — 철지난 옷: ${resultText.replace(/\n/g,' ')}`);$('eventHint').textContent=resultText; if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}advanceExploreTurn();return;}\n if(a.kind==='outdatedIgnore'){run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — 철지난 옷: 미모사를 무시하고 지나갔다. 아무 일도 일어나지 않았다.`);advanceExploreTurn();return;}\n if(a.kind==='visit'){showShopItems(ev.shopKey);return;}
  if(a.kind==='vending'){if(!run.items.includes('energyDrink')){run.items.push('energyDrink');applyItemStats();run.logs.push('자판기에서 에너지 음료 획득 · 최종 위력 +1');}else{run.logs.push('자판기에서 에너지 음료를 발견했지만 이미 보유 중이라 지나쳤다.');}advanceExploreTurn();return;}
  if(a.kind==='announcement'){nextExploreEvent();renderExplore();return;}
  if(a.kind==='continueFloor'){ run.floor=3;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.logs.push('무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자');run.logs.push('— 3층 진입 —');nextExploreEvent();renderExplore();return;}
