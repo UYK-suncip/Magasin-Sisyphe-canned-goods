@@ -231,15 +231,15 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
    if(card.qualiaBleedDamage){const bleedDmg=damage(defender,card.qualiaBleedDamage);defender.kw.출혈=0;log(`데쿠드르 · 출혈 제거 및 추가 피해 ${bleedDmg}`,'good');}
 
    if(card.self)applyKw(attacker,card.self);
-   // Bleed triggers whenever this unit successfully attacks.
-   if((attacker.kw.출혈||0)>0){let b=attacker.kw.출혈;let bd=damage(attacker,b);attacker.kw.출혈=Math.max(0,b-1);log(`${isPlayer?'당신':state.enemyName} · 출혈 ${b} 피해, 출혈 1 감소`,'bad');if(['mimosa','qualia'].includes(state.enemyType))triggerBleedPassive();if(attacker.hp<=0)finish(!isPlayer);}
    if(attacker===state.e&&state.enemyType==='qualia'){attacker.kw.트리코테=(attacker.kw.트리코테||0)+1;log('퀄리아 패시브 · 적중, 트리코테 +1','good');}
    setActionMessage(`적중! 피해 ${dealt}${extra?` (진동 폭발 +${extra})`:''}${crit?' · 치명타!':''}`,isPlayer?'good':'bad');
    $('arena').classList.remove('flash');void $('arena').offsetWidth;$('arena').classList.add('flash');
    let unit=isPlayer?'enemyUnit':'playerUnit';$(unit).classList.remove('hit');void $(unit).offsetWidth;$(unit).classList.add('hit');
    log(`<strong>${isPlayer?'당신':state.enemyName}</strong> · ${card.name} 적중 — 피해 ${dealt}${extra?` (진동 폭발 +${extra})`:''}${crit?` (호흡 치명타 x2)`:''}${applied.length?' · '+applied.join(', ')+' 부여':''}`,isPlayer?'good':'bad');
- }else{
-   setActionMessage(`회피 성공 · 공격 ${atk} ≤ 회피 ${dodge}`);
+ }
+ // 출혈은 공격이 적중했는지와 무관하게, 출혈 보유자가 공격 행동을 마치면 발동한다.
+ if((attacker.kw.출혈||0)>0){const b=Math.max(0,Number(attacker.kw.출혈)||0);damage(attacker,b);attacker.kw.출혈=Math.max(0,b-1);log(`${isPlayer?'당신':state.enemyName} · 출혈 ${b} 피해, 출혈 1 감소`,'bad');if(['mimosa','qualia'].includes(state.enemyType))triggerBleedPassive();if(attacker.hp<=0)finish(!isPlayer);}
+ if(atk<=dodge){
    let unit=isPlayer?'enemyUnit':'playerUnit';$(unit).classList.remove('miss');void $(unit).offsetWidth;$(unit).classList.add('miss');
    log(`${isPlayer?state.enemyName:'당신'} 회피 성공 — 공격 ${atk}, 회피 ${dodge}`);
  }
