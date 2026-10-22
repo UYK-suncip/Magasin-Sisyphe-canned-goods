@@ -264,37 +264,42 @@ const testEnemyDeck=[
 {id:'haze',name:'안내 방송',power:2,dice:5,rolls:2,desc:'위력 2 + 2d5 · 침잠 2 부여',apply:{침잠:2}}
 ];
 async function startRound(){
- if(state.done||actionLocked)return;
+ if(!state||state.done||actionLocked)return;
  actionLocked=true;
- state.bleedPassiveCount={mimosa:0,qualia:0};
- state.gustavFabricTriggers=0;state.gustavPreservationSpent=0;
- render();
- let chosen=state.selected.map(id=>playerDeck.find(c=>c.id===id));
- let spent=chosen.reduce((a,c)=>a+c.cost,0);state.light-=spent;state.selected=[];$('fight').disabled=true;
- let playerFirst=state.p.speed>=state.e.speed;
- // 적의 행동 횟수는 플레이어가 선택한 카드 수와 무관하게 고정한다.
- const enemyActs=enemyActionCount();
- const slots=Math.max(chosen.length,enemyActs);
- let playerIndex=0, enemyIndex=0;
- for(let i=0;i<slots&&!state.done;i++){
-   if(playerFirst && playerIndex<chosen.length){const c=chosen[playerIndex++];await usePlayerCard(c);if(state.e.hp<=0){finish(true);break}}
-   if(enemyIndex<enemyActs && !state.done){await strike(state.e,state.p,bossCard(),false);enemyIndex++;if(state.p.hp<=0){finish(false);break}}
-   if(!playerFirst && playerIndex<chosen.length && !state.done){const c=chosen[playerIndex++];await usePlayerCard(c);if(state.e.hp<=0){finish(true);break}}
- }
- if(!state.done){
+ try{
+  state.bleedPassiveCount={mimosa:0,qualia:0};
+  state.gustavFabricTriggers=0;state.gustavPreservationSpent=0;
+  render();
+  const chosen=state.selected.map(id=>playerDeck.find(c=>c.id===id)).filter(Boolean);
+  const spent=chosen.reduce((a,c)=>a+c.cost,0);
+  if(chosen.length===0){setActionMessage('사용할 카드를 먼저 선택해 주세요.');return;}
+  if(spent>state.light){setActionMessage('빛이 부족해 카드를 사용할 수 없습니다.','bad');return;}
+  state.light-=spent;state.selected=[];$('fight').disabled=true;
+  const playerFirst=state.p.speed>=state.e.speed;
+  const enemyActs=enemyActionCount();
+  const slots=Math.max(chosen.length,enemyActs);
+  let playerIndex=0,enemyIndex=0;
+  for(let i=0;i<slots&&!state.done;i++){
+   if(playerFirst&&playerIndex<chosen.length){const c=chosen[playerIndex++];await usePlayerCard(c);if(state.e.hp<=0){finish(true);break;}}
+   if(enemyIndex<enemyActs&&!state.done){await strike(state.e,state.p,bossCard(),false);enemyIndex++;if(state.p.hp<=0){finish(false);break;}}
+   if(!playerFirst&&playerIndex<chosen.length&&!state.done){const c=chosen[playerIndex++];await usePlayerCard(c);if(state.e.hp<=0){finish(true);break;}}
+  }
+  if(!state.done){
    await wait(550);
-   // 침잠은 양측의 모든 카드가 발동한 라운드 종료 시 각자 2 감소한다.
-   for(const side of [state.p,state.e]){if((side.kw.침잠||0)>0){const before=side.kw.침잠;side.kw.침잠=Math.max(0,before-2);log(`${side===state.p?'당신':state.enemyName} · 침잠 ${before} → ${side.kw.침잠} (라운드 종료 -2)`);}}
-   for(let side of [state.p,state.e]){
-     for(let k of ['화상'])if(side.kw[k]>0){let amount=side.kw[k];let actual=damage(side,amount);side.kw[k]=Math.max(0,side.kw[k]-1);log(`${side===state.p?'당신':state.enemyName} · 화상 ${actual} 피해, 화상 1 감소`,side===state.p?'bad':'good')}
-   }
+   for(const side of [state.p,state.e])if((side.kw.침잠||0)>0){const before=side.kw.침잠;side.kw.침잠=Math.max(0,before-2);log(`${side===state.p?'당신':state.enemyName} · 침잠 ${before} → ${side.kw.침잠} (라운드 종료 -2)`);}
+   for(const side of [state.p,state.e])if(side.kw.화상>0){const amount=side.kw.화상,actual=damage(side,amount);side.kw.화상=Math.max(0,side.kw.화상-1);log(`${side===state.p?'당신':state.enemyName} · 화상 ${actual} 피해, 화상 1 감소`,side===state.p?'bad':'good');}
    if(state.enemyType==='qualia'&&(state.e.kw.트리코테||0)>0){const heal=Math.min(state.e.max-state.e.hp,state.e.kw.트리코테);state.e.hp+=heal;if(heal)log(`퀄리아 패시브 · 트리코테 ${state.e.kw.트리코테} 회복 (${heal})`,'good');}
    gustavRoundEnd();
    if(state.p.hp<=0)finish(false);else if(state.e.hp<=0)finish(true);
-   else{state.p.chefDodgeRound=0;state.p.chefDamageReduce=0;state.round++;state.light=4;state.hand=drawHand();if(state.p.itemRegen&&state.round%3===0){state.p.hp=Math.min(state.p.max,state.p.hp+state.p.itemRegen);log(`아이템 효과 · 체력 ${state.p.itemRegen} 회복`,'good');}log(`— ${state.round}라운드 시작 · 빛 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`)}
+   else{state.p.chefDodgeRound=0;state.p.chefDamageReduce=0;state.round++;state.light=4;state.hand=drawHand();if(state.p.itemRegen&&state.round%3===0){state.p.hp=Math.min(state.p.max,state.p.hp+state.p.itemRegen);log(`아이템 효과 · 체력 ${state.p.itemRegen} 회복`,'good');}log(`— ${state.round}라운드 시작 · 빛 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`);}
+  }
+ }catch(err){
+  console.error('전투 라운드 처리 오류:',err);
+  setActionMessage('카드 또는 주사위 판정 중 오류가 발생했습니다. 전투 입력을 다시 활성화했습니다. 오류 내용은 브라우저 콘솔에서 확인할 수 있습니다.','bad');
+ }finally{
+  actionLocked=false;
+  if(state)render();
  }
- actionLocked=false;
- render();
 }
 function clearCombatKeywords(){for(const side of [state.p,state.e])for(const key of Object.keys(side.kw))side.kw[key]=0;}
 function exitAfterVictory(){
