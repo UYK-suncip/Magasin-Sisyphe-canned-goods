@@ -253,7 +253,7 @@ async function usePlayerCard(originalCard){
  if(card.transformAtUse&&(state.p.kw.보존||0)>=7){state.p.kw.보존-=7;card={id:'won_kick_multi_runtime',name:'원 킥-쿠튀르 뮐티플',cost:originalCard.cost,power:5,dice:2,rolls:3,desc:'5+3d2 · 진동 4 부여 · 진동폭발 · 적중 시 2회 재사용',kind:'burst',apply:{진동:4},reuse:2,mode:'renoir'};log('보존 7 소모 · 원 킥 대신 원 킥-쿠튀르 뮐티플 발동!','good');}
  const chargeSpent=payCardUseCost(state.p,card,true);
  let hit=card.kind==='support'?(await useSupport(card),true):await strike(state.p,state.e,card,true,chargeSpent);
- if(card.reuse&&hit&&!state.done){for(let i=0;i<card.reuse&&state.e.hp>0&&!state.done;i++){await wait(180);log(`${card.name} · 재사용 ${i+1}/${card.reuse}`,'good');await strike(state.p,state.e,card,true,0);}}
+ if(card.reuse&&hit&&!state.done){for(let i=0;i<card.reuse&&state.e.hp>0&&!state.done;i++){await wait(180);log(`${card.name} · 재사용 ${i+1}/${card.reuse}`,'good');const repeatCard=card.chefLastExtra&&i===card.reuse-1?{...card,extraDice:2,extraSides:3}:card;await strike(state.p,state.e,repeatCard,true,0);}}
 }
 function enemyActionCount(){if(state.enemyType==='aliune')return 3;if(state.enemyType==='rukaki')return 2;if(['mimosa','gustav','qualia'].includes(state.enemyType))return 2;return 1}
 function bossCard(){if(state.enemyType==='rukaki')return rukakiDeck[Math.floor(Math.random()*rukakiDeck.length)];if(state.enemyType==='mimosa'||state.enemyType==='gustav'||state.enemyType==='qualia'){const deck=enemyDecks[state.enemyType].flatMap(c=>Array(c.copies||1).fill(c));return deck[Math.floor(Math.random()*deck.length)]}if(state.enemyType==='test')return testEnemyDeck[Math.floor(Math.random()*testEnemyDeck.length)];let target=state.p;if((target.kw.잔향||0)>=30)return bossDeck[3];return bossDeck[Math.floor(Math.random()*3)]}
@@ -290,7 +290,7 @@ async function startRound(){
    if(state.enemyType==='qualia'&&(state.e.kw.트리코테||0)>0){const heal=Math.min(state.e.max-state.e.hp,state.e.kw.트리코테);state.e.hp+=heal;if(heal)log(`퀄리아 패시브 · 트리코테 ${state.e.kw.트리코테} 회복 (${heal})`,'good');}
    gustavRoundEnd();
    if(state.p.hp<=0)finish(false);else if(state.e.hp<=0)finish(true);
-   else{state.round++;state.light=4;state.hand=drawHand();if(state.p.itemRegen&&state.round%3===0){state.p.hp=Math.min(state.p.max,state.p.hp+state.p.itemRegen);log(`아이템 효과 · 체력 ${state.p.itemRegen} 회복`,'good');}log(`— ${state.round}라운드 시작 · 빛 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`)}
+   else{state.p.chefDodgeRound=0;state.p.chefDamageReduce=0;state.round++;state.light=4;state.hand=drawHand();if(state.p.itemRegen&&state.round%3===0){state.p.hp=Math.min(state.p.max,state.p.hp+state.p.itemRegen);log(`아이템 효과 · 체력 ${state.p.itemRegen} 회복`,'good');}log(`— ${state.round}라운드 시작 · 빛 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`)}
  }
  actionLocked=false;
  render();
