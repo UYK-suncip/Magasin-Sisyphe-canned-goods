@@ -123,7 +123,7 @@ const bossDeck=[
 let state;let actionLocked=false;const $=id=>document.getElementById(id);
 const seasonNames=['스트라이프','파이톤','헤링본','트위드','샤무드','스웨이드','누벅','벨벳','새틴','태피터','오간자','데님','코듀로이','플란넬','트윌','자카드','체크','하운즈투스','글렌체크','핀스트라이프','도비','캔버스','그레인','페블','크링클'];
 let seasonNameOrder=[];function shuffleSeasonNames(){seasonNameOrder=[...seasonNames];for(let i=seasonNameOrder.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[seasonNameOrder[i],seasonNameOrder[j]]=[seasonNameOrder[j],seasonNameOrder[i]]}}
-let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,seasonShops:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],outdatedClothesEventSeen:false,seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
+let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,seasonShops:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],outdatedClothesEventSeen:false,welcomeEventSeen:false,seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
 const testEnemy={name:'길 잃은 점원',hp:60,max:60,speed:3,caption:'쇼핑 바구니를 끌며 복도를 배회한다.',portrait:'♟'};
 const rukakiEnemy={name:'르카키',hp:40,max:40,speed:3,caption:'어디에도 속하지 않는 고객',portrait:'♟'};
 const rukakiDeck=[
