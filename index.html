@@ -380,7 +380,7 @@ function makeShopEvent(key){const sh=shopCatalog[key];return {shopKey:key,title:
 function nextExploreEvent(){
  run.seasonName=getSeasonName();const finalTurn=run.turn>=run.length;let key=null;
  if(run.floor===1&&run.turn===2&&!run.outdatedClothesEventSeen){run.outdatedClothesEventSeen=true;run.event={title:'철 지난 르루주',text:`"젠장 유행이 또 지나버렸잖아!"\n\n르루주 점원 미모사가 리스트를 보며 진열대에 걸린 옷들을 신경질적으로 내팽개치고있다.\n\n"스트라이프 시즌이 지나간 지 얼마나됬다고. 이젠 ${run.seasonName}? 하!"\n\n이젠 쓸모가 없어진거같은데 당신이 가져가면 쓸만하지 않을까?`,actions:[{name:'유행이 지났다면 가져가도 되는지 물어본다',desc:'일반 판정 d100 · 20 이상 성공',kind:'outdatedAsk'},{name:'무시한다',desc:'아무 일 없이 지나간다.',kind:'outdatedIgnore'}]};return;}
- if(run.floor===1&&run.turn===1&&!run.welcomeEventSeen){run.welcomeEventSeen=true;run.event={title:'',text:`"시지프 백화점에 오신 고객분들을 환영합니다. 저희 시지프 백화점은 고객 여러분의 경험을 뭐더라?"`,actions:[{name:'확인',desc:'아무일도 일어나지 않았다.',kind:'pass'}]};return;}
+ if(run.floor===1&&run.turn===1&&!run.welcomeEventSeen){run.welcomeEventSeen=true;run.event={title:'환영인사',text:`"시지프 백화점에 오신 고객분들을 환영합니다. 저희 시지프 백화점은 고객 여러분의 경험을 뭐더라?"`,actions:[{name:'확인',desc:'아무일도 일어나지 않았다.',kind:'pass'}]};return;}
  if(run.floor===1&&finalTurn)key=specialShopKey();
  if(key&&run.shopDefeated[key])key=null;
  if(key){run.seasonShops[run.season]=key;run.event=makeShopEvent(key);return;}
