@@ -47,6 +47,69 @@
 .event-result-card button{width:100%}.check-dice-panel{margin:0 0 18px;padding:16px;border:1px solid #555b70;border-radius:14px;background:#10131c;text-align:center}.check-dice-label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em}.check-dice{width:92px;height:92px;margin:12px auto 8px;display:grid;place-items:center;border:3px solid var(--gold);border-radius:18px;background:linear-gradient(145deg,#27283a,#11131d);font-size:32px;font-weight:950;font-variant-numeric:tabular-nums;box-shadow:0 8px 22px #0007}.check-dice.rolling{animation:checkDiceRoll .12s linear infinite}.check-dice.success{border-color:#72bfa4;color:#8ce0bd;box-shadow:0 0 22px #72bfa433}.check-dice.failure{border-color:#bd6b73;color:#ff8f98;box-shadow:0 0 22px #bd6b7333}.check-dice-outcome{font-size:13px;font-weight:850;color:var(--muted)}.check-dice-outcome.success{color:#8ce0bd}.check-dice-outcome.failure{color:#ff8f98}@keyframes checkDiceRoll{0%{transform:rotate(-8deg) scale(.94)}50%{transform:rotate(8deg) scale(1.06)}100%{transform:rotate(-8deg) scale(.94)}}
 
 @media(max-width:560px){body:has(#game:not(.hidden)) .app{padding:3px}body:has(#game:not(.hidden)) .top{margin-bottom:3px}body:has(#game:not(.hidden)) .layout{gap:4px}body:has(#game:not(.hidden)) .panel{padding:6px}body:has(#game:not(.hidden)) .left .unit{padding:5px;margin-bottom:4px}body:has(#game:not(.hidden)) .left h2{font-size:12px;margin-bottom:4px}body:has(#game:not(.hidden)) .tags{gap:3px;margin-top:3px}body:has(#game:not(.hidden)) .tag{font-size:9px;padding:1px 3px}body:has(#game:not(.hidden)) .footer-note{display:none}body:has(#game:not(.hidden)) .arena{min-height:68px;padding:5px;gap:4px}body:has(#game:not(.hidden)) .portrait{font-size:29px}body:has(#game:not(.hidden)) .enemy-name{font-size:14px}body:has(#game:not(.hidden)) .arena-caption{font-size:9px}body:has(#game:not(.hidden)) .duel{margin-top:2px}body:has(#game:not(.hidden)) .die{width:30px;height:30px;font-size:15px;margin:2px auto}body:has(#game:not(.hidden)) .skill-name{font-size:10px;min-height:12px;margin-top:1px}body:has(#game:not(.hidden)) .section-title{margin:4px 0;font-size:10px}body:has(#game:not(.hidden)) .cards{gap:4px}body:has(#game:not(.hidden)) .card{padding:5px}body:has(#game:not(.hidden)) .card h3{font-size:10px;margin-bottom:2px}body:has(#game:not(.hidden)) .card p{font-size:9px;line-height:1.2;margin:2px 0}body:has(#game:not(.hidden)) .controls{margin-top:4px}body:has(#game:not(.hidden)) .controls button{padding:6px;font-size:10px}body:has(#game:not(.hidden)) .feed{max-height:65px}}
+
+/* SIZIF monochrome blueprint palette */
+:root{
+ --bg:#070b12;--panel:#0b111a;--panel2:#101925;--line:#657080;
+ --gold:#d6dce5;--mint:#d4e3f2;--red:#c97882;--text:#e7ebf0;
+ --muted:#9ba8b8;--blue:#b7cce5;
+}
+body{
+ background-color:var(--bg);
+ background-image:
+  linear-gradient(#8ca2ba0a 1px,transparent 1px),
+  linear-gradient(90deg,#8ca2ba0a 1px,transparent 1px),
+  radial-gradient(ellipse at 50% 0%,#182536 0%,#070b12 68%);
+ background-size:24px 24px,24px 24px,100% 100%;
+}
+button,.panel,.unit,.card,.light-ui,.action-result,.patch-modal,.gameover-card,
+.event-result-card,.check-dice-panel{
+ border-radius:2px;
+ border-color:#596575;
+ box-shadow:inset 0 0 0 1px #dce5f008;
+}
+button{background:linear-gradient(180deg,#172231,#0b111a);color:#e2e7ee}
+button:hover:not(:disabled){border-color:#d3deeb;box-shadow:0 0 10px #a9c7ed22,inset 0 0 0 1px #dce5f022}
+.app{position:relative}
+.brand,.section-title,.skill-name,.power,.light-ui-label,.status-note,
+.patch-kicker,.patch-body h2,.action-result strong,.event-result-kicker{
+ color:#d1d9e4;
+}
+.sub,.meta,.muted,.footer-note,.arena-caption{color:#98a7b9}
+.panel{background:linear-gradient(145deg,#0c131d,#080d15)}
+.unit{background:#0d1520}
+.arena{background:radial-gradient(ellipse at center,#1b2938 0%,#0b111a 68%);border:1px solid #647184}
+.hp{background:#202b39}
+.hp>i{background:#c8d9eb}
+.enemy .hp>i{background:#bb737e}
+.tag{border-color:#536174;color:#c8d2df;background:#0b121b;border-radius:2px}
+.tag strong{color:#dbe4ee}
+.die{background:#080e16;border-color:#c7d9ec;color:#edf4fb;border-radius:3px;box-shadow:0 0 12px #8fb8e018}
+.die.enemy-die{border-color:#b87983}
+.card{background:linear-gradient(145deg,#121c29,#0b111a)}
+.card.selected{border:2px solid #c9d9eb;background:#1a293b;box-shadow:0 0 16px #b4d4fa2b;transform:translateY(-2px)}
+.card .cost{color:#bdcde0}
+.primary,.patch-close{background:linear-gradient(180deg,#dce4ed,#aebdce);color:#101722;border-color:#dce4ed}
+.secondary{background:#0b111a}
+.light-ui{background:#0b121b}
+.light-track{background:#202b39}
+.light-fill{background:#dbe6f2;box-shadow:0 0 9px #dbe6f280}
+.logline{color:#c3ccd8}
+.logline.good{border-color:#b4d5d0}
+.logline.bad{border-color:#c97882}
+.patch-backdrop,.gameover-backdrop,.event-result-backdrop{background:#02050bdc}
+.patch-modal,.gameover-card,.event-result-card{background:#0b121b;border-color:#647184}
+.event-result-card.success{border-color:#a5cfc4}
+.event-result-card.failure{border-color:#c97882}
+.check-dice{background:linear-gradient(145deg,#1b2938,#080e16);border-color:#cbd9e8}
+.mode-added{border-color:#cbd9e8!important;box-shadow:inset 3px 0 #cbd9e8}
+.skill-note{color:#b7d4d0}
+.damage-float.enemy-hit{color:#f0f3f7}
+.damage-float.player-hit{color:#ff7d88}
+@media(prefers-reduced-motion:no-preference){
+ .panel,.unit,.card{transition:border-color .18s,box-shadow .18s}
+}
+
 </style></head><body>
 <div id="patchBackdrop" class="patch-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="patchTitle"><section class="patch-modal"><div class="patch-top"><div><div class="patch-kicker">SIZIF DEPARTMENT STORE · UPDATE</div><h1 class="patch-title" id="patchTitle">패치 노트</h1></div><button id="patchX" class="secondary" aria-label="패치 노트 닫기">✕</button></div><div id="patchBody" class="patch-body"><p>패치 노트를 불러오는 중...</p></div><div class="patch-footer"><span class="patch-note">로비에 처음 접속했을 때 표시됩니다.</span><button id="patchClose" class="patch-close">확인하고 입장</button></div></section></div>
 
