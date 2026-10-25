@@ -293,7 +293,7 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  atkEl.textContent=atk;
  let attackText=`${card.name} · 공격 ${atk} (${finalPower}+${card.rolls}d${card.dice}${card.extraDice?`+${card.extraDice}d${card.extraSides||card.dice}`:''})${guidancePenalty?` · 안내 불이행 -${guidancePenalty}`:''}${sinkPenalty?` · 침잠 -${sinkPenalty}`:''}`;
  let dodgeSides=defender===state.p?8:state.enemyType==='leatherGlove'?3:state.enemyType==='rukaki'?4:state.enemyType==='mimosa'||state.enemyType==='qualia'?5:state.enemyType==='gustav'?6:4, dodgeCount=defender===state.p?2:(state.enemyType==='leatherGlove'?2:(['rukaki','mimosa','gustav','qualia'].includes(state.enemyType)?1:2));
- let dodgeDice=defender===state.p?[1,...roll(8,1)]:roll(dodgeSides,dodgeCount);if(defender===state.p&&(Number(defender.guardBonusDice)||0)>0){const bonusCount=Number(defender.guardBonusDice)||0;const bonusDice=roll(4,bonusCount);dodgeDice.push(...bonusDice);defender.guardBonusDice=0;log(`방어 태세 · 추가 회피 주사위 ${bonusDice.join('+')} 적용`,'good');}let dodge=sum(dodgeDice)+2-(card.chefEvasionDown&&defender===state.e?card.chefEvasionDown:0);if(defender===state.p&&state.p.chefDodgeRound)dodge+=1;
+ let dodgeDice=defender===state.p?[1,...roll(8,1)]:roll(dodgeSides,dodgeCount);if(defender===state.p&&(Number(defender.guardBonusDice)||0)>0){const bonusCount=Number(defender.guardBonusDice)||0;const bonusDice=roll(4,bonusCount);dodgeDice.push(...bonusDice);log(`방어 태세 · 이번 턴 회피 주사위 ${bonusDice.join('+')} 적용`,'good');}let dodge=sum(dodgeDice)+2-(card.chefEvasionDown&&defender===state.e?card.chefEvasionDown:0);if(defender===state.p&&state.p.chefDodgeRound)dodge+=1;
  defEl.classList.remove('rolling');defEl.textContent=dodge;
  if(isPlayer){$('attackLabel').textContent=attackText;$('defenseLabel').textContent=`${defender===state.p?'회피 +2 (1+1d8'+(dodgeDice.length>2?' + 방어 태세 1d4':'')+')':`회피 +2 (${dodgeCount}d${dodgeSides})`} (${dodgeDice.join('+')})`;}else{$('defenseLabel').textContent=attackText;$('attackLabel').textContent=`${defender===state.p?'회피 +2 (1+1d8'+(dodgeDice.length>2?' + 방어 태세 1d4':'')+')':`회피 +2 (${dodgeCount}d${dodgeSides})`} (${dodgeDice.join('+')})`;}await wait(420);
  if(atk>dodge){
@@ -330,7 +330,7 @@ async function usePlayerCard(originalCard){
  let card=originalCard;
  if(chefModeEnabled&&card.id==='chef_spacecut'&&(Number(state.e.kw.매콤매콤소스)||0)>=5){const sauce=Number(state.e.kw.매콤매콤소스)||0;const ultimate=chefCards.find(c=>c.id==='chef_ultimate');card={...ultimate,id:'chef_ultimate_runtime',cost:originalCard.cost,chefExtraDamage:sauce*2,chefTriggerBleed:true,chefSauceSpent:sauce};log('예열 조건 충족 · 공간참-맛이 극공간참-존맛으로 교체되어 사용된다.','good');}
  if(card.chefSpendReuse){const sauce=Number(state.e.kw.매콤매콤소스)||0;card={...card,reuse:sauce>=Number(card.chefSpendSauce||4)?1:0};}
- if(card.kind==='guard'){const before=Number(state.p.kw.안내불이행)||0;if(before>0){state.p.kw.안내불이행=before-1;log(`방어 태세 · 안내 불이행 1 소모 (${before} → ${before-1})`,'good');}state.p.guardBonusDice=(Number(state.p.guardBonusDice)||0)+1;log('방어 태세 · 다음 회피에 추가 주사위 1d4 부여','good');$('arenaName').textContent='당신의 방어';$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('attackDie').textContent='—';$('attackLabel').textContent='방어 스킬';setActionMessage('방어 태세 · 다음 회피 주사위에 1d4 추가','good');render();await wait(350);return;}
+ if(card.kind==='guard'){const before=Number(state.p.kw.안내불이행)||0;if(before>0){state.p.kw.안내불이행=before-1;log(`방어 태세 · 안내 불이행 1 소모 (${before} → ${before-1})`,'good');}log('방어 태세 · 이번 턴의 모든 회피에 추가 주사위 1d4 적용','good');$('arenaName').textContent='당신의 방어';$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('attackDie').textContent='—';$('attackLabel').textContent='방어 스킬';setActionMessage('방어 태세 · 이번 턴의 모든 회피에 1d4 추가','good');render();await wait(350);return;}
  if(card.transformAtUse&&(state.p.kw.보존||0)>=7){state.p.kw.보존-=7;card={id:'won_kick_multi_runtime',name:'원 킥-쿠튀르 뮐티플',cost:originalCard.cost,power:5,dice:2,rolls:3,desc:'5+3d2 · 진동 4 부여 · 진동폭발 · 적중 시 2회 재사용',kind:'burst',apply:{진동:4},reuse:2,mode:'renoir'};log('보존 7 소모 · 원 킥 대신 원 킥-쿠튀르 뮐티플 발동!','good');}
  const chargeSpent=payCardUseCost(state.p,card,true);
  let hit=card.kind==='support'?(await useSupport(card),true):await strike(state.p,state.e,card,true,chargeSpent);
@@ -353,6 +353,8 @@ async function startRound(){
   const chosen=state.selected.map(id=>playerDeck.find(c=>c.id===id)).filter(Boolean);
   state.p.chefDodgeRound=chefModeEnabled&&chosen.some(c=>c.chefDodge)?1:0;
   state.p.chefDamageReduce=chefModeEnabled&&chosen.some(c=>c.chefDamageReduce)?1:0;
+  // 방어 태세는 해당 라운드의 모든 회피에 적용한다. 선택 단계에서 미리 계산한다.
+  state.p.guardBonusDice=chosen.filter(c=>c.kind==='guard').length;
   const spent=chosen.reduce((a,c)=>a+c.cost,0);
   if(chosen.length===0){setActionMessage('사용할 카드를 먼저 선택해 주세요.');return;}
   if(spent>state.light){setActionMessage('빛이 부족해 카드를 사용할 수 없습니다.','bad');return;}
