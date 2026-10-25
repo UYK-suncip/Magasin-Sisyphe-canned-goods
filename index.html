@@ -168,8 +168,8 @@ const playerDeck=[
 {id:'vibeburst',name:'진동 폭발',cost:2,power:3,dice:6,rolls:1,desc:'대상의 진동을 모두 소모해 수치만큼 추가 피해',kind:'burst'},
 {id:'charge',name:'축전',cost:1,power:0,dice:0,rolls:0,desc:'공격하지 않고 충전 3 획득',kind:'support', self:{충전:3}}];
 const testerCards=[
-{id:'mom_hate',name:'엄마 미워',cost:1,power:999,dice:0,rolls:0,desc:'999 · 출혈 99 부여',kind:'attack',apply:{출혈:99},mode:'tester'},
-{id:'roja_axe',name:'로쟈의',cost:1,power:999,dice:0,rolls:0,desc:'999 · 침잠 99 부여',kind:'attack',apply:{침잠:99},mode:'tester'},
+{id:'mom_hate',name:'엄마 미워 - 극 공간참',cost:1,power:999,dice:0,rolls:0,desc:'999+0 · 출혈 99 부여',kind:'attack',apply:{출혈:99},mode:'tester'},
+{id:'roja_axe',name:'로쟈의 도끼 던지기',cost:1,power:999,dice:0,rolls:0,desc:'999+0 · 침잠 부여',kind:'attack',apply:{침잠:99},mode:'tester'},
 {id:'tester_yukcham',name:'육참',cost:1,power:1,dice:5,rolls:5,desc:'1+5d5 · 회피 불가능 · 합을 이긴다',kind:'attack',unavoidable:true,mode:'tester'},
 {id:'tester_hitready',name:'피격 준비',cost:0,power:0,dice:0,rolls:0,desc:'비공격 스킬 · 이번 턴 동안 자신의 회피 0으로 고정',kind:'selfsupport',mode:'tester'}];
 const renoirCards=[
@@ -190,7 +190,7 @@ const chefCards=[
 ];
 let testerModeEnabled=false,renoirModeEnabled=false,chefModeEnabled=false;
 function addModeCards(cards,mode){
- if(mode==='tester'){playerDeck.splice(0,playerDeck.length,...cards.map(c=>({...c})));testerModeEnabled=true;chefModeEnabled=false;renoirModeEnabled=false;if(state){state.hand=drawHand();state.selected=[];render();}document.querySelectorAll('#testerMode,#renoirMode,#chefMode').forEach(b=>b.classList.remove('mode-added'));$('testerMode').classList.add('mode-added');$('testerMode').textContent='테스터 모드 ✓';$('modeNotice').textContent='테스터 모드 활성화 · 카드 4장 고정: 엄마 미워 / 로쟈의 / 육참 / 피격 준비';return;}
+ if(mode==='tester'){playerDeck.splice(0,playerDeck.length,...cards.map(c=>({...c})));testerModeEnabled=true;chefModeEnabled=false;renoirModeEnabled=false;if(state){state.hand=drawHand();state.selected=[];render();}document.querySelectorAll('#testerMode,#renoirMode,#chefMode').forEach(b=>b.classList.remove('mode-added'));$('testerMode').classList.add('mode-added');$('testerMode').textContent='테스터 모드 ✓';$('modeNotice').textContent='테스터 모드 활성화 · 카드 4장 고정: 엄마 미워 - 극 공간참 / 로쟈의 도끼 던지기 / 육참 / 피격 준비';return;}
  if(mode==='chef'){const chefDeck=cards.filter(c=>c.id!=='chef_ultimate').flatMap(c=>c.id==='chef_one_bite'?[0,1,2].map(copy=>({...c,id:`${c.id}_${copy+1}`})):[{...c}]);playerDeck.splice(0,playerDeck.length,...chefDeck);chefModeEnabled=true;testerModeEnabled=false;renoirModeEnabled=false;if(state){state.p.kw.매콤매콤소스=0;state.e.kw.매콤매콤소스=0;state.hand=drawHand();state.selected=[];render();}document.querySelectorAll('#testerMode,#renoirMode,#chefMode').forEach(b=>b.classList.remove('mode-added'));$('chefMode').classList.add('mode-added');$('chefMode').textContent='이게 요리라는 거예요 ✓';$('modeNotice').textContent='수셰프 모드 활성화 · 기존 카드 전체 교체 완료 (한 입 하란 거예요 3장 포함, 총 10장 · 극공간참-존맛은 공간참-맛 강화 발동)';return;}
  let added=0;for(const c of cards){if(!playerDeck.some(x=>x.id===c.id)){playerDeck.push({...c});added++;}}if(mode==='renoir')renoirModeEnabled=true;const n=$('modeNotice');if(n)n.textContent=added?'모드 활성화 · 덱에 카드 '+added+'장 추가됨':'모드 활성화 · 해당 카드가 이미 덱에 있습니다.';$(mode==='tester'?'testerMode':'renoirMode').textContent=mode==='tester'?'테스터 모드 ✓':'르누아르 모드 (임시) ✓';$(mode==='tester'?'testerMode':'renoirMode').classList.add('mode-added');}
 const bossDeck=[
