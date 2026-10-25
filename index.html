@@ -168,9 +168,10 @@ const playerDeck=[
 {id:'vibeburst',name:'진동 폭발',cost:2,power:3,dice:6,rolls:1,desc:'대상의 진동을 모두 소모해 수치만큼 추가 피해',kind:'burst'},
 {id:'charge',name:'축전',cost:1,power:0,dice:0,rolls:0,desc:'공격하지 않고 충전 3 획득',kind:'support', self:{충전:3}}];
 const testerCards=[
+{id:'mom_hate',name:'엄마 미워',cost:1,power:999,dice:0,rolls:0,desc:'999 · 출혈 99 부여',kind:'attack',apply:{출혈:99},mode:'tester'},
+{id:'roja_axe',name:'로쟈의',cost:1,power:999,dice:0,rolls:0,desc:'999 · 침잠 99 부여',kind:'attack',apply:{침잠:99},mode:'tester'},
 {id:'tester_yukcham',name:'육참',cost:1,power:1,dice:5,rolls:5,desc:'1+5d5 · 회피 불가능 · 합을 이긴다',kind:'attack',unavoidable:true,mode:'tester'},
-{id:'mom_hate',name:'엄마 미워 - 극 공간참',cost:1,power:999,dice:0,rolls:0,desc:'999+1d0 · 출혈 99 부여',kind:'attack',apply:{출혈:99},mode:'tester'},
-{id:'roja_axe',name:'로쟈의 도끼 던지기',cost:1,power:999,dice:0,rolls:0,desc:'999+1d0 · 침잠 99 부여',kind:'attack',apply:{침잠:99},mode:'tester'}];
+{id:'tester_hitready',name:'피격 준비',cost:0,power:0,dice:0,rolls:0,desc:'비공격 스킬 · 이번 턴 동안 자신의 회피 0으로 고정',kind:'selfsupport',mode:'tester'}];
 const renoirCards=[
 {id:'won_kick',name:'원 킥',cost:1,power:4,dice:3,rolls:3,desc:'4+3d3 · 진동 5 부여 · 진동폭발 · 보존 7 이상이면 보존 7 소모 후 원 킥-쿠튀르 뮐티플로 변경',kind:'burst',apply:{진동:5},transformAtUse:true,mode:'renoir'},
 
@@ -189,6 +190,7 @@ const chefCards=[
 ];
 let testerModeEnabled=false,renoirModeEnabled=false,chefModeEnabled=false;
 function addModeCards(cards,mode){
+ if(mode==='tester'){playerDeck.splice(0,playerDeck.length,...cards.map(c=>({...c})));testerModeEnabled=true;chefModeEnabled=false;renoirModeEnabled=false;if(state){state.hand=drawHand();state.selected=[];render();}document.querySelectorAll('#testerMode,#renoirMode,#chefMode').forEach(b=>b.classList.remove('mode-added'));$('testerMode').classList.add('mode-added');$('testerMode').textContent='테스터 모드 ✓';$('modeNotice').textContent='테스터 모드 활성화 · 카드 4장 고정: 엄마 미워 / 로쟈의 / 육참 / 피격 준비';return;}
  if(mode==='chef'){const chefDeck=cards.filter(c=>c.id!=='chef_ultimate').flatMap(c=>c.id==='chef_one_bite'?[0,1,2].map(copy=>({...c,id:`${c.id}_${copy+1}`})):[{...c}]);playerDeck.splice(0,playerDeck.length,...chefDeck);chefModeEnabled=true;testerModeEnabled=false;renoirModeEnabled=false;if(state){state.p.kw.매콤매콤소스=0;state.e.kw.매콤매콤소스=0;state.hand=drawHand();state.selected=[];render();}document.querySelectorAll('#testerMode,#renoirMode,#chefMode').forEach(b=>b.classList.remove('mode-added'));$('chefMode').classList.add('mode-added');$('chefMode').textContent='이게 요리라는 거예요 ✓';$('modeNotice').textContent='수셰프 모드 활성화 · 기존 카드 전체 교체 완료 (한 입 하란 거예요 3장 포함, 총 10장 · 극공간참-존맛은 공간참-맛 강화 발동)';return;}
  let added=0;for(const c of cards){if(!playerDeck.some(x=>x.id===c.id)){playerDeck.push({...c});added++;}}if(mode==='renoir')renoirModeEnabled=true;const n=$('modeNotice');if(n)n.textContent=added?'모드 활성화 · 덱에 카드 '+added+'장 추가됨':'모드 활성화 · 해당 카드가 이미 덱에 있습니다.';$(mode==='tester'?'testerMode':'renoirMode').textContent=mode==='tester'?'테스터 모드 ✓':'르누아르 모드 (임시) ✓';$(mode==='tester'?'testerMode':'renoirMode').classList.add('mode-added');}
 const bossDeck=[
@@ -265,6 +267,7 @@ function gustavRoundEnd(){
 function setActionMessage(message,type=''){const box=$('actionResult');if(!box)return;box.className='action-result '+type;box.innerHTML=`<strong>전투 기록</strong><span>${String(message).replace(/<[^>]*>/g,'')}</span>`;}
 async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  if(state.done)return;
+ if(isPlayer&&card.kind==='selfsupport'){state.p.forceDodgeZero=true;$('arenaName').textContent='당신의 준비';$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('attackDie').textContent='—';$('attackLabel').textContent='비공격 스킬';$('defenseLabel').textContent='이번 턴 회피 0 고정';log('피격 준비 · 이번 턴 동안 자신의 회피를 0으로 고정','bad');render();await wait(350);return false;}
  if(state.enemyType==='perfumer'&&attacker===state.e&&card.kind==='perfumerSupport'){applyKw(attacker,card.effect);$('arenaName').textContent=state.enemyName;$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('attackDie').textContent='—';$('attackLabel').textContent='비공격 스킬';log('조향사 · 조향 사용, 향 +3','good');render();await wait(350);return false;}
  let atkEl=$(isPlayer?'attackDie':'defenseDie'),defEl=$(isPlayer?'defenseDie':'attackDie');
  $('arenaName').textContent=isPlayer?'당신의 공격':`${state.enemyName}의 공격`;
@@ -296,7 +299,7 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  atkEl.textContent=atk;
  let attackText=`${card.name} · 공격 ${atk} (${finalPower}+${card.rolls}d${card.dice}${card.extraDice?`+${card.extraDice}d${card.extraSides||card.dice}`:''})${guidancePenalty?` · 안내 불이행 -${guidancePenalty}`:''}${sinkPenalty?` · 침잠 -${sinkPenalty}`:''}`;
  let dodgeSides=defender===state.p?8:state.enemyType==='leatherGlove'?3:state.enemyType==='rukaki'?4:state.enemyType==='mimosa'||state.enemyType==='qualia'?5:state.enemyType==='gustav'?6:4, dodgeCount=defender===state.p?2:(state.enemyType==='leatherGlove'?2:(['rukaki','mimosa','gustav','qualia'].includes(state.enemyType)?1:2));
- let dodgeDice=defender===state.p?[1,...roll(8,1)]:state.enemyType==='perfumer'?roll(4,3):roll(dodgeSides,dodgeCount);if(defender===state.p&&(Number(defender.guardBonusDice)||0)>0){const bonusCount=Number(defender.guardBonusDice)||0;const bonusDice=roll(4,bonusCount);dodgeDice.push(...bonusDice);log(`방어 태세 · 이번 턴 회피 주사위 ${bonusDice.join('+')} 적용`,'good');}let dodge=card.unavoidable?0:sum(dodgeDice)+2-(card.chefEvasionDown&&defender===state.e?card.chefEvasionDown:0);if(card.dodgeMax&&defender===state.p&&dodge>card.dodgeMax){log(`${card.name} · 대상 회피 최종위력 ${dodge} → ${card.dodgeMax}로 제한`,'good');dodge=card.dodgeMax;}if(defender===state.p&&state.p.chefDodgeRound)dodge+=1;
+ let dodgeDice=defender===state.p?[1,...roll(8,1)]:state.enemyType==='perfumer'?roll(4,3):roll(dodgeSides,dodgeCount);if(defender===state.p&&(Number(defender.guardBonusDice)||0)>0){const bonusCount=Number(defender.guardBonusDice)||0;const bonusDice=roll(4,bonusCount);dodgeDice.push(...bonusDice);log(`방어 태세 · 이번 턴 회피 주사위 ${bonusDice.join('+')} 적용`,'good');}let dodge=defender===state.p&&state.p.forceDodgeZero?0:card.unavoidable?0:sum(dodgeDice)+2-(card.chefEvasionDown&&defender===state.e?card.chefEvasionDown:0);if(card.dodgeMax&&defender===state.p&&dodge>card.dodgeMax){log(`${card.name} · 대상 회피 최종위력 ${dodge} → ${card.dodgeMax}로 제한`,'good');dodge=card.dodgeMax;}if(defender===state.p&&state.p.chefDodgeRound)dodge+=1;
  defEl.classList.remove('rolling');defEl.textContent=dodge;
  if(isPlayer){$('attackLabel').textContent=attackText;$('defenseLabel').textContent=`${defender===state.p?'회피 +2 (1+1d8'+(dodgeDice.length>2?' + 방어 태세 1d4':'')+')':`회피 +2 (${dodgeCount}d${dodgeSides})`} (${dodgeDice.join('+')})`;}else{$('defenseLabel').textContent=attackText;$('attackLabel').textContent=`${defender===state.p?'회피 +2 (1+1d8'+(dodgeDice.length>2?' + 방어 태세 1d4':'')+')':`회피 +2 (${dodgeCount}d${dodgeSides})`} (${dodgeDice.join('+')})`;}await wait(420);
  if(atk>dodge){
@@ -380,7 +383,7 @@ async function startRound(){
    if(state.enemyType==='qualia'&&(state.e.kw.트리코테||0)>0){const heal=Math.min(state.e.max-state.e.hp,state.e.kw.트리코테);state.e.hp+=heal;if(heal)log(`퀄리아 패시브 · 트리코테 ${state.e.kw.트리코테} 회복 (${heal})`,'good');}
    gustavRoundEnd();
    if(state.p.hp<=0)finish(false);else if(state.e.hp<=0)finish(true);
-   else{state.p.chefDodgeRound=0;state.p.chefDamageReduce=0;state.round++;state.light=4+(Number(state.lightBonusNext)||0);state.lightBonusNext=0;state.hand=drawHand();if(state.p.itemRegen&&state.round%3===0){state.p.hp=Math.min(state.p.max,state.p.hp+state.p.itemRegen);log(`아이템 효과 · 체력 ${state.p.itemRegen} 회복`,'good');}log(`— ${state.round}라운드 시작 · 빛 ${state.light} 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. 빛 상한 ${state.light}. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`);}
+   else{state.p.chefDodgeRound=0;state.p.chefDamageReduce=0;state.p.forceDodgeZero=false;state.round++;state.light=4+(Number(state.lightBonusNext)||0);state.lightBonusNext=0;state.hand=drawHand();if(state.p.itemRegen&&state.round%3===0){state.p.hp=Math.min(state.p.max,state.p.hp+state.p.itemRegen);log(`아이템 효과 · 체력 ${state.p.itemRegen} 회복`,'good');}log(`— ${state.round}라운드 시작 · 빛 ${state.light} 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. 빛 상한 ${state.light}. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`);}
   }
  }catch(err){
   console.error('전투 라운드 처리 오류:',err);
