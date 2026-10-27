@@ -226,9 +226,9 @@ const qualiaDeck=[
 {id:'qualia_decoudre',name:'데쿠드르',power:2,dice:4,rolls:1,desc:'2+1d4 · 출혈 5 이상이면 위력 +1 · 맥동 8 이상이면 추가 1d3 · 트리코테 소모 후 위력 증가 및 출혈 비례 피해',apply:{},qualiaUnravel:true,useKw:{맥동:2}},
 {id:'qualia_epingle',name:'에팽글레',power:2,dice:2,rolls:1,desc:'2+1d2 · 적중 시 출혈 5 · 맥동 8 · 트리코테 2',apply:{출혈:5},hitKw:{맥동:8,트리코테:2},useKw:{맥동:2}}];
 const enemyDecks={mimosa:mimosaDeck,gustav:gustavDeck,qualia:qualiaDeck};
-const shopCatalog={mimosa:{name:'미모사',title:'르루주 SPA관',group:'SPA관',enemy:'mimosa',text:'자영업의 길은 고되다.'},renoir:{name:'구스타프',title:'르누아르 컨템포러리관',group:'컨템포러리관',enemy:'gustav',text:'세련된 절제미의 원단 제품을 다루는 컨템포러리관이다.'},rouge:{name:'퀄리아',title:'르루주 컨템포러리관',group:'컨템포러리관',enemy:'qualia',text:'붉은 실과 섬세한 가죽 제품이 진열된 컨템포러리관이다.'}};
-const itemCatalog={mimosaMask:{name:'미모사의 가면',cost:0,desc:'공격력 +2 · [획득처: 미모사 처치] 과거 백화점은 떨어져 바닥을 치더라도, 바닥에서 다시 시작할 수 있었다.',attackPower:2},faith:{name:'신앙',cost:0,desc:'전투 시작 시 충전 3 획득 · [획득처: 구스타프 처치] 백화점의 르누아르들이 믿는 검은 신은 목소리를 내려준다. 보존하라.',startCharge:3},desire:{name:'욕망',cost:0,desc:'충전 또는 특수충전 소모 시 충전 1 획득 · [획득처: 퀄리아 처치] 백화점의 르루주들이 믿는 붉은 신은 목소리를 내려줬다. 욕망하라.',desire:true},spaJacket:{name:'르루주의 SPA 자켓',cost:60,desc:'최대 체력 +2',hp:2},spaHoodie:{name:'르루주의 SPA 후드집업',cost:80,desc:'최종 위력 +1',power:1},renoCardigan:{name:'르누아르의 컨템포러리 가디건',cost:90,desc:'최대 체력 +3',hp:3},renoHat:{name:'르누아르의 컨템포러리 신사 모자',cost:100,desc:'체력 +2 · 3턴마다 체력 1 회복',hp:2,regen:1},rougeSocks:{name:'르루주의 컨템포러리 양말',cost:90,desc:'최대 체력 +3',hp:3},rougeZip:{name:'르루주의 컨템포러리 지퍼',cost:100,desc:'속도 +1',speed:1},energyDrink:{name:'에너지 음료',cost:0,desc:'최종 위력 +1',power:1},outdatedRougeClothes:{name:'철 지난 르루주 옷',desc:'철이 지나 유행에서 밀려났지만, 착용감은 뛰어나다. (최대체력 +4)',hp:4}};
-const shopItems={mimosa:['spaJacket','spaHoodie'],renoir:['renoCardigan','renoHat'],rouge:['rougeSocks','rougeZip']};
+const shopCatalog={mimosa:{name:'미모사',title:'르루주 SPA관',group:'SPA관',enemy:'mimosa',text:'자영업의 길은 고되다.'},renoirSpa:{name:'쿠르베',title:'르누아르 SPA관',group:'SPA관',enemy:null,text:'정지와 보존의 가치를 내세우는 르누아르 SPA관이다.'},renoir:{name:'구스타프',title:'르누아르 컨템포러리관',group:'컨템포러리관',enemy:'gustav',text:'세련된 절제미의 원단 제품을 다루는 컨템포러리관이다.'},rouge:{name:'퀄리아',title:'르루주 컨템포러리관',group:'컨템포러리관',enemy:'qualia',text:'붉은 실과 섬세한 가죽 제품이 진열된 컨템포러리관이다.'}};
+const itemCatalog={mimosaMask:{name:'미모사의 가면',cost:0,desc:'공격력 +2 · [획득처: 미모사 처치] 과거 백화점은 떨어져 바닥을 치더라도, 바닥에서 다시 시작할 수 있었다.',attackPower:2},faith:{name:'신앙',cost:0,desc:'전투 시작 시 충전 3 획득 · [획득처: 구스타프 처치] 백화점의 르누아르들이 믿는 검은 신은 목소리를 내려준다. 보존하라.',startCharge:3},desire:{name:'욕망',cost:0,desc:'충전 또는 특수충전 소모 시 충전 1 획득 · [획득처: 퀄리아 처치] 백화점의 르루주들이 믿는 붉은 신은 목소리를 내려줬다. 욕망하라.',desire:true},spaJacket:{name:'르루주의 SPA 자켓',cost:60,desc:'최대 체력 +2',hp:2},spaHoodie:{name:'르루주의 SPA 후드집업',cost:80,desc:'최종 위력 +1',power:1},renoirSpaCoat:{name:'르누아르의 SPA 피 코트',cost:60,desc:'“아아 들립니다, 검은 신의 목소리가!” · 체력 +2',hp:2},renoirSpaAscot:{name:'르누아르의 SPA 아스콧 타이',cost:100,desc:'“르누아르는 정지와 보존에 그 가치를 부여한다.” · 전투 시작 시 보호막 5 획득',startShield:5},renoirSpaHeel:{name:'르누아르 SPA 힐',cost:80,desc:'“백화점은 그 자체로써 소중하기에 보존되어야 한다. 그렇기에 황금송진을 지키는 것이다.” · 속도 최댓값 +1',speed:1},renoCardigan:{name:'르누아르의 컨템포러리 가디건',cost:90,desc:'최대 체력 +3',hp:3},renoHat:{name:'르누아르의 컨템포러리 신사 모자',cost:100,desc:'체력 +2 · 3턴마다 체력 1 회복',hp:2,regen:1},rougeSocks:{name:'르루주의 컨템포러리 양말',cost:90,desc:'최대 체력 +3',hp:3},rougeZip:{name:'르루주의 컨템포러리 지퍼',cost:100,desc:'속도 +1',speed:1},energyDrink:{name:'에너지 음료',cost:0,desc:'최종 위력 +1',power:1},outdatedRougeClothes:{name:'철 지난 르루주 옷',desc:'철이 지나 유행에서 밀려났지만, 착용감은 뛰어나다. (최대체력 +4)',hp:4}};
+const shopItems={mimosa:['spaJacket','spaHoodie'],renoirSpa:['renoirSpaCoat','renoirSpaAscot','renoirSpaHeel'],renoir:['renoCardigan','renoHat'],rouge:['rougeSocks','rougeZip']};
 const testShopItems=[{name:'시험용 회복약',desc:'체력 10 회복',cost:0,fn(){state.p.hp=Math.min(state.p.max,state.p.hp+10);return '체력 10 회복.'}},{name:'시험용 맥동 조각',desc:'맥동 +3',cost:0,fn(){applyKw(state.p,{맥동:3});return '맥동 +3.'}},{name:'시험용 충전 팩',desc:'충전 +3 (르누아르 모드에서는 보존)',cost:0,fn(){applyKw(state.p,{충전:3});return renoirModeEnabled?'보존 +3.':'충전 +3.'}}];
 function drawHand(){if(testerModeEnabled)return ['mom_hate','roja_axe','tester_yukcham','tester_hitready'];const pool=[...playerDeck];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,4).map(c=>c.id)}
 function fresh(){return {p:{hp:876,max:876,speed:4,attackPower:0,itemPower:0,guardBonusDice:0,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0,매콤매콤소스:0,향:0,악취:0,르둘뢰르:0}},e:{hp:180,max:180,speed:3,kw:{호흡:0,향:0,악취:0,르둘뢰르:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}},enemyName:'알리우네',enemyCaption:'흙으로 돌아가고자 하는 소망을 품고, 살고자 하는 모든 것들과 무덤으로 돌아가리.',enemyPortrait:'✿',enemyType:'aliune',light:4,round:1,selected:[],hand:drawHand(),done:false,logs:[],last:null,lightBonusNext:0}}
@@ -464,13 +464,14 @@ function startExploration(){
  state=fresh();$('intro').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.remove('hidden');nextExploreEvent();renderExplore();
 }
 function getSeasonName(){return seasonNameOrder[(run.seasonCount)%seasonNameOrder.length]||seasonNames[(run.seasonCount)%seasonNames.length]}
-function specialShopKey(){if(run.floor!==1)return null;if(run.season===1)return 'mimosa';if(run.season===2)return 'renoir';if(run.season===4)return 'rouge';return null}
-function makeShopEvent(key){const sh=shopCatalog[key];return {shopKey:key,title:sh.title,text:sh.text,actions:[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'},{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 승리한 상점의 이벤트는 다시 나타나지 않는다.',kind:'combat',enemy:sh.enemy}]}}
+function specialShopKey(){if(run.floor!==1)return null;return ({1:'mimosa',2:'renoirSpa',3:'renoir',4:'rouge'})[run.turn]||null}
+function makeShopEvent(key){const sh=shopCatalog[key];const actions=[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'}];if(sh.enemy)actions.splice(1,0,{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 승리한 상점의 이벤트는 다시 나타나지 않는다.',kind:'combat',enemy:sh.enemy});return {shopKey:key,title:sh.title,text:key==='renoirSpa'?`${sh.text}\n\nNPC: 쿠르베`:sh.text,actions}}
 function nextExploreEvent(){
  run.seasonName=getSeasonName();const finalTurn=run.turn>=run.length;let key=null;
+ if(run.floor===1&&(key=specialShopKey())){run.event=makeShopEvent(key);return;}
  if(run.floor===1&&run.turn===2&&!run.outdatedClothesEventSeen){run.outdatedClothesEventSeen=true;run.event={title:'철 지난 옷',text:`"젠장 유행이 또 지나버렸잖아!"\n\n르루주 점원 미모사가 리스트를 보며 진열대에 걸린 옷들을 신경질적으로 내팽개치고있다.\n\n"스트라이프 시즌이 지나간 지 얼마나됬다고. 이젠 ${run.seasonName}? 하!"\n\n이젠 쓸모가 없어진거같은데 당신이 가져가면 쓸만하지 않을까?`,actions:[{name:'유행이 지났다면 가져가도 되는지 물어본다',desc:'일반 판정 d100 · 20 이상 성공',kind:'outdatedAsk'},{name:'무시한다',desc:'아무 일 없이 지나간다.',kind:'outdatedIgnore'}]};return;}
  if(run.floor===1&&run.turn===1&&!run.welcomeEventSeen){run.welcomeEventSeen=true;run.event={title:'시지프 백화점 안내방송',text:`"오늘도 저희 시지프 백화점을 찾아주신 고객님께 진심으로 환영의 말씀을 전합니다. 시지프 백화점은 고객님이 얻는 모든 경험을 소중히 여기기 위해 언제나 최선을 다하고 있습니다."`,actions:[{name:'확인',desc:'아무일도 일어나지 않았다.',kind:'pass'}]};return;}
- if(run.floor===1&&finalTurn)key=specialShopKey();
+ if(run.floor===1&&finalTurn)key=null;
  if(key&&run.shopDefeated[key])key=null;
  if(key){run.seasonShops[run.season]=key;run.event=makeShopEvent(key);return;}
  if(finalTurn){run.event={title:'시즌 마감 · '+run.seasonName,text:'시즌의 마지막 구간을 지나간다. 다음 시즌을 향해 이동할 수 있다.',actions:[{name:'다음 시즌으로',desc:'탐색을 계속한다.',kind:'continue'}]};return;}
@@ -524,6 +525,7 @@ function resolveExploreAction(i){
 }
 function showShopItems(key){const ev=run.event;const acts=$('exploreActions');const ids=shopItems[key]||[];acts.innerHTML='<div class="unit"><strong>판매 상품</strong><div class="meta">각 아이템은 한 번만 구매할 수 있습니다. 이미 보유한 상품은 다시 구매할 수 없습니다.</div></div>'+ids.map(id=>{const it=itemCatalog[id],owned=run.items.includes(id);return `<button class="card" data-buy-item="${id}" ${owned||run.eyes<it.cost?'disabled':''}><h3>${it.name}</h3><p>${it.desc}${owned?' · 이미 보유 중':''}</p><span class="power">${it.cost} 눈알</span></button>`}).join('')+'<button class="secondary" id="leaveShop">구매하지 않고 나가기</button>';acts.querySelectorAll('[data-buy-item]').forEach(b=>b.onclick=()=>{const id=b.dataset.buyItem,it=itemCatalog[id];if(run.eyes<it.cost||run.items.includes(id))return;run.eyes-=it.cost;run.items.push(id);applyItemStats();run.logs.push(`${it.name} 구매 · ${it.cost}눈알 사용`);renderExplore();showShopItems(key);});$('leaveShop').onclick=()=>advanceExploreTurn();}
 function applyItemStats(){const items=run.items.map(id=>itemCatalog[id]);state.p.max=876+items.reduce((n,x)=>n+(x.hp||0),0);state.p.hp=Math.min(state.p.max,state.p.hp);state.p.speed=4+items.reduce((n,x)=>n+(x.speed||0),0);state.p.itemPower=items.reduce((n,x)=>n+(x.power||0),0);state.p.attackPower=items.reduce((n,x)=>n+(x.attackPower||0),0);state.p.itemRegen=items.reduce((n,x)=>n+(x.regen||0),0);run.rank=Math.floor(run.items.length/5);}
+function applyCombatStartItems(){if(!run.active)return;const shield=run.items.map(id=>itemCatalog[id]).reduce((n,x)=>n+(x.startShield||0),0);if(shield){state.p.kw.보호막=(state.p.kw.보호막||0)+shield;log(`르누아르 SPA 아스콧 타이 · 전투 시작 보호막 +${shield}`,'good');}}
 function renderInventory(){const box=$('inventoryList');if(!box)return;box.innerHTML=run.items.length?run.items.map(id=>`<div class="logline">${itemCatalog[id].name} — ${itemCatalog[id].desc}</div>`).join(''):'<div class="meta">아직 보유한 아이템이 없습니다.</div>';}
 
 function advanceExploreTurn(){
@@ -551,13 +553,13 @@ function startNamedCombat(enemyType,fromExplore=true){
  if(enemyType==='test')return startTestCombat(fromExplore);
  if(enemyType==='rukaki')return startRukakiCombat(fromExplore);
  const enemy={mimosa:mimosaEnemy,gustav:gustavEnemy,qualia:qualiaEnemy}[enemyType];if(!enemy)return;
- const carriedPlayer=(run.active&&fromExplore&&state)?state.p:null;actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;
+ const carriedPlayer=(run.active&&fromExplore&&state)?state.p:null;actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;applyCombatStartItems();
  state.e={hp:enemy.hp,max:enemy.max,speed:enemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}};state.enemyName=enemy.name;state.enemyCaption=enemy.caption;state.enemyPortrait=enemy.portrait;state.enemyType=enemyType;
  $('intro').classList.add('hidden');$('explore').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');state.logs=[];log(`전투 시작 · ${enemy.name} (${enemy.hp} 체력)`);render();state.returnToExplore=fromExplore;
 }
 function startPerfumerCombat(fromExplore=false){
   const carriedPlayer=(run.active&&fromExplore&&state)?state.p:null;
-  actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;
+  actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;applyCombatStartItems();
   state.e={hp:1656,max:1656,speed:3,kw:{호흡:0,향:0,악취:0,르둘뢰르:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}};state.perfumerEquipped=false;
   state.enemyName='조향사';state.enemyCaption='향은 기억을 남기고, 고통은 향을 남긴다.';state.enemyPortrait='❀';state.enemyType='perfumer';
   $('enemyUnit').querySelector('.unit-head span').textContent='■ 조향사';
@@ -566,7 +568,7 @@ function startPerfumerCombat(fromExplore=false){
 }
 function startTestCombat(fromExplore=false){
  const carriedPlayer=(run.active&&fromExplore&&state)?state.p:null;
- actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;state.e={hp:testEnemy.hp,max:testEnemy.max,speed:testEnemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}};state.enemyName=testEnemy.name;state.enemyCaption=testEnemy.caption;state.enemyPortrait=testEnemy.portrait;state.enemyType='test';
+ actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;applyCombatStartItems();state.e={hp:testEnemy.hp,max:testEnemy.max,speed:testEnemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}};state.enemyName=testEnemy.name;state.enemyCaption=testEnemy.caption;state.enemyPortrait=testEnemy.portrait;state.enemyType='test';
  $('enemyUnit').querySelector('.unit-head span').textContent='■ '+state.enemyName;
  $('intro').classList.add('hidden');$('explore').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');
  state.logs=[];log('시험 전투 시작 · 길 잃은 점원이 길을 막아섰다.');render();
@@ -575,7 +577,7 @@ function startTestCombat(fromExplore=false){
 function startRukakiCombat(fromExplore=false){
  const useLeatherGlove=Math.random()<0.25;const enemy=useLeatherGlove?leatherGloveEnemy:rukakiEnemy;
  const carriedPlayer=(run.active&&fromExplore&&state)?state.p:null;
- actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;state.e={hp:enemy.hp,max:enemy.max,speed:enemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}};state.enemyName=enemy.name;state.enemyCaption=enemy.caption;state.enemyPortrait=enemy.portrait;state.enemyType=useLeatherGlove?'leatherGlove':'rukaki';
+ actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;applyCombatStartItems();state.e={hp:enemy.hp,max:enemy.max,speed:enemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}};state.enemyName=enemy.name;state.enemyCaption=enemy.caption;state.enemyPortrait=enemy.portrait;state.enemyType=useLeatherGlove?'leatherGlove':'rukaki';
  $('intro').classList.add('hidden');$('explore').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');
  state.logs=[];log(useLeatherGlove?'전투 시작 · 르카키 대신 가죽 장갑이 나타났다. (라운드당 2회 행동)':'전투 시작 · 르카키가 길을 막아섰다. (라운드당 2회 행동)');if(run.active&&run.items.includes('faith'))applyKw(state.p,{충전:3});render();state.returnToExplore=fromExplore;
 }
