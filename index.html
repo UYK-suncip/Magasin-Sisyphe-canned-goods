@@ -460,13 +460,14 @@ function renderExplore(){
 }
 
 function startExploration(){
- shuffleSeasonNames();run={floor:1,season:1,turn:1,length:5+Math.floor(Math.random()*3),event:null,logs:[],active:true,seasonShops:{},seasonName:seasonNameOrder[0],lastEvent:null,eyes:0,items:[],seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
+ shuffleSeasonNames();run={floor:1,season:1,turn:1,length:5+Math.floor(Math.random()*3),event:null,logs:[],active:true,seasonShops:{},shopIntroduced:{},seasonName:seasonNameOrder[0],lastEvent:null,eyes:0,items:[],seasonCount:0,shopDefeated:{},rank:0,canAscend:false};
  state=fresh();$('intro').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.remove('hidden');nextExploreEvent();renderExplore();
 }
 function getSeasonName(){return seasonNameOrder[(run.seasonCount)%seasonNameOrder.length]||seasonNames[(run.seasonCount)%seasonNames.length]}
 function specialShopKey(){if(run.floor!==1)return null;return ({1:'mimosa',2:'renoirSpa',3:'renoir',4:'rouge'})[run.season]||null}
 function makeShopEvent(key){const sh=shopCatalog[key];const actions=[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'}];if(sh.enemy)actions.splice(1,0,{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 승리한 상점의 이벤트는 다시 나타나지 않는다.',kind:'combat',enemy:sh.enemy});return {shopKey:key,title:sh.title,text:key==='renoirSpa'?`${sh.text}\n\nNPC: 쿠르베`:sh.text,actions}}
 function nextExploreEvent(){
+ run.shopIntroduced=run.shopIntroduced||{};run.shopDefeated=run.shopDefeated||{};run.seasonShops=run.seasonShops||{};
  run.seasonName=getSeasonName();const finalTurn=run.turn>=run.length;let key=null;
  if(run.floor===1&&run.turn===1&&!run.welcomeEventSeen){run.welcomeEventSeen=true;run.event={title:'시지프 백화점 안내방송',text:`"오늘도 저희 시지프 백화점을 찾아주신 고객님께 진심으로 환영의 말씀을 전합니다. 시지프 백화점은 고객님이 얻는 모든 경험을 소중히 여기기 위해 언제나 최선을 다하고 있습니다."`,actions:[{name:'확인',desc:'아무일도 일어나지 않았다.',kind:'pass'}]};return;}
  if(run.floor===1&&run.turn===2&&!run.outdatedClothesEventSeen){run.outdatedClothesEventSeen=true;run.event={title:'철 지난 옷',text:`"젠장 유행이 또 지나버렸잖아!"\n\n르루주 점원 미모사가 리스트를 보며 진열대에 걸린 옷들을 신경질적으로 내팽개치고있다.\n\n"스트라이프 시즌이 지나간 지 얼마나됬다고. 이젠 ${run.seasonName}? 하!"\n\n이젠 쓸모가 없어진거같은데 당신이 가져가면 쓸만하지 않을까?`,actions:[{name:'유행이 지났다면 가져가도 되는지 물어본다',desc:'일반 판정 d100 · 20 이상 성공',kind:'outdatedAsk'},{name:'무시한다',desc:'아무 일 없이 지나간다.',kind:'outdatedIgnore'}]};return;}
