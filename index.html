@@ -478,7 +478,7 @@ function nextExploreEvent(){
  if(key){run.seasonShops[run.season]=key;run.event=makeShopEvent(key);return;}
  if(finalTurn){run.event={title:'시즌 마감 · '+run.seasonName,text:'시즌의 마지막 구간을 지나간다. 다음 시즌을 향해 이동할 수 있다.',actions:[{name:'다음 시즌으로',desc:'탐색을 계속한다.',kind:'continue'}]};return;}
  if(run.floor===1&&!run.items.includes('energyDrink')&&Math.random()<.05){run.event={title:'자판기',text:'복도 한쪽에 낡은 자판기가 놓여 있다. 동전을 넣자 에너지 음료가 굴러 나온다.',actions:[{name:'에너지 음료를 챙긴다',desc:'에너지 음료 획득 · 최종 위력 +1',kind:'vending'},{name:'그냥 지나간다',desc:'자판기를 뒤로하고 이동한다.',kind:'pass'}]};return;}
- if(run.floor===2){run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'길 잃은 점원과 마주친다',desc:'공사 구역을 빠져나가기 위해 전투한다.',kind:'combat',enemy:'test'}]};return;}
+ if(run.floor===2){run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'조금 더 깊이 들어가본다',desc:'공사 중인 르루주 명품관 안쪽으로 향한다.',kind:'rougeBoutique'},{name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'}]};return;}
  if(Math.random()<.22){run.event={combat:true,title:'복도를 막아선 르카키',text:'눈알에 혈안이 된 무언가가 달려온다.'};return;}
  const pool=exploreEvents.filter(e=>!run.lastEvent||e.id!==run.lastEvent);const e=pool[Math.floor(Math.random()*pool.length)];run.lastEvent=e.id;run.event={...e,actions:e.actions.map(a=>({...a,kind:'normal'}))};
 }
@@ -515,6 +515,17 @@ function resolveExploreAction(i){
   return;
 }
  if(a.kind==='outdatedIgnore'){run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — 철지난 옷: 미모사를 무시하고 지나갔다. 아무 일도 일어나지 않았다.`);advanceExploreTurn();return;}
+ if(a.kind==='rougeBoutique'){run.event={title:'르루주 명품관',text:'"보시다시피 지금 명품관은 인테리어 공사 중입니다.\\n"아, 소음은 이해해주세요. 대규모 공사 중이거든요.\\n“그러고 공사가 끝나면 다시 와주세요. 더 근사한 인테리어로 거듭날 테니까.“\\n“그리고… 고객님들은 등급이 낮아요. 명품관은… 고객들을 끌어모으지 않는 법이랍니다.“\\n“곧 이 명품관이 개장 이래 가장 근사하게 거듭나는 날, 다시 와주세요.“',actions:[{name:'우선 돌아간다.',desc:'공사 구역을 빠져나가 3층으로 이동한다.',kind:'continueFloor'},{name:'가지 않고 버틴다.',desc:'명품관에 남아 판정을 시도한다.',kind:'rougeStay'}]};renderExplore();return;}
+ if(a.kind==='rougeStay'){run.event={title:'르루주 명품관 · 퇴거 요청',text:'점원은 더 이상 설명하지 않는다. 공사 소음 사이로 당신을 향한 시선이 느껴진다. 물러서지 않으려면 판정을 선택해야 한다.',actions:[{name:'공격 판정',desc:'d100 + 공격 주사위(1d8) · 합계 70 이상 성공',kind:'rougeCheck',check:'attack'},{name:'회피 판정',desc:'d100 + 회피 주사위(1d8) · 합계 70 이상 성공',kind:'rougeCheck',check:'evade'},{name:'일반 판정',desc:'d100 · 60 이상 성공',kind:'rougeCheck',check:'general'},{name:'우선 돌아간다.',desc:'3층으로 이동한다.',kind:'continueFloor'}]};renderExplore();return;}
+ if(a.kind==='rougeCheck'){
+  const type=a.check;const base=Math.floor(Math.random()*100)+1;const bonus=type==='general'?0:Math.floor(Math.random()*8)+1;const total=base+bonus;const threshold=type==='general'?60:70;const success=total>=threshold;const label=type==='attack'?'공격 판정':type==='evade'?'회피 판정':'일반 판정';
+  let resultText;if(success){run.rank=(run.rank||0)+1;resultText=`르루주 점원은 당신을 잠시 바라보다가 시선을 거둔다. 당신은 명품관 안쪽에서 쓸 만한 물건을 발견해 챙겼다.\\n\\n등급 +1.`;if(!run.items.includes('rougeBoutiqueToken')){run.items.push('rougeBoutiqueToken');applyItemStats();resultText+='\\n르루주 명품관의 공사 잔여품을 획득했다.';}}else{state.p.hp=Math.max(0,state.p.hp-10);resultText='점원들이 당신을 공사 구역 밖으로 밀어낸다.\\n\\n체력 10 감소.';}
+  run.logs.push(`르루주 명품관 · ${label} ${success?'성공':'실패'} (${total})`);
+  $('checkDice').className='check-dice rolling';$('checkDice').textContent='…';$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='판정을 진행하는 중…';$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;$('eventResultModal').classList.remove('hidden');
+  window.setTimeout(()=>{const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total);outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=type==='general'?`${base} / 100 · ${success?'성공':'실패'}`:`d100 ${base} + d8 ${bonus} = ${total} · ${success?'성공':'실패'}`;},650);
+  $('eventResultConfirm').onclick=()=>{$('eventResultModal').classList.add('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3><p>탐색을 처음부터 다시 시작한다.</p></button>';$('restartExplore').onclick=startExploration;return;}advanceExploreTurn();};
+  return;
+ }
  if(a.kind==='visit'){showShopItems(ev.shopKey);return;}
  if(a.kind==='vending'){if(!run.items.includes('energyDrink')){run.items.push('energyDrink');applyItemStats();run.logs.push('자판기에서 에너지 음료 획득 · 최종 위력 +1');}else{run.logs.push('자판기에서 에너지 음료를 발견했지만 이미 보유 중이라 지나쳤다.');}advanceExploreTurn();return;}
  if(a.kind==='announcement'){nextExploreEvent();renderExplore();return;}
@@ -540,7 +551,7 @@ function advanceExploreTurn(){
    const eligible=run.canAscend;
    $('exploreActions').innerHTML=`<button class="card" id="stayFloor"><h3>1층에 더 머무른다</h3><p>계속 1층을 탐색한다.</p></button>${eligible?'<button class="card" id="nextFloor"><h3>2층으로 올라간다</h3><p>등급 조건을 충족했다. 아이템 5개 이상 보유.</p></button>':'<div class="meta">2층 진입 조건: 아이템 5개 이상 보유. 현재 '+run.items.length+'개.</div>'}`;
    $('stayFloor').onclick=()=>{run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.logs.push('— 1층에 계속 머무르기로 했다 —');run.seasonName=getSeasonName();nextExploreEvent();renderExplore();};
-   if(eligible)$('nextFloor').onclick=()=>{run.floor=2;run.season=1;run.turn=1;run.length=5;run.seasonShops={};run.logs.push('— 2층 진입 —');run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'}]};renderExplore();};
+   if(eligible)$('nextFloor').onclick=()=>{run.floor=2;run.season=1;run.turn=1;run.length=5;run.seasonShops={};run.logs.push('— 2층 진입 —');run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'조금 더 깊이 들어가본다',desc:'공사 중인 르루주 명품관 안쪽으로 향한다.',kind:'rougeBoutique'},{name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'}]};renderExplore();};
    $('exploreProgress').textContent=`등급 ${run.rank} · 아이템 ${run.items.length}/5`;return;
   }
   if(run.season>5){run.season=1;}
