@@ -295,15 +295,15 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  // 침잠은 상대가 아니라, 침잠이 걸린 공격자 자신의 최종 공격 결과값에서 차감한다.
  let sinkPenalty=Math.floor(Math.max(0,attacker.kw.침잠||0)/4);
  // 안내 불이행은 공격자에게 걸린 디버프이며, 위력 보정 계산이 모두 끝난 뒤 최종 위력에서 차감한다.
- let guidancePenalty=Math.floor(Math.max(0,attacker.kw.안내불이행||0)/2)+Math.max(0,Number(attacker.kw.공격위력감소)||0);
+ let guidancePenalty=Math.floor(Math.max(0,attacker.kw.안내불이행||0)/2);let attackPowerPenalty=Math.max(0,Number(attacker.kw.공격위력감소)||0);
  let diceResults=roll(card.dice,card.rolls);let raw=sum(diceResults)+((card.extraDice||0)?sum(roll(card.extraSides||card.dice,card.extraDice)):0);if(card.chefDieBonus&&diceResults.includes(4))power+=44;
- let finalPower=Math.max(0,power-guidancePenalty);let atk=Math.max(0,finalPower+raw-sinkPenalty);
+ let finalPower=Math.max(0,power-guidancePenalty-attackPowerPenalty);let atk=Math.max(0,finalPower+raw-sinkPenalty);
  // 공격 주사위를 먼저 굴리고, 공격 결과가 확정된 뒤 수비 주사위 결과를 즉시 표시한다.
  atkEl.classList.add('rolling');
  for(let i=0;i<7;i++){atkEl.textContent=Math.max(0,finalPower+sum(roll(card.dice,card.rolls))+((card.extraDice||0)?sum(roll(card.extraSides||card.dice,card.extraDice)):0)-sinkPenalty);await wait(55)}
  atkEl.classList.remove('rolling');
  atkEl.textContent=atk;
- let attackText=`${card.name} · 공격 ${atk} (${finalPower}+${card.rolls}d${card.dice}${card.extraDice?`+${card.extraDice}d${card.extraSides||card.dice}`:''})${guidancePenalty?` · 안내 불이행 -${guidancePenalty}`:''}${sinkPenalty?` · 침잠 -${sinkPenalty}`:''}`;
+ let attackText=`${card.name} · 공격 ${atk} (${finalPower}+${card.rolls}d${card.dice}${card.extraDice?`+${card.extraDice}d${card.extraSides||card.dice}`:''})${guidancePenalty?` · 안내 불이행 -${guidancePenalty}`:''}${attackPowerPenalty?` · 공격위력 감소 -${attackPowerPenalty}`:''}${sinkPenalty?` · 침잠 -${sinkPenalty}`:''}`;
  let dodgeSides=defender===state.p?8:state.enemyType==='leatherGlove'?3:state.enemyType==='rukaki'?4:state.enemyType==='mimosa'?5:state.enemyType==='qualia'?6:state.enemyType==='gustav'?5:4, dodgeCount=defender===state.p?2:(state.enemyType==='leatherGlove'?2:(['rukaki','mimosa','gustav','qualia'].includes(state.enemyType)?1:2));
  let dodgeDice=defender===state.p?[1,...roll(8,1)]:state.enemyType==='perfumer'?roll(4,3):roll(dodgeSides,dodgeCount);if(defender===state.p&&(Number(defender.guardBonusDice)||0)>0){const bonusCount=Number(defender.guardBonusDice)||0;const bonusDice=roll(4,bonusCount);dodgeDice.push(...bonusDice);log(`방어 태세 · 이번 턴 회피 주사위 ${bonusDice.join('+')} 적용`,'good');}let dodge=defender===state.p&&state.p.forceDodgeZero?0:card.unavoidable?0:sum(dodgeDice)+2-(card.chefEvasionDown&&defender===state.e?card.chefEvasionDown:0);if(card.dodgeMax&&defender===state.p&&dodge>card.dodgeMax){log(`${card.name} · 대상 회피 최종위력 ${dodge} → ${card.dodgeMax}로 제한`,'good');dodge=card.dodgeMax;}if(defender===state.p&&state.p.chefDodgeRound)dodge+=1;
  defEl.classList.remove('rolling');defEl.textContent=dodge;
