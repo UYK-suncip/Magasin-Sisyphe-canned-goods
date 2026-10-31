@@ -324,11 +324,11 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  let sinkPenalty=Math.floor(Math.max(0,attacker.kw.침잠||0)/4);
  // 안내 불이행은 공격자에게 걸린 디버프이며, 위력 보정 계산이 모두 끝난 뒤 최종 위력에서 차감한다.
  let guidancePenalty=Math.floor(Math.max(0,attacker.kw.안내불이행||0)/2);let attackPowerPenalty=Math.max(0,Number(attacker.kw.공격위력감소)||0);
- let diceResults=roll(card.dice,card.rolls);let raw=sum(diceResults)+((card.extraDice||0)?sum(roll(card.extraSides||card.dice,card.extraDice)):0);if(card.chefDieBonus&&diceResults.includes(4))power+=44;
- if(attacker===state.e&&state.enemyType==='rougeDirector')power-=2;let finalPower=Math.max(0,power-guidancePenalty-attackPowerPenalty);if(card.decadenceMin&&card.dice>0)raw=Math.max(raw,card.decadenceMin*card.rolls);let atk=Math.max(0,finalPower+raw-sinkPenalty);
+ let diceResults=roll(card.dice,card.rolls);let raw=sum(diceResults)+(card.decadenceMin?card.decadenceMin*card.rolls:0)+((card.extraDice||0)?sum(roll(card.extraSides||card.dice,card.extraDice))+(card.decadenceMin?card.decadenceMin*card.extraDice:0):0);if(card.chefDieBonus&&diceResults.includes(4))power+=44;
+ if(attacker===state.e&&state.enemyType==='rougeDirector')power-=2;let finalPower=Math.max(0,power-guidancePenalty-attackPowerPenalty);let atk=Math.max(0,finalPower+raw-sinkPenalty);
  // 공격 주사위를 먼저 굴리고, 공격 결과가 확정된 뒤 수비 주사위 결과를 즉시 표시한다.
  atkEl.classList.add('rolling');
- for(let i=0;i<7;i++){atkEl.textContent=Math.max(0,finalPower+sum(roll(card.dice,card.rolls))+((card.extraDice||0)?sum(roll(card.extraSides||card.dice,card.extraDice)):0)-sinkPenalty);await wait(55)}
+ for(let i=0;i<7;i++){atkEl.textContent=Math.max(0,finalPower+sum(roll(card.dice,card.rolls))+(card.decadenceMin?card.decadenceMin*card.rolls:0)+((card.extraDice||0)?sum(roll(card.extraSides||card.dice,card.extraDice))+(card.decadenceMin?card.decadenceMin*card.extraDice:0):0)-sinkPenalty);await wait(55)}
  atkEl.classList.remove('rolling');
  atkEl.textContent=atk;
  let attackText=`${card.name} · 공격 ${atk} (${finalPower}+${card.rolls}d${card.dice}${card.extraDice?`+${card.extraDice}d${card.extraSides||card.dice}`:''})${guidancePenalty?` · 안내 불이행 -${guidancePenalty}`:''}${attackPowerPenalty?` · 공격위력 감소 -${attackPowerPenalty}`:''}${sinkPenalty?` · 침잠 -${sinkPenalty}`:''}`;
