@@ -520,7 +520,9 @@ function resolveExploreAction(i){
  const ev=run.event,a=ev.actions[i];if(!a)return;
   if(a.kind==='outdatedAsk'){
   const roll=Math.floor(Math.random()*100)+1;
-  const success=roll>=20;
+  const penalty=hasPassive('이방인')?10:0;
+  const total=roll-penalty;
+  const success=total>=20;
   let resultText;
   if(success){
    run.items.push('outdatedRougeClothes');applyItemStats();
@@ -529,14 +531,14 @@ function resolveExploreAction(i){
    state.p.hp=Math.max(0,state.p.hp-7);run.items.push('outdatedRougeClothes');applyItemStats();
    resultText=`미모사가 당신을 전체적으로 훑어본다.\n\n"입은 꼬라지보니까 쇼핑백에 묻은 옷 쪼가리도 넙죽 받아입겠네. 줄게, 하지만 공짜는 아니야"\n\n"네 일부를 옷감으로 쓰게해줘, 그정도면 돼."\n\n체력 7 감소, 철 지난 르루주 옷 획득`;
   }
-  run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — 철 지난 르루주: ${success?'판정 성공':'판정 실패'} · ${resultText.replace(/\n/g,' ')}`);
+  run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — 철 지난 르루주: ${success?'판정 성공':'판정 실패'} · ${roll}${penalty?` - 이방인 ${penalty}`:''} = ${total} · ${resultText.replace(/\n/g,' ')}`);
   $('checkDice').className='check-dice rolling';$('checkDice').textContent='…';$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='주사위를 굴리는 중…';
   $('eventResultCard').classList.toggle('success',success);
   $('eventResultCard').classList.toggle('failure',!success);
   $('eventResultTitle').textContent=success?'판정 성공':'판정 실패';
   $('eventResultText').textContent=resultText;
   $('eventResultModal').classList.remove('hidden');
-  window.setTimeout(()=>{const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(roll).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${roll} / 100 · ${success?'성공 (20 이상)':'실패 (19 이하)'}`;},650);
+  window.setTimeout(()=>{const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${roll}${penalty?` - 이방인 ${penalty}`:''} = ${total} / 100 · ${success?'성공 (20 이상)':'실패 (19 이하)'}`;},650);
   $('eventResultConfirm').onclick=()=>{
    $('eventResultModal').classList.add('hidden');
    if(state.p.hp<=0){
