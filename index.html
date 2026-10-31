@@ -217,16 +217,16 @@ const qualiaEnemy={name:'퀄리안',hp:180,max:180,speed:3,caption:'바느질과
 const rougeDirectorEnemy={name:'르루주 브랜드 디렉터',hp:3980,max:3980,speed:3,caption:'고객님들은 명품관에 어울리지 않아요.',portrait:'♛'};
 const rougeDirectorDeck=[
 {id:'rd_renovation',name:'명품관은 인테리어 공사 중이에요',power:0,dice:1,rolls:0,desc:'비공격 스킬 · 체력 2% 소모, 맥동 5 획득',kind:'rougeSupport'},
-{id:'rd_eject',name:'강제 퇴관',power:2,dice:2,rolls:2,desc:'2+2d2 · 출혈 1 부여',apply:{출혈:1},directorDecadence:true},
+{id:'rd_eject',name:'강제 퇴관',power:2,dice:2,rolls:2,desc:'2+2d2 · 출혈 1 부여 · 맥동 10 소모 시 데셰앙트 1',apply:{출혈:1},directorDecadence:true},
 {id:'rd_goaway',name:'돌아가주세요',power:5,dice:4,rolls:1,desc:'5+1d4 · 폭주 시 위력 +3 · 첫 껍질 속으로… 시 데셰앙트 1',apply:{},directorGoaway:true},
-{id:'rd_eclat',name:'에클라 루주 (éclat rouge)',power:1,dice:4,rolls:3,desc:'1+3d4 · 출혈 3 · 맥동 소모 및 생동 비례 피해',apply:{출혈:3},directorEclat:true},
+{id:'rd_eclat',name:'에클라 루주 (éclat rouge)',power:1,dice:4,rolls:3,desc:'1+3d4 · 출혈 3 · 맥동 10 소모 시 피해 +5·최종 위력 +2 · 생동당 피해 +10% · 생동 5 이상 데셰앙트 1',apply:{출혈:3},directorEclat:true},
 {id:'rd_griffe',name:'르 그리프 드 르루주 (le griffe de le rouge)',power:3,dice:9,rolls:1,desc:'3+1d9 · 출혈 3 · 맥동 20 소모 시 다음 턴 폭주 3',apply:{출혈:3},directorGriffe:true},
-{id:'rd_voice',name:'목소리는 믿음의 한 종류일뿐...',power:4,dice:2,rolls:9,desc:'4+9d2 · 자신 출혈 5, 대상 바늘못 2·출혈 2, 맥동 +5',apply:{출혈:2,바늘못:2},directorVoice:true},
-{id:'rd_consume',name:'남김없이 섭취하라',power:5,dice:1,rolls:7,desc:'5+7d1 · 출혈 1 · 자신 출혈 2',apply:{출혈:1},directorConsume:true},
-{id:'rd_buffet',name:'르 뷔페 루주 (le buffet rouge)',power:0,dice:8,rolls:1,desc:'1d8 · 출혈 및 강화 효과에 따라 추가 주사위',apply:{},directorBuffet:true}
+{id:'rd_voice',name:'목소리는 믿음의 한 종류일뿐...',power:4,dice:2,rolls:9,desc:'4+9d2 · 자신 출혈 5, 대상 바늘못 2·출혈 2, 맥동 +5 · 대상 출혈 15 이상·자신 맥동 10 이상이면 소모 후 데셰앙트 2 · 생동 5 이상이면 다음 턴 첫 껍질',apply:{출혈:2,바늘못:2},directorVoice:true},
+{id:'rd_consume',name:'남김없이 섭취하라',power:5,dice:1,rolls:7,desc:'5+7d1 · 출혈 1 · 자신 출혈 2 · 폭주 시 첫 공격 데셰앙트 3 · 맥동 3 소모로 최대 7회 재사용',apply:{출혈:1},directorConsume:true},
+{id:'rd_buffet',name:'르 뷔페 루주 (le buffet rouge)',power:0,dice:8,rolls:1,desc:'1d8 · 출혈 10 이상이면 출혈 5당 1d8(최대 3), 데셰앙트 3당 1d8, 첫 껍질 시 1d8 · 맥동 최대 50 소모, 5당 피해 +15% · 체력 5% 소모 시 피해 25% 추가 및 추가 피해의 50% 회복',apply:{},directorBuffet:true}
 ];
 function rougeDirectorCard(){if(state.directorForceBuffet){state.directorForceBuffet=false;return {...rougeDirectorDeck[7],_forced:true};}if(state.directorBuffetRound&&state.round-state.directorBuffetRound>=7){state.directorBuffetRound=state.round;return {...rougeDirectorDeck[7],_forced:true};}return rougeDirectorDeck[Math.floor(Math.random()*rougeDirectorDeck.length)];}
-function spendDirectorPulse(target,amount,reason=''){const spent=Math.min(Math.max(0,Number(target.kw.맥동)||0),Math.max(0,Math.floor(amount||0)));if(!spent)return 0;target.kw.맥동-=spent;if(target===state.e&&state.enemyType==='rougeDirector'){state.directorPulseSpent=(state.directorPulseSpent||0)+spent;const gained=Math.floor(state.directorPulseSpent/20);if(gained){target.kw.생동=(target.kw.생동||0)+gained;state.directorPulseSpent%=20;log(`끊이지 않는 욕망 · 맥동 ${spent} 소모, 생동 +${gained}`,'good');}}if(reason)log(`${reason} · 맥동 ${spent} 소모`,'good');return spent;}
+function spendDirectorPulse(target,amount,reason=''){const spent=Math.min(Math.max(0,Number(target.kw.맥동)||0),Math.max(0,Math.floor(amount||0)));if(!spent)return 0;target.kw.맥동-=spent;if(target===state.e&&state.enemyType==='rougeDirector'){state.directorPulseSpent=(state.directorPulseSpent||0)+spent;const gained=Math.floor(state.directorPulseSpent/20);if(gained){target.kw.생동=(target.kw.생동||0)+gained+(gained>0?1:0);state.directorPulseSpent%=20;log(`끊이지 않는 욕망 · 맥동 ${spent} 소모, 생동 +${gained}`,'good');}}if(reason)log(`${reason} · 맥동 ${spent} 소모`,'good');return spent;}
 const mimosaDeck=[
 {id:'mimosa_stitch',name:'스티칭',power:1,dice:4,rolls:1,desc:'1+1d4 · 출혈 3 · 사용 시 맥동 2, 적중 시 맥동 1',apply:{출혈:3},useKw:{맥동:4},hitKw:{맥동:1},copies:2},
 {id:'mimosa_stamping',name:'스탬핑',power:5,dice:2,rolls:2,desc:'5+2d2 · 맥동 2 획득',useKw:{맥동:2}},
@@ -274,7 +274,7 @@ function applyKw(target,obj){if(!target||!target.kw||!obj)return [];let out=[];f
 function addLog(s,type=''){log(s,type)}
 function triggerBleedPassive(){
  const type=state.enemyType, e=state.e;
- if(!state.bleedPassiveCount)state.bleedPassiveCount={mimosa:0,qualia:0};state.rougeSangGained=0;if(state.enemyType==='perfumer'&&(Number(state.e.kw.르둘뢰르)||0)>=10){state.perfumerEquipped=true;log(`고통 뿌리기 · 르 둘뢰르 ${state.e.kw.르둘뢰르}, 고통의 향기 장착`,'good');}
+ if(!state.bleedPassiveCount)state.bleedPassiveCount={mimosa:0,qualia:0};if(state.enemyType==='perfumer'&&(Number(state.e.kw.르둘뢰르)||0)>=10){state.perfumerEquipped=true;log(`고통 뿌리기 · 르 둘뢰르 ${state.e.kw.르둘뢰르}, 고통의 향기 장착`,'good');}
  if(type==='mimosa'&&state.bleedPassiveCount.mimosa<2){e.kw.맥동=(e.kw.맥동||0)+1;state.bleedPassiveCount.mimosa++;log(`미모사 패시브 · 출혈 발동 감지, 맥동 +1 (${state.bleedPassiveCount.mimosa}/2)`,'good');}
  if(type==='qualia'&&state.bleedPassiveCount.qualia<4){e.kw.맥동=(e.kw.맥동||0)+1;state.bleedPassiveCount.qualia++;log(`퀄리안 패시브 · 출혈 발동 감지, 맥동 +1 (${state.bleedPassiveCount.qualia}/4)`,'good');}
 }
@@ -390,8 +390,8 @@ async function startRound(){
  if(!state||state.done||actionLocked)return;
  actionLocked=true;
  try{
-  state.bleedPassiveCount={mimosa:0,qualia:0};
-  state.qualiaTricoteGained=false;state.gustavFabricTriggers=0;state.gustavPreservationSpent=0;
+  state.bleedPassiveCount={mimosa:0,qualia:0};state.rougeSangGained=0;
+  state.qualiaTricoteGained=false;state.gustavFabricTriggers=0;state.gustavPreservationSpent=0;if(state.enemyType==='rougeDirector'){if((state.e.kw.폭주다음턴||0)>0){state.e.kw.폭주=Math.min(3,(state.e.kw.폭주||0)+state.e.kw.폭주다음턴);state.e.kw.폭주다음턴=0;}if((state.e.kw.첫껍질다음턴||0)>0){state.e.kw.첫껍질=1;state.e.kw.첫껍질다음턴=0;}state.e.kw.르데트헤스=state.e.hp<=state.e.max*.25?1:0;}
   render();
   const chosen=state.selected.map(id=>playerDeck.find(c=>c.id===id)).filter(Boolean);
   state.p.chefDodgeRound=chefModeEnabled&&chosen.some(c=>c.chefDodge)?1:0;
@@ -415,7 +415,7 @@ async function startRound(){
    await wait(550);
    for(const side of [state.p,state.e])if((side.kw.침잠||0)>0){const before=side.kw.침잠;side.kw.침잠=Math.max(0,before-2);log(`${side===state.p?'당신':state.enemyName} · 침잠 ${before} → ${side.kw.침잠} (라운드 종료 -2)`);}
    for(const side of [state.p,state.e])if(side.kw.화상>0){const amount=side.kw.화상,actual=damage(side,amount);side.kw.화상=Math.max(0,side.kw.화상-1);log(`${side===state.p?'당신':state.enemyName} · 화상 ${actual} 피해, 화상 1 감소`,side===state.p?'bad':'good');}
-   if(state.enemyType==='rougeDirector'){if(!state.e.kw.뷔페준비&&state.e.hp<state.e.max*.5){state.e.kw.뷔페준비=1;state.e.kw.폭주=(state.e.kw.폭주||0)+1;state.e.kw.첫껍질=1;state.directorForceBuffet=true;state.directorBuffetRound=state.round;log('뷔페 준비 · 체력 50% 미만, 폭주[데카당스]와 첫 껍질 속으로... 획득','bad');}if((state.e.kw.폭주다음턴||0)>0){state.e.kw.폭주=(state.e.kw.폭주||0)+state.e.kw.폭주다음턴;state.e.kw.폭주다음턴=0;}if((state.e.kw.첫껍질다음턴||0)>0){state.e.kw.첫껍질=1;state.e.kw.첫껍질다음턴=0;}if((state.e.kw.폭주||0)>0)state.e.kw.폭주=Math.max(0,state.e.kw.폭주-1);if((state.e.kw.첫껍질||0)>0)state.e.kw.첫껍질=0;if((state.p.kw.데셰앙트||0)>0){log('데셰앙트 · 턴 종료로 수치 소멸','good');state.p.kw.데셰앙트=0;}if((state.e.kw.출혈||0)>0){const spent=Math.floor(state.e.kw.출혈/2);state.e.kw.출혈-=spent;const dmg=damage(state.e,spent*2,false,true);applyKw(state.e,{맥동:Math.min(30,Math.floor(spent/2))});log('오트쿠튀르 르루주 악트리스 · 출혈 '+spent+' 소모, 자해 '+dmg,'bad');}}if(state.enemyType==='qualia'){if(!state.qualiaTricoteGained){const pulse=Math.max(0,Number(state.e.kw.맥동)||0);if(pulse>=10){state.e.kw.맥동-=10;state.e.kw.트리코테=(state.e.kw.트리코테||0)+2;log('퀄리안 패시브 · 이번 턴 트리코테 미획득, 맥동 10 소모 → 트리코테 +2','good');}else{const shortfall=10-pulse;if(shortfall>0){const selfDamage=damage(state.e,shortfall);log(`퀄리안 패시브 · 맥동 부족 ${shortfall}, 자신에게 피해 ${selfDamage}`,'bad');state.e.kw.맥동=0;}}}if((state.e.kw.트리코테||0)>0){const heal=Math.min(state.e.max-state.e.hp,(state.e.kw.트리코테||0)*2);state.e.hp+=heal;if(heal)log(`퀄리안 패시브 · 트리코테 ${state.e.kw.트리코테} 회복 (${heal})`,'good');}}
+   if(state.enemyType==='rougeDirector'){if(!state.e.kw.뷔페준비&&state.e.hp<state.e.max*.5){state.e.kw.뷔페준비=1;state.e.kw.폭주=(state.e.kw.폭주||0)+1;state.e.kw.첫껍질=1;state.directorForceBuffet=true;state.directorBuffetRound=state.round;log('뷔페 준비 · 체력 50% 미만, 폭주[데카당스]와 첫 껍질 속으로... 획득','bad');}if((state.e.kw.폭주||0)>0)state.e.kw.폭주=Math.max(0,state.e.kw.폭주-1);if((state.e.kw.첫껍질||0)>0)state.e.kw.첫껍질=0;if((state.p.kw.데셰앙트||0)>0){log('데셰앙트 · 턴 종료로 수치 소멸','good');state.p.kw.데셰앙트=0;}if((state.e.kw.출혈||0)>0){const spent=Math.floor(state.e.kw.출혈/2);state.e.kw.출혈-=spent;const dmg=damage(state.e,spent*2,false,true);applyKw(state.e,{맥동:Math.min(30,Math.floor(spent/2))});log('오트쿠튀르 르루주 악트리스 · 출혈 '+spent+' 소모, 자해 '+dmg,'bad');}}if(state.enemyType==='qualia'){if(!state.qualiaTricoteGained){const pulse=Math.max(0,Number(state.e.kw.맥동)||0);if(pulse>=10){state.e.kw.맥동-=10;state.e.kw.트리코테=(state.e.kw.트리코테||0)+2;log('퀄리안 패시브 · 이번 턴 트리코테 미획득, 맥동 10 소모 → 트리코테 +2','good');}else{const shortfall=10-pulse;if(shortfall>0){const selfDamage=damage(state.e,shortfall);log(`퀄리안 패시브 · 맥동 부족 ${shortfall}, 자신에게 피해 ${selfDamage}`,'bad');state.e.kw.맥동=0;}}}if((state.e.kw.트리코테||0)>0){const heal=Math.min(state.e.max-state.e.hp,(state.e.kw.트리코테||0)*2);state.e.hp+=heal;if(heal)log(`퀄리안 패시브 · 트리코테 ${state.e.kw.트리코테} 회복 (${heal})`,'good');}}
    gustavRoundEnd();
    if(state.p.hp<=0)finish(false);else if(state.e.hp<=0)finish(true);
    else{state.p.chefDodgeRound=0;state.p.chefDamageReduce=0;state.p.forceDodgeZero=false;state.round++;state.light=4+(Number(state.lightBonusNext)||0);state.lightBonusNext=0;state.hand=drawHand();if(state.p.itemRegen&&state.round%3===0){state.p.hp=Math.min(state.p.max,state.p.hp+state.p.itemRegen);log(`아이템 효과 · 체력 ${state.p.itemRegen} 회복`,'good');}log(`— ${state.round}라운드 시작 · 빛 ${state.light} 회복 · 카드 4장 재추첨 —`);setActionMessage(`다음 라운드 카드 4장이 무작위로 뽑혔습니다. 빛 상한 ${state.light}. ${state.enemyName}은 다음 라운드에 ${enemyActionCount()}회 행동합니다.`);}
