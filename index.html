@@ -472,7 +472,7 @@ function renderShopStock(){
  }).join('');
 }
 function renderExplore(){
- if(run.active&&run.items&&run.items.length>=3&&!run.factionChoice&&!(run.event&&run.event.factionForced)){run.factionReturnEvent=run.event?{...run.event,actions:(run.event.actions||[]).map(a=>({...a}))}:null;run.event={factionForced:true,title:'소속을 정할 시간',text:'아이템을 세 개 모았다. 이제 어느 진영의 일원이 될지 결정해야 한다. 선택 후에는 변경할 수 없다.',actions:[{name:'르루주',desc:'진영: 르루주 · 직급: SPA관 점원 · 패시브: 맥동, 대사작용',kind:'factionPick',faction:'르루주'},{name:'르누아르',desc:'진영: 르누아르 · 직급: SPA관 점원 · 패시브: 보존, 르누아르 원단',kind:'factionPick',faction:'르누아르'},{name:'선택하지 않음 (르카키)',desc:'진영: 고객 · 직급: 르카키 · 패시브: 고객, 르카키, 눈알 수집',kind:'factionPick',faction:'르카키'}]};}
+ if(run.active&&run.items&&run.items.length>=3&&!run.factionChoice&&!(run.event&&run.event.factionForced)){run.factionReturnEvent=run.event?{...run.event,actions:(run.event.actions||[]).filter(a=>a.kind!=='factionMenu').map(a=>({...a}))}:null;run.event={factionForced:true,title:'소속을 정할 시간',text:'아이템을 세 개 모았다. 이제 어느 진영의 일원이 될지 결정해야 한다. 선택 후에는 변경할 수 없다.',actions:[{name:'르루주',desc:'진영: 르루주 · 직급: SPA관 점원 · 패시브: 맥동, 대사작용',kind:'factionPick',faction:'르루주'},{name:'르누아르',desc:'진영: 르누아르 · 직급: SPA관 점원 · 패시브: 보존, 르누아르 원단',kind:'factionPick',faction:'르누아르'},{name:'선택하지 않음 (르카키)',desc:'진영: 고객 · 직급: 르카키 · 패시브: 고객, 르카키, 눈알 수집',kind:'factionPick',faction:'르카키'}]};}
  const ev=run.event;
  if(!ev)return;
  $('eyeCount').textContent=String(run.eyes);run.customerRank=getCustomerRank();syncFactionUnlock();
@@ -501,7 +501,7 @@ function startExploration(){
 }
 function getSeasonName(){return seasonNameOrder[(run.seasonCount)%seasonNameOrder.length]||seasonNames[(run.seasonCount)%seasonNames.length]}
 function specialShopKey(){if(run.floor!==1)return null;return ({1:'mimosa',2:'renoirSpa',3:'renoir',4:'rouge'})[run.season]||null}
-function makeShopEvent(key){const sh=shopCatalog[key];const actions=[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'}];if(['mimosa','renoirSpa'].includes(key)&&canChooseFaction())actions.splice(1,0,{name:'진영을 선택한다',desc:'르누아르 또는 르루주 SPA관 점원이 된다. 선택 기한이 지나기 전에 결정해야 한다.',kind:'factionMenu'});if(sh.enemy)actions.splice(1,0,{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 승리한 상점의 이벤트는 다시 나타나지 않는다.',kind:'combat',enemy:sh.enemy});return {shopKey:key,title:sh.title,text:key==='renoirSpa'?`${sh.text}\n\nNPC: 쿠르베`:sh.text,actions}}
+function makeShopEvent(key){const sh=shopCatalog[key];const actions=[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'}];if(sh.enemy)actions.splice(1,0,{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 승리한 상점의 이벤트는 다시 나타나지 않는다.',kind:'combat',enemy:sh.enemy});return {shopKey:key,title:sh.title,text:key==='renoirSpa'?`${sh.text}\n\nNPC: 쿠르베`:sh.text,actions}}
 function nextExploreEvent(){
  run.shopIntroduced=run.shopIntroduced||{};run.shopDefeated=run.shopDefeated||{};run.seasonShops=run.seasonShops||{};
  run.seasonName=getSeasonName();const finalTurn=run.turn>=run.length;let key=null;
