@@ -561,13 +561,13 @@ function nextExploreEvent(){
 function resolveExploreAction(i){
  const ev=run.event,a=ev.actions[i];if(!a)return;
   if(a.kind==='fallDig'){
- const roll=Math.floor(Math.random()*100)+1,success=roll>=60;let resultText;
+ const roll=Math.floor(Math.random()*100)+1,penalty=hasPassive('이방인')?10:0,total=roll-penalty,success=total>=40;let resultText;
  if(success){gainEyes(120,'추락 · 살더미에서 눈알 획득');state.p.hp=Math.max(0,state.p.hp-3);resultText='살더미를 뒤져 쓸 만한 것을 건졌다.\n\n눈알 120 획득, 체력 3 감소.';}
  else{state.p.hp=Math.max(0,state.p.hp-15);resultText='살더미를 파헤치다 다른 고객들에게 떠밀리고 옷더미에 깔렸다.\n\n체력 15 감소.';}
- run.logs.push(`추락 · d100 ${roll} · ${success?'성공':'실패'} · ${success?'눈알 +120, 체력 -3':'체력 -15'}`);
+ run.logs.push(`추락 · d100 ${roll}${penalty?` - 이방인 ${penalty}`:''} = ${total} · ${success?'성공':'실패'} · ${success?'눈알 +120, 체력 -3':'체력 -15'}`);
  $('checkDice').className='check-dice rolling';$('checkDice').textContent='…';$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='주사위를 굴리는 중…';
  $('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;$('eventResultModal').classList.remove('hidden');
- window.setTimeout(()=>{const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(roll).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`d100 ${roll} · ${success?'성공 (60 이상)':'실패 (59 이하)'}`;},650);
+ window.setTimeout(()=>{const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(roll).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`d100 ${roll}${penalty?` - 이방인 ${penalty}`:''} = ${total} · ${success?'성공 (40 이상)':'실패 (39 이하)'}`;},650);
  $('eventResultConfirm').onclick=()=>{$('eventResultModal').classList.add('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3><p>탐색을 처음부터 다시 시작한다.</p></button>';$('restartExplore').onclick=startExploration;return;}advanceExploreTurn();};
  return;
 }
