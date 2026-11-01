@@ -605,7 +605,7 @@ function resolveExploreAction(i){
  if(a.kind==='announcement'){nextExploreEvent();renderExplore();return;}
  if(a.kind==='continueFloor'){ run.floor=3;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.logs.push('무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자');run.logs.push('— 3층 진입 —');nextExploreEvent();renderExplore();return;}
  if(a.kind==='pass'||a.kind==='continue'){run.logs.push(`${run.seasonName} 시즌 — ${ev.title}: ${a.name}`);advanceExploreTurn();return;}
- if(a.kind==='combat'){if(ev.shopKey){run.seasonShops[ev.shopKey+'_closed']=true;if(ev.shopKey==='rouge')run.qualiaShopEncountered=true;}if(a.enemy==='leatherGlove'){startNamedCombat('leatherGlove',true);return;}startNamedCombat(a.enemy,true);return;}
+ if(a.kind==='combat'){if(ev.shopKey){run.seasonShops[ev.shopKey+'_closed']=true;run.shopDefeated=run.shopDefeated||{};run.shopDefeated[ev.shopKey]=true;if(ev.shopKey==='rouge')run.qualiaShopEncountered=true;}if(a.enemy==='leatherGlove'){startNamedCombat('leatherGlove',true);return;}startNamedCombat(a.enemy,true);return;}
  const result=a.fn?a.fn():'';run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — ${ev.title}: ${a.name}. ${result}`);
  if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}
  advanceExploreTurn();
