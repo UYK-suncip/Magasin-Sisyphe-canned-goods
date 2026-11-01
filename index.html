@@ -631,7 +631,9 @@ function itemEffectText(it){
 }
 function itemDescriptionParts(id){
  const it=itemCatalog[id];if(!it)return {description:'',effect:''};
- const parts=String(it.desc||'').split(' · ').map(x=>x.trim()).filter(Boolean).filter(x=>!x.startsWith('[획득처:'));
+ // 획득처 표기가 설명 문장과 같은 조각에 붙어 있어도 설명 본문을 보존한다.
+ const raw=String(it.desc||'').replace(/\s*·?\s*\[획득처:[^\]]*\]\s*/g,' · ').replace(/(?:\s*·\s*){2,}/g,' · ').replace(/^\s*·\s*|\s*·\s*$/g,'');
+ const parts=raw.split(' · ').map(x=>x.trim()).filter(Boolean);
  const effectLike=/최대 체력|체력 \+|최종 위력|공격력 \+|속도 \+|턴마다 체력|전투 시작 시|적 처치 시|충전 또는 특수충전|맥동 \+|보호막 \+/;
  const description=parts.filter(x=>!effectLike.test(x)&&!/^\(.+\)$/.test(x)).join(' · ').trim();
  return {description:description||'백화점에서 발견한 물품이다.',effect:itemEffectText(it)};
