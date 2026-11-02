@@ -530,9 +530,7 @@ function makeBrandShopEvent(){
 
 어느곳을 이용할까?`,actions};
 }
-function makeShopEvent(key){const sh=shopCatalog[key];const actions=[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'}];if(sh.enemy)actions.splice(1,0,{name:`${sh.name}와 전투한다`,desc:'전투를 시작한다. 승리한 상점의 이벤트는 다시 나타나지 않는다.',kind:'combat',enemy:sh.enemy});return {shopKey:key,title:sh.title,text:key==='renoirSpa'?`${sh.text}
-
-NPC: 쿠르베`:sh.text,actions}}
+function makeShopEvent(key){const sh=shopCatalog[key];const actions=[{name:'상점을 방문한다',desc:'눈알을 사용해 아이템을 구매한다.',kind:'visit'},{name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'}];if(sh.enemy||key==='renoirSpa')actions.splice(1,0,{name:`${sh.name}와 전투한다`,desc:'상점 주인과의 전투를 시작한다. 승리하면 해당 상점은 폐점한다.',kind:'combat',enemy:sh.enemy||'courbet'});return {shopKey:key,title:sh.title,text:key==='renoirSpa'?`${sh.text}\n\nNPC: 쿠르베`:sh.text,actions}}
 function nextExploreEvent(){
  run.shopIntroduced=run.shopIntroduced||{};run.shopDefeated=run.shopDefeated||{};run.seasonShops=run.seasonShops||{};run.shoppingEventsSeen=run.shoppingEventsSeen||{};
  run.seasonName=getSeasonName();const finalTurn=run.turn>=run.length;let key=null;
