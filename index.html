@@ -328,10 +328,12 @@ function spendPreservation(target,amount){
 }
 function gustavRoundEnd(){
  const e=state.e;if(!['gustav','carefulRenoirClerk','renoirSunClerk','courbet'].includes(state.enemyType))return;
- if((e.kw.보존||0)>=5){const spent=spendPreservation(e,5);e.kw.우스티드원단=(e.kw.우스티드원단||0)+1;log(`불경한 자들! · 턴 종료 보존 ${spent} 소모, 우스티드 원단 +1`,'good');}
- const spent=Math.max(0,Number(state.gustavPreservationSpent)||0);
- const fabricGain=Math.min(5,Math.floor(spent/5));
- if(fabricGain){e.kw.우스티드원단=(e.kw.우스티드원단||0)+fabricGain;log(`르누아르 우스티드 원단 · 보존 ${spent} 소모 기록 → 원단 +${fabricGain} (라운드당 최대 5)`,'good');}
+ if(state.enemyType==='gustav'){
+  if((e.kw.보존||0)>=5){const spent=spendPreservation(e,5);e.kw.우스티드원단=(e.kw.우스티드원단||0)+1;log(`불경한 자들! · 턴 종료 보존 ${spent} 소모, 우스티드 원단 +1`,'good');}
+  const spent=Math.max(0,Number(state.gustavPreservationSpent)||0);
+  const fabricGain=Math.min(5,Math.floor(spent/5));
+  if(fabricGain){e.kw.우스티드원단=(e.kw.우스티드원단||0)+fabricGain;log(`르누아르 우스티드 원단 · 보존 ${spent} 소모 기록 → 원단 +${fabricGain} (라운드당 최대 5)`,'good');}
+ }
  state.gustavPreservationSpent=0;
  const shield=Math.floor(Math.max(0,Number(e.kw.우스티드원단)||0)/4)*3;
  if(shield){e.kw.보호막=(e.kw.보호막||0)+shield;log(`우스티드 원단 · 4당 보호막 3 획득, 턴 종료 보호막 +${shield}`,'good');}
