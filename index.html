@@ -293,7 +293,7 @@ function chooseFaction(faction){if(!canChooseFaction()||!['르누아르','르루
 const itemCatalog={rougeBottlePalm:{name:'병과 손바닥',cost:0,desc:'“너... 저저번 시즌에 나한테 병을 다섯개 빌렸잖아!” · 적 처치 시 눈알 5 추가 획득',eyesPerKill:5},gloveFragment:{name:'장갑 조각',cost:0,desc:'“대부분의 고객들은 백화점 내의 옷들을 소비하고 생산한다는 목적 혹은 소망을 갖고 행동한다. 허나 그러지않은 몇몇 목적없는 고객들은 옷감으로 쓰이거나 마네킹이 된다.” · 공격력 +1',attackPower:1},mimosaMask:{name:'미모사의 가면',cost:0,desc:'공격력 +2 과거 백화점은 떨어져 바닥을 치더라도, 바닥에서 다시 시작할 수 있었다.',attackPower:2},faith:{name:'신앙',cost:0,desc:'전투 시작 시 충전 3 획득 백화점의 르누아르들이 믿는 검은 신은 목소리를 내려준다. 보존하라.',startCharge:3},desire:{name:'욕망',cost:0,desc:'모성애도 욕망이라 정의할수 있는가?',desire:true},bond:{name:'채권',cost:0,desc:'상징계는 대상이 상징하는 것이 곧 그것의 역할로써 못박힌다. 예를들어 이것은 르누아르의 옷이지만, 빌린 눈알에 대한 일종의 담보로써 주어졌으므로 채권으로 못박힌 것이다.',bond:true},lullaby:{name:'자장가',cost:0,desc:'어..서...자라...우리...아..가...고운 올만...풀..고 풀어...',lullaby:true},spaJacket:{name:'르루주의 SPA 자켓',cost:60,desc:'최대 체력 +2',hp:2},spaHoodie:{name:'르루주의 SPA 후드집업',cost:80,desc:'최종 위력 +1',power:1},rougeSpaSkirt:{name:'르루주의 SPA 치마',cost:60,desc:'“붉은 신의 목소리가, 더는 들리지 않아...” · 최대 체력 +1',hp:1},renoirSpaCoat:{name:'르누아르의 SPA 피 코트',cost:60,desc:'“아아 들립니다, 검은 신의 목소리가!” · 체력 +2',hp:2},renoirSpaAscot:{name:'르누아르의 SPA 아스콧 타이',cost:100,desc:'“르누아르는 정지와 보존에 그 가치를 부여한다.” · 전투 시작 시 보호막 5 획득',startShield:5},renoirSpaHeel:{name:'르누아르 SPA 힐',cost:80,desc:'“백화점은 그 자체로써 소중하기에 보존되어야 한다. 그렇기에 황금송진을 지키는 것이다.” · 속도 최댓값 +1',speed:1},renoCardigan:{name:'르누아르의 컨템포러리 가디건',cost:90,desc:'최대 체력 +3',hp:3},renoHat:{name:'르누아르의 컨템포러리 신사 모자',cost:100,desc:'체력 +2 · 3턴마다 체력 1 회복',hp:2,regen:1},renoirContemporaryHat:{name:'르누아르의 컨템포러리 모자',cost:120,desc:'“백화점은, 보존되어야 합니다.” · 최대 체력 +3',hp:3},rougeSocks:{name:'르루주의 컨템포러리 양말',cost:90,desc:'최대 체력 +3',hp:3},rougeZip:{name:'르루주의 컨템포러리 지퍼',cost:100,desc:'속도 +1',speed:1},rougeContemporaryGloves:{name:'르루주의 컨템포러리 장갑',cost:120,desc:'“황금가죽은 먹을 수도 있고 두를 수도 있습니다. 가죽은 살결 그 자체이니, 말 그대로 살아 숨 쉬고 있죠. 우리의 피부와 다를 게 없이.” · 최대 체력 +3',hp:3},rougeSpaWallet:{name:'르루주의 SPA 지갑',cost:140,desc:'균열에 채워진 황금가죽을 먹어본 적 있나요? 그 가죽으로 맛을 낸 옷은… 정말 잊을 수 없죠.',rougeSpaWallet:true},renoirSpaKilt:{name:'르누아르의 SPA 킬트',cost:140,desc:'응축하여 힘을 모아 고정한다. 변화시키지 않는 것이 변화시키는 것보다 더 큰 힘이 필요할 때가 있다.',renoirSpaKilt:true},energyDrink:{name:'에너지 음료',cost:0,desc:'최종 위력 +1',power:1},outdatedRougeClothes:{name:'철 지난 르루주 옷',desc:'철이 지나 유행에서 밀려났지만, 착용감은 뛰어나다. (최대체력 +4)',hp:4}};
 const shopItems={mimosa:['spaJacket','spaHoodie','rougeSpaSkirt'],renoirSpa:['renoirSpaCoat','renoirSpaAscot','renoirSpaHeel'],renoir:['renoCardigan','renoHat','renoirContemporaryHat'],rouge:['rougeSocks','rougeZip','rougeContemporaryGloves']};
 const testShopItems=[{name:'시험용 회복약',desc:'체력 10 회복',cost:0,fn(){state.p.hp=Math.min(state.p.max,state.p.hp+10);return '체력 10 회복.'}},{name:'시험용 맥동 조각',desc:'맥동 +3',cost:0,fn(){applyKw(state.p,{맥동:3});return '맥동 +3.'}},{name:'시험용 충전 팩',desc:'충전 +3 (르누아르 모드에서는 보존)',cost:0,fn(){applyKw(state.p,{충전:3});return renoirModeEnabled?'보존 +3.':'충전 +3.'}}];
-function drawHand(){const pool=[...playerDeck];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,4).map(c=>c.id)}
+function drawHand(){if(testerModeEnabled)return ['mom_hate','roja_axe','tester_yukcham','tester_hitready'];const pool=[...playerDeck];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}return pool.slice(0,4).map(c=>c.id)}
 function fresh(){return {p:{hp:876,max:876,speed:4,attackPower:0,itemPower:0,guardBonusDice:0,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0,매콤매콤소스:0,향:0,악취:0,르둘뢰르:0}},e:{hp:180,max:180,speed:3,kw:{호흡:0,향:0,악취:0,르둘뢰르:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}},enemyName:'알리우네',enemyCaption:'흙으로 돌아가고자 하는 소망을 품고, 살고자 하는 모든 것들과 무덤으로 돌아가리.',enemyPortrait:'✿',enemyType:'aliune',light:4,round:1,selected:[],hand:drawHand(),done:false,logs:[],last:null,lightBonusNext:0}}
 function rand(n){return Math.floor(Math.random()*n)+1}function roll(n,count=1){let a=[];for(let i=0;i<count;i++)a.push(rand(n));return a}function sum(a){return a.reduce((x,y)=>x+y,0)}function log(s,type=''){state.logs.unshift({s,type});state.logs=state.logs.slice(0,24);renderFeed();const box=$('actionResult');if(box){box.className='action-result '+type;box.innerHTML=`<strong>전투 기록</strong><span>${s.replace(/<[^>]*>/g,'')}</span>`}}
 function renderFeed(){$('feed').innerHTML=state.logs.map(x=>`<div class="logline ${x.type}">${x.s}</div>`).join('')}
@@ -753,28 +753,37 @@ function startWithEvent(id,index){const e=importedEvents.find(x=>x.id===id);if(!
 function begin(){$('gameOverModal').classList.add('hidden');state=fresh();state.enemyName='알리우네';state.enemyCaption='흙으로 돌아가고자 하는 소망을 품고, 살고자 하는 모든 것들과 무덤으로 돌아가리.';state.enemyPortrait='✿';state.enemyType='aliune';$('intro').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');$('attackDie').textContent='—';$('defenseDie').textContent='—';state.logs=[];log('특수 전투 시작 · 알리우네가 모습을 드러냈습니다. (라운드당 3회 행동)');render()}
 
 
-const fallbackPatchMarkdown = `# 패치 노트 · v1.10
+const fallbackPatchMarkdown = `# 패치 노트 · v1.11
 
-## 전투 시스템
+## 카드 시스템
+
+- 카드덱 기능을 추가했습니다. 현재 덱의 카드와 효과를 확인하고, 직접 덱을 편집할 수 있습니다.
+- 덱은 최소 4장, 최대 10장으로 구성됩니다. 10장을 보유한 상태에서 새 카드를 얻으면 기존 카드와 교체하거나 새 카드를 버릴 수 있습니다.
+- 전투 시작 및 카드 재추첨 시 덱에서 무작위로 4장을 뽑습니다.
+- 카드 획득 테스트 기능을 추가했습니다. 추후 실제 이벤트 보상과 연결할 예정입니다.
+- 테스터 모드는 기존처럼 지정된 4장의 카드를 고정으로 사용합니다. 일반 카드덱 추첨과 분리했습니다.
+
+## 전투 시스템 개선
+
+- 르누아르 적들의 카드 효과와 보존 처리 순서를 수정했습니다. 카드 사용 시 보존 획득·소모, 진동 부여 및 진동 폭발이 의도한 순서로 처리되도록 개선했습니다.
+- 르누아르 적과 구스타프에게 전투 시작 시 보존 5가 지급되던 초기 효과를 제거했습니다.
+- 쿠르베 처치 보상에 눈알 50개를 추가했습니다.
+- 보호막이 피해를 흡수하더라도 공격의 전체 피해량이 숫자로 표시되도록 수정했습니다.
+- 추락, 철 지난 옷, 르루주 명품관의 주사위 판정에서 이방인 등 보정치를 합산한 최종 판정값을 표시하도록 개선했습니다.
+- 다음 턴에 적용되는 내부 매개 키워드가 전투 상태창에 노출되지 않도록 정리했습니다.
+- 욕망 아이템의 잃은 체력 비례 피해량 증가 효과를 1.5%에서 0.5%로 조정했습니다.
+
+## 기존 시스템
 
 - 충전·보존·맥동은 최대 20이며, 최대치를 넘겨 획득하면 과충전·보전·박동을 얻고 해당 자원을 10 소모합니다.
-
-- 아군 회피 주사위를 1+1d8로 변경하고, 피해량 표시가 더 오래 남도록 조정했습니다.
-
-
-## 1층 탐색 추가
-
 - 시즌별 이름을 패턴·원단·가죽 용어로 무작위 배정하고 한 번의 1층 탐색 안에서 중복되지 않도록 했습니다.
-
-- 시즌 1 마지막 미모사, 시즌 2 마지막 르누아르 컨템포러리관, 시즌 4 마지막 르루주 컨템포러리관, 시즌 5 마지막 길 잃은 점원 이벤트를 추가했습니다.
-
-- 상점 방문/통과/전투와 테스트 상품을 추가했습니다.
-
-- 피격 체력바 위 피해 숫자, 모바일 전투 UI 압축을 반영했습니다.
+- 시즌별 주요 보스 및 상점 이벤트, 상점 방문·통과·전투와 테스트 상품을 추가했습니다.
+- 피격 체력바 위 피해 숫자와 모바일 전투 UI 개선을 반영했습니다.
 
 ## 사용 안내
 
 - 패치 노트는 첫 접속 시 표시되며, 상단의 패치 노트 버튼으로 언제든 다시 열 수 있습니다.
+- 카드덱은 로비 또는 탐색 화면의 '카드덱 보기 / 편집'에서 확인할 수 있습니다.
 
 - 이 패치노트는 정보시간에 작성된 사항입니다. 변한건 없습니다.
 
@@ -783,8 +792,8 @@ const fallbackPatchMarkdown = `# 패치 노트 · v1.10
 function markdownToSafeHtml(md){return md.split(/\n{2,}/).map(block=>{const t=block.trim();if(!t)return '';if(t.startsWith('# '))return `<h2>${escapePatch(t.slice(2))}</h2>`;if(t.startsWith('## '))return `<h2>${escapePatch(t.slice(3))}</h2>`;if(t.split('\n').every(x=>x.trim().startsWith('- ')))return `<ul>${t.split('\n').map(x=>`<li>${inlinePatch(x.trim().slice(2))}</li>`).join('')}</ul>`;return `<p>${t.split('\n').map(inlinePatch).join('<br>')}</p>`}).join('')}
 function escapePatch(x){return x.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function inlinePatch(x){return escapePatch(x).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>')}
-async function showPatchOnFirstLobbyVisit(){let seen=false;try{seen=localStorage.getItem('sizif_patch_seen_v1_2')==='yes'}catch(e){}$('patchBody').innerHTML=markdownToSafeHtml(fallbackPatchMarkdown);if(!seen)$('patchBackdrop').classList.remove('hidden')}
-function closePatch(){$('patchBackdrop').classList.add('hidden');try{localStorage.setItem('sizif_patch_seen_v1_2','yes')}catch(e){}}
+async function showPatchOnFirstLobbyVisit(){let seen=false;try{seen=localStorage.getItem('sizif_patch_seen_v1_3')==='yes'}catch(e){}$('patchBody').innerHTML=markdownToSafeHtml(fallbackPatchMarkdown);if(!seen)$('patchBackdrop').classList.remove('hidden')}
+function closePatch(){$('patchBackdrop').classList.add('hidden');try{localStorage.setItem('sizif_patch_seen_v1_3','yes')}catch(e){}}
 $('openPatchAgain').onclick=()=>{$('patchBody').innerHTML=markdownToSafeHtml(fallbackPatchMarkdown);$('patchBackdrop').classList.remove('hidden')};$('patchClose').onclick=closePatch;$('patchX').onclick=closePatch;$('patchBackdrop').addEventListener('click',e=>{if(e.target===$('patchBackdrop'))closePatch()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('patchBackdrop').classList.contains('hidden'))closePatch()});
 
 $('openDeckLobby').onclick=()=>openDeckManager(false);$('openDeckExplore').onclick=()=>openDeckManager(false);$('openCardAcquireLobby').onclick=()=>openDeckManager(true);$('openCardAcquireExplore').onclick=()=>openDeckManager(true);$('closeDeck').onclick=()=>$('deckModal').classList.add('hidden');$('deckModal').addEventListener('click',e=>{if(e.target===$('deckModal'))$('deckModal').classList.add('hidden')});$('showCardAcquire').onclick=()=>{$('cardAcquirePanel').classList.toggle('hidden');renderCardAcquireList()};$('discardNewCard').onclick=discardPendingCard;$('deckOverflowModal').addEventListener('click',e=>{if(e.target===$('deckOverflowModal'))discardPendingCard()});$('gameOverExit').onclick=()=>{$('gameOverModal').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.add('hidden');$('intro').classList.remove('hidden');run.active=false;};$('testerMode').onclick=()=>addModeCards(testerCards,'tester');$('renoirMode').onclick=()=>addModeCards(renoirCards,'renoir');$('chefMode').onclick=()=>addModeCards(chefCards,'chef');$('start').onclick=startExploration;$('openInventory').onclick=()=>{renderInventory();$('inventoryModal').classList.remove('hidden')};$('closeInventory').onclick=()=>$('inventoryModal').classList.add('hidden');$('inventoryModal').addEventListener('click',e=>{if(e.target===$('inventoryModal'))$('inventoryModal').classList.add('hidden')});document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('inventoryModal').classList.add('hidden');$('deckModal').classList.add('hidden');if(!$('deckOverflowModal').classList.contains('hidden'))discardPendingCard();}});$('directCombat').onclick=begin;$('perfumerCombat').onclick=()=>startPerfumerCombat(false);$('testCombat').onclick=()=>startTestCombat(false);$('rukakiCombat').onclick=()=>startRukakiCombat(false);$('exploreRules').onclick=()=>alert('기본위력: 스킬 식의 맨 앞 숫자. 예) 1+2d3의 기본위력은 1. 코인위력(주사위): d3은 1~3 중 무작위 값, 2d3은 이를 2개 굴려 합산합니다. 최종위력: 기본위력 + 코인위력 합계이며, 위력 증가/감소 효과를 반영합니다. 피해량: 최종위력에 피해량 증가량을 곱한 값이며, 기본 피해량은 최종위력과 같습니다. 추가 피해: 지정한 수치만큼 체력에 직접 피해를 줍니다. 수비스킬: 회피입니다. 재사용: 공격 종료 후 같은 스킬을 다시 사용하며, 별도 지정이 없으면 수비스킬이 발동됩니다. 추가주사위: 기존 코인위력에 주사위를 더합니다. 예) 1+2d3에 4d5 추가 시 1+2d3+4d5. 사용시/공격시작시: 스킬 발동 시. 적중시: 공격이 적중했을 때. 공격종료시: 한 스킬의 모든 판정 종료 시. 턴종료시: 양측의 모든 카드 판정 종료 시. xn: 카드 n장. 공격력: 3당 피해량 증가량 +5%. 진동: 진동 폭발 시 수치만큼 추가 피해 후 소모. 호흡: 수치당 치명타 확률 5%, 치명타 시 피해 2배 후 호흡 1 소모. 침잠: 침잠이 걸린 자신의 공격 최종 위력을 수치당 1 감소. 출혈: 공격 처리 시 수치만큼 피해를 받고 1 감소. 화상: 턴 종료 시 수치만큼 피해, 1 감소. 충전: 방전 일격에서 최대 3 소모해 위력 강화. 르누아르 모드에서는 충전 획득이 보존으로 대체됩니다. 보존: 원 킥 변형에 사용됩니다.');$('skipExplore').onclick=()=>{if(confirm('탐색을 중단하고 시작 화면으로 돌아갈까요?')){$('explore').classList.add('hidden');$('intro').classList.remove('hidden')}};$('openEvents').onclick=showEventPicker;$('closeEvents').onclick=()=>{$('eventPicker').classList.add('hidden');$('eventActions').classList.add('hidden')};$('fight').onclick=startRound;$('clear').onclick=()=>{if(actionLocked||state.done)return;state.selected=[];setActionMessage('선택을 해제했습니다.');render()};$('next').onclick=()=>{if(run.active&&state.returnToExplore){$('game').classList.add('hidden');$('explore').classList.remove('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='전투에서 쓰러졌다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}run.logs.push(`시험 전투 종료 · ${state.done&&state.e.hp<=0?'승리':'전투 후 탐색 재개'}`);advanceExploreTurn();}};$('resetTop').onclick=()=>{if(confirm('전투 기록을 초기화할까요?')){if(state){state.logs=[];renderFeed()}run.logs=[];setActionMessage('기록이 초기화되었습니다.')}};$('stockClear').onclick=()=>{if(confirm('로비로 돌아가고 탐색·전투 기록을 모두 초기화할까요?')){actionLocked=false;run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,seasonShops:{},shopIntroduced:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],outdatedClothesEventSeen:false,welcomeEventSeen:false,seasonCount:0,shopDefeated:{},rank:0,canAscend:false};shuffleSeasonNames();state=fresh();$('game').classList.add('hidden');$('explore').classList.add('hidden');$('eventModal')?.classList.add('hidden');$('inventoryModal')?.classList.add('hidden');$('eventResultModal')?.classList.add('hidden');$('gameOverModal')?.classList.add('hidden');$('intro').classList.remove('hidden');$('next').classList.add('hidden');$('feed').innerHTML='';$('seasonLog').innerHTML='';$('eventTitle').textContent='백화점의 소음';$('eventText').textContent='새로운 탐색을 시작해 보자.';render();}};
