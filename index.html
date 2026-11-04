@@ -322,7 +322,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));async function diceAnim(el,n,cou
 function showKeywordGain(target,key,amount){if(!amount||amount<=0)return;const unit=$(target===state.e?'enemyUnit':'playerUnit');if(!unit)return;const f=document.createElement('span');f.className='damage-float '+(key==='보호막'?'shield-gain':'keyword-gain');f.textContent='+'+amount;unit.appendChild(f);setTimeout(()=>f.remove(),1600)}
 function damage(target,n,critical=false,bypassShield=false,popupDelay=0,damageType=''){if(n<=0)return 0;let incoming=Math.floor(n);if((Number(target.kw?.쇠약)||0)>0)incoming=Math.floor(incoming*1.4);if(target===state.e&&state.enemyType==='rougeDirector'&&target.hp<=target.max*.25)incoming=Math.floor(incoming*2);if(target===state.p&&state.p.chefDamageReduce)incoming=Math.max(0,incoming-state.p.chefDamageReduce);const shownDamage=incoming;if(!bypassShield){let shield=Math.min(Math.max(0,target.kw?.보호막||0),incoming);if(shield){target.kw.보호막-=shield;incoming-=shield;log(`${target===state.e?state.enemyName:'당신'} · 보호막이 피해 ${shield} 흡수`,'good')}}target.hp=Math.max(0,target.hp-incoming);const unit=$(target===state.e?'enemyUnit':'playerUnit');if(unit&&shownDamage>0){unit.classList.remove('hit');void unit.offsetWidth;unit.classList.add('hit');const f=document.createElement('span');f.className='damage-float '+(damageType==='출혈'?'keyword-bleed':damageType==='파열'?'keyword-rupture':damageType==='화상'?'keyword-burn':damageType==='진동'?'keyword-vibration':critical?'critical':target===state.e?'enemy-hit':'player-hit');f.style.animationDelay=`${popupDelay}ms`;f.textContent='-'+shownDamage;unit.appendChild(f);setTimeout(()=>f.remove(),1600+popupDelay)}return shownDamage}
 function resolveCheckRoll(base,bonus=0){const modifiers=[];if(hasPassive('이방인'))modifiers.push({name:'이방인',value:-10});const total=base+bonus+modifiers.reduce((n,m)=>n+m.value,0);const parts=[`d100 ${base}`];if(bonus)parts.push(`+ d8 ${bonus}`);for(const m of modifiers)parts.push(m.value<0?`- ${m.name} ${Math.abs(m.value)}`:`+ ${m.name} ${m.value}`);return {total,formula:parts.join(' ')+` = ${total}`}}
-function applyKw(target,obj,options={}){if(!target||!target.kw||!obj)return [];let out=[];for(let [rawKey,raw] of Object.entries(obj)){let k=rawKey;if(state?.enemyType==='perfumer'&&k==='호흡'){k=target===state.e?'향':target===state.p?'악취':k;}const v=Number(raw);if(target===state.p&&k==='충전'&&(hasPassive('보존')||renoirModeEnabled)){k='보존';if(v>0)log(`르누아르 패시브 · 충전 획득 ${v} → 충전은 쌓이지 않고 보존 +${v}`,'good');}else if(target===state.p&&k==='충전'&&hasPassive('맥동')){k='맥동';if(v>0)log(`르루주 패시브 · 충전 획득 ${v} → 맥동 +${v}`,'good');}if(!Number.isFinite(v)||v===0)continue;if(target===state.e&&state.enemyType==='qualia'&&k==='충전')k='맥동';const before=Number(target.kw[k])||0;const cap=k==='매콤매콤소스'?5:['충전','보존'].includes(k)?20:k==='맥동'?(target===state.e&&state.enemyType==='rougeDirector'?90:20):k==='잔향'?30:k==='진동'?(Number(options.vibrationCap)||99):k==='생동'&&target===state.e&&state.enemyType==='rougeDirector'?99:k==='데셰앙트(déchéance)'&&target===state.p?10:Infinity;let adjustedV=v;if(k==='생동'&&v>0&&target===state.e&&state.enemyType==='rougeDirector')adjustedV+=1;if(k==='보호막'&&v>0&&target===state.p&&state.enemyType==='rougeDirector')adjustedV=Math.floor(v*Math.max(0,1-(Number(target.kw['데셰앙트(déchéance)'])||0)*.033));let after=Math.max(0,Math.min(cap,before+adjustedV));target.kw[k]=after;const delta=after-before;if(delta>0)out.push(`${k} ${delta}`);else if(delta<0)out.push(`${k} ${delta}`);if(v>0&&['충전','보존','맥동'].includes(k)&&before+v>cap){const status=k==='충전'?'과충전':k==='보존'?'보전':'생동';target.kw[k]=Math.max(0,target.kw[k]-10);target.kw[status]=(Number(target.kw[status])||0)+1;out.push(`${status} 1`);out.push(`${k} 10 소모`);log(`${target===state.p?'당신':state.enemyName} · ${k} 최대치 초과 수급! ${status} +1, ${k} 10 소모`,'good');}if(k==='잔향'&&before+v>30)log('잔향 최대치 30 도달 · 초과분은 적용되지 않습니다.')}return out}
+function applyKw(target,obj,options={}){if(!target||!target.kw||!obj)return [];let out=[];for(let [rawKey,raw] of Object.entries(obj)){let k=rawKey;if(state?.enemyType==='perfumer'&&k==='호흡'){k=target===state.e?'향':target===state.p?'악취':k;}const v=Number(raw);if(target===state.p&&k==='충전'&&(hasPassive('보존')||renoirModeEnabled)){k='보존';if(v>0)log(`르누아르 패시브 · 충전 획득 ${v} → 충전은 쌓이지 않고 보존 +${v}`,'good');}else if(target===state.p&&k==='충전'&&hasPassive('맥동')){k='맥동';if(v>0)log(`르루주 패시브 · 충전 획득 ${v} → 맥동 +${v}`,'good');}if(!Number.isFinite(v)||v===0)continue;if(target===state.e&&state.enemyType==='qualia'&&k==='충전')k='맥동';const before=Number(target.kw[k])||0;const cap=k==='매콤매콤소스'?5:['충전','보존'].includes(k)?20:k==='맥동'?(target===state.e&&state.enemyType==='rougeDirector'?90:20):k==='잔향'?30:k==='진동'?(Number(options.vibrationCap)||99):k==='생동'&&target===state.e&&state.enemyType==='rougeDirector'?99:k==='데셰앙트(déchéance)'&&target===state.p?10:Infinity;let adjustedV=v;if(k==='생동'&&v>0&&target===state.e&&state.enemyType==='rougeDirector')adjustedV+=1;if(k==='보호막'&&v>0&&target===state.p&&state.enemyType==='rougeDirector')adjustedV=Math.floor(v*Math.max(0,1-(Number(target.kw['데셰앙트(déchéance)'])||0)*.033));let after=Math.max(0,Math.min(cap,before+adjustedV));target.kw[k]=after;const delta=after-before;if(delta>0){out.push(`${k} ${delta}`);if(k==='보호막')showKeywordGain(target,'보호막',delta);}else if(delta<0)out.push(`${k} ${delta}`);if(v>0&&['충전','보존','맥동'].includes(k)&&before+v>cap){const status=k==='충전'?'과충전':k==='보존'?'보전':'생동';target.kw[k]=Math.max(0,target.kw[k]-10);target.kw[status]=(Number(target.kw[status])||0)+1;out.push(`${status} 1`);out.push(`${k} 10 소모`);log(`${target===state.p?'당신':state.enemyName} · ${k} 최대치 초과 수급! ${status} +1, ${k} 10 소모`,'good');}if(k==='잔향'&&before+v>30)log('잔향 최대치 30 도달 · 초과분은 적용되지 않습니다.')}return out}
 function addLog(s,type=''){log(s,type)}
 function triggerBleedPassive(){
  const type=state.enemyType, e=state.e;
@@ -423,7 +423,7 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  render();await wait(520);return atk>dodge;
 }
 function payCardUseCost(attacker,card,isPlayer){if(card.leatherSpendCharge)return 0;if(card.kind!=='charge')return 0;let remaining=Math.min(3,Math.max(0,Number(attacker.kw.충전)||0)+Math.max(0,Number(attacker.kw.보존)||0));const fromCharge=Math.min(remaining,Math.max(0,Number(attacker.kw.충전)||0));attacker.kw.충전=Math.max(0,(Number(attacker.kw.충전)||0)-fromCharge);remaining-=fromCharge;const fromPreservation=spendPreservation(attacker,remaining);const spent=fromCharge+fromPreservation;if(spent>0)log(`${isPlayer?'당신':state.enemyName} · ${card.name} 사용 시 충전 ${fromCharge}${fromPreservation?` + 보존 ${fromPreservation}`:''} 소모, 위력 +${spent}`,'good');return spent}
-async function useSupport(card){if(state.done)return;const target=card.target==='enemy'?state.e:state.p;const extras=[];if(card.hpCost&&target===state.p){const before=state.p.hp;state.p.hp=Math.max(0,state.p.hp-card.hpCost);extras.push(`체력 -${before-state.p.hp}`);log(`${card.name} · 체력 ${before-state.p.hp} 소모`,'bad');if(state.p.hp<=0){finish(false);render();return;}}const effects=card.effect||card.self||{};const changes=applyKw(target,effects,card.vibrationCap?{vibrationCap:card.vibrationCap}:{});if(target===state.p&&Number(effects.보호막)>0)showKeywordGain(target,'보호막',Number(effects.보호막));if(card.heal){const before=state.p.hp;state.p.hp=Math.min(state.p.max,state.p.hp+card.heal);extras.push(`체력 +${state.p.hp-before}`);}if(card.lightRecovery){state.lightBonusNext=(Number(state.lightBonusNext)||0)+card.lightRecovery;extras.push(`다음 턴 빛 상한 +${card.lightRecovery}`);}const recipient=target===state.e?state.enemyName:'당신';const detail=[...changes,...extras].join(', ')||'효과 없음';log(`<strong>${recipient}</strong> · ${card.name} 사용 — ${detail}`,'good');$('arenaName').textContent=target===state.e?state.enemyName:'당신의 준비';$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('defenseSkillName').textContent='공격 없음';$('attackDie').textContent='—';$('defenseDie').textContent='—';$('attackLabel').textContent='비공격 스킬';$('defenseLabel').textContent='공격 없음';setActionMessage(`${card.name} · ${recipient}에게 ${detail}`,'good');render();await wait(420)}
+async function useSupport(card){if(state.done)return;const target=card.target==='enemy'?state.e:state.p;const extras=[];if(card.hpCost&&target===state.p){const before=state.p.hp;state.p.hp=Math.max(0,state.p.hp-card.hpCost);extras.push(`체력 -${before-state.p.hp}`);log(`${card.name} · 체력 ${before-state.p.hp} 소모`,'bad');if(state.p.hp<=0){finish(false);render();return;}}const effects=card.effect||card.self||{};const changes=applyKw(target,effects,card.vibrationCap?{vibrationCap:card.vibrationCap}:{});if(card.heal){const before=state.p.hp;state.p.hp=Math.min(state.p.max,state.p.hp+card.heal);extras.push(`체력 +${state.p.hp-before}`);}if(card.lightRecovery){state.lightBonusNext=(Number(state.lightBonusNext)||0)+card.lightRecovery;extras.push(`다음 턴 빛 상한 +${card.lightRecovery}`);}const recipient=target===state.e?state.enemyName:'당신';const detail=[...changes,...extras].join(', ')||'효과 없음';log(`<strong>${recipient}</strong> · ${card.name} 사용 — ${detail}`,'good');$('arenaName').textContent=target===state.e?state.enemyName:'당신의 준비';$('arenaCaption').textContent=card.name;$('attackSkillName').textContent=card.name;$('defenseSkillName').textContent='공격 없음';$('attackDie').textContent='—';$('defenseDie').textContent='—';$('attackLabel').textContent='비공격 스킬';$('defenseLabel').textContent='공격 없음';setActionMessage(`${card.name} · ${recipient}에게 ${detail}`,'good');render();await wait(420)}
 async function usePlayerCard(originalCard){
  let card=originalCard;
  if(chefModeEnabled&&card.id==='chef_spacecut'&&(Number(state.e.kw.매콤매콤소스)||0)>=5){const sauce=Number(state.e.kw.매콤매콤소스)||0;const ultimate=chefCards.find(c=>c.id==='chef_ultimate');card={...ultimate,id:'chef_ultimate_runtime',cost:originalCard.cost,chefExtraDamage:sauce*2,chefTriggerBleed:true,chefSauceSpent:sauce};log('예열 조건 충족 · 공간참-맛이 극공간참-존맛으로 교체되어 사용된다.','good');}
@@ -685,7 +685,7 @@ function itemEffectText(it){
  if(it.attackPower)effects.push('공격력 +'+it.attackPower);
  if(it.speed)effects.push('속도 최댓값 +'+it.speed);
  if(it.regen)effects.push('3턴마다 체력 '+it.regen+' 회복');if(it.rougeSpaWallet)effects.push('체력이 50% 미만일 시 추가 피해 +2');if(it.renoirSpaKilt)effects.push('자신에게 보호막이 5 이상 있을 시 추가 피해 +1');
- if(it.startShield)effects.push('전투 시작 시 보호막 '+it.startShield+' 획득');if(it.startHeal)effects.push('전투 시작 시 체력 '+it.startHeal+' 회복');
+ if(it.startShield)effects.push('전투 시작 시 보호막 '+it.startShield+' 획득');if(it.startHeal)effects.push('전투 시작 시 체력 '+it.startHeal+' 회복');if(it.startHeal)effects.push('전투 시작 시 체력 '+it.startHeal+' 회복');
  if(it.startCharge)effects.push('전투 시작 시 충전 '+it.startCharge+' 획득');
  if(it.eyesPerKill)effects.push('적 처치 시 눈알 '+it.eyesPerKill+' 추가 획득');
  if(it.desire)effects.push('잃은 체력 1%당 피해량 +0.5%');if(it.bond)effects.push('적 처치 시 15% 확률로 눈알 10 추가 획득');if(it.lullaby)effects.push('턴 첫 공격 적중 시 체력 3% 회복 (최소 10)');
@@ -701,6 +701,7 @@ function itemDescriptionParts(id){
  const effectPatterns=[
   /(?:최대\s*체력|최대체력|체력|공격력|최종\s*위력|속도(?:\s*최댓값)?)\s*\+\s*\d+/g,
   /전투 시작 시\s*(?:보호막|충전)\s*\d+\s*획득/g,
+  /전투 시작 시\s*체력\s*\d+\s*회복/g,
   /전투 시작 시\s*체력\s*\d+\s*회복/g,
   /적 처치 시 눈알\s*\d+\s*추가 획득/g,
   /충전 또는 특수충전 소모 시 충전\s*\d+\s*획득/g,
@@ -774,107 +775,21 @@ function startWithEvent(id,index){const e=importedEvents.find(x=>x.id===id);if(!
 function begin(){$('gameOverModal').classList.add('hidden');state=fresh();state.enemyName='알리우네';state.enemyCaption='흙으로 돌아가고자 하는 소망을 품고, 살고자 하는 모든 것들과 무덤으로 돌아가리.';state.enemyPortrait='✿';state.enemyType='aliune';$('intro').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');$('attackDie').textContent='—';$('defenseDie').textContent='—';state.logs=[];log('특수 전투 시작 · 알리우네가 모습을 드러냈습니다. (라운드당 3회 행동)');render()}
 
 
-const fallbackPatchMarkdown = `# 패치 노트 · v1.24
+const fallbackPatchMarkdown = `# 패치 노트 · v1.25
 
-## 상점 이벤트의 진영별 선택지 조정
+## 진영 전용 스킬 및 쿠르베의 가면
 
-- 시즌 쇼핑 이벤트에서는 자신의 진영과 반대 진영에 관계없이 방문 가능한 르루즈·르누아르 상점 선택지를 모두 표시합니다.
-- 상점 이벤트에 진입하면 자신의 진영 상점에서는 방문 선택지만, 반대 진영 상점에서는 전투 선택지만 표시합니다. '그냥 지나간다' 선택지는 양쪽 모두 유지합니다.
-- 진영을 아직 선택하지 않은 경우에는 기존처럼 방문과 전투 선택지를 모두 표시합니다.
+- 르루주 진영 스킬 **탐식하라!**를 추가했습니다. 빛 0 비공격 스킬이며, 체력 5를 소모해 맥동 5를 얻습니다.
+- 르누아르 진영 스킬 **보존의 신념**을 추가했습니다. 빛 0 비공격 스킬이며, 보호막 5와 보존 3을 얻습니다.
+- 쿠르베 처치 보상으로 **쿠르베의 가면**을 추가했습니다. 전투 시작 시 체력을 10 회복합니다.
+- 보호막을 획득하면 획득량이 파란색 숫자로 표시됩니다.
 
-# 패치 노트 · v1.23
-
-## 르누아르 원단 패시브 및 우스티드 원단 획득 수정
-
-- 플레이어가 '아무것도 하면 안된다고!'를 적중시켜도 우스티드 원단을 얻지 못하던 문제를 수정했습니다. 이제 플레이어가 사용해 적중시켜도 우스티드 원단 1을 획득합니다.
-- 플레이어의 르누아르 원단 패시브를 조정했습니다. 이번 턴에 소모한 보존 2당 다음 턴 시작 시 보호막 1을 얻습니다. 소수점은 버립니다.
-- 보존 소모량은 해당 턴 동안 누적하며, 턴이 넘어갈 때 보호막을 지급한 뒤 누적량을 초기화합니다. 즉시 보호막을 얻던 기존 효과는 제거했습니다.
-
-# 패치 노트 · v1.22
-
-## 진영 옷감 및 상점 이벤트 개선
-
-- 르루주 소속으로 적을 처치하면 50% 확률로 가죽 옷감 1개를 얻습니다. 르누아르 소속이면 같은 확률로 원단 옷감 1개를 얻습니다.
-- 가죽 옷감과 원단 옷감은 중복 획득 가능한 스택형 재료이며, 아이템 창에 보유 개수가 표시됩니다.
-- 옷감은 각각 진영의 미학을 설명하는 문구와 함께 표시되며, 추후 사용처가 추가될 예정입니다.
-- 시즌 쇼핑에서 상점을 선택하면 상품 목록을 바로 여는 대신 해당 상점 이벤트로 이동합니다. 상점 이벤트에서 방문하거나 지나갈 수 있습니다.
-- 자신의 진영에 해당하는 상점에서는 해당 진영 점원과 전투하는 선택지가 표시되지 않습니다.
-
-# 패치 노트 · v1.21
-
-## 키워드 피해 색상 구분 수정
-
-- 출혈 발동 피해 숫자는 주황색, 파열 피해 숫자는 민트색, 화상 피해 숫자는 빨간색으로 표시하도록 피해 숫자에 키워드별 전용 스타일을 연결했습니다.
-- 기존의 일반 공격·피격 피해 색상과 구분되며, 키워드 피해는 적/플레이어 어느 쪽에서 발생해도 해당 키워드 색상을 유지합니다.
-- 진동 폭발 추가 피해 숫자는 투명한 배경에 검은색 글자와 노란색 글자 외곽선으로 표시하도록 수정했습니다.
-
-
-# 패치 노트 · v1.20
-
-## 르누아르 진영 패시브 수정
-
-- 적의 우스티드 원단 효과가 아니라, 플레이어가 르누아르 진영일 때의 '르누아르 원단' 패시브를 수정했습니다.
-- 플레이어가 보존을 실제로 소모하면 소모량만큼 보호막을 얻습니다. 진영 선택값을 직접 확인하도록 보강했습니다.
-
-
-## 키워드 및 전투 피해 표시
-
-- 출혈은 주황색, 파열은 민트색, 화상은 빨간색으로 표시합니다. 진동은 노란 테두리와 검은 배경으로 구분합니다.
-- 진동 폭발은 보유 진동의 절반을 소모합니다(올림 처리, 최소 3). 남은 진동은 유지됩니다.
-- 진동 폭발 추가 피해는 공격자의 공격력 및 공격 피해 배율의 영향을 받지 않습니다.
-- 진동 폭발과 주요 추가 피해 숫자는 기본 피해 숫자보다 약 0.65초 늦게 나타납니다.
-
-## 르누아르 효과 수정
-
-- 우스티드 원단을 보유한 르누아르 계열 적도 턴 종료 시 원단 4당 보호막 3을 얻도록 수정했습니다.
-- 원 킥의 변형 조건에서 보존을 직접 차감하던 부분을 공통 보존 소모 처리로 변경했습니다. 르누아르 원단 패시브의 보존 소모 보호막 효과도 정상적으로 발동합니다.
-
-
-## 로비 및 카드 배치\n\n- 일반 모드에서는 로비의 '카드덱 보기 / 편집'과 '카드 획득 테스트' 버튼을 숨기고, 테스터 모드를 선택하면 표시합니다.\n- 전투 카드 4장은 2열 그리드에 뽑힌 순서대로 배치합니다. 1·2번 카드는 윗줄, 3·4번 카드는 아랫줄에 표시됩니다.\n\n## 테스트 모드 개편
-
-- 테스트 모드를 일반 카드덱과 분리했습니다. 테스트 전용 덱을 사용하므로 테스트 모드 전환 시 일반 덱의 카드 구성은 변경되지 않습니다.
-- 테스트 전용 카드 6장 중 무작위로 4장을 뽑습니다. 테스트 모드와 일반 모드는 각각 별도의 덱을 사용합니다.
-- **둔근어질**의 효과 대상을 바로잡았습니다. 빛 0 비공격 스킬로, 자신이 아니라 적에게 진동 999를 부여합니다.
-- **뫼르소 진동폭발!!!!!**을 추가했습니다. 빛 4를 소모하며, 1+52d0의 고정 위력 공격입니다. 회피할 수 없고 적중하면 대상의 진동을 전부 소모해 진동폭발 피해를 줍니다.
-
-## 카드 시스템\n\n- 카드 추가/획득은 테스터 모드를 선택했을 때만 가능합니다. 로비와 탐색 중 언제든 테스트 덱에 카드를 추가하거나 교체할 수 있습니다.\n- 카드 편집의 획득 목록에 테스트 전용 카드도 포함했습니다. 테스트 덱은 일반 덱과 별도로 편집됩니다.\n- 테스터 모드를 해제하면 일반 덱으로 돌아갑니다.
-
-- 카드덱 기능을 추가했습니다. 현재 덱의 카드와 효과를 확인하고, 직접 덱을 편집할 수 있습니다.
-- 덱은 최소 4장, 최대 10장으로 구성됩니다. 10장을 보유한 상태에서 새 카드를 얻으면 기존 카드와 교체하거나 새 카드를 버릴 수 있습니다.
-- 일반 전투에서는 덱에서 무작위로 4장을 뽑습니다.
-- 카드 획득 테스트 기능을 추가했습니다. 추후 실제 이벤트 보상과 연결할 예정입니다.
-
-## 전투 시스템 개선
-
-- 르누아르 적들의 카드 효과와 보존 처리 순서를 수정했습니다. 카드 사용 시 보존 획득·소모, 진동 부여 및 진동 폭발이 의도한 순서로 처리되도록 개선했습니다.
-- 르누아르 적과 구스타프에게 전투 시작 시 보존 5가 지급되던 초기 효과를 제거했습니다.
-- 쿠르베 처치 보상에 눈알 50개를 추가했습니다.
-- 르누아르 SPA관 이벤트 설명에서 NPC: 쿠르베 표기를 제거했습니다. 쿠르베와 전투하는 선택지는 유지됩니다.
-- 카드덱에서 카드를 보관함으로 옮기거나 다시 덱에 복귀시킬 수 있습니다. 보관한 카드는 버리지 않고 덱에서 제외됩니다.
-- 르루주·르누아르 가입 시 해당 진영 잡몹의 스킬을 획득합니다. 덱이 가득 차면 초과 카드는 보관함에 들어갑니다.
-- 르루주·르누아르 진영에 실적 게이지를 추가했습니다. 일반 처치 +5, 반대 진영 처치 +15, 반대 진영 주요 인물 처치 +30 실적을 얻습니다.
-- 실적 100마다 직급 승급을 시도하며, 부티크/매죵 점원은 아메시스트 이상, 신발관/가방관 점원은 앰버 이상이어야 승급할 수 있습니다.
-- 진영 가입 보상 스킬을 잡몹 점원 카드로 한정했습니다. 르루주는 르루주 점원[햇살], 르누아르는 신중한 르누아르 점원 및 르누아르 점원[햇살]의 스킬을 획득합니다.
-- 실적의 네임드 판정을 확정된 명단에 맞췄습니다. 르루주 네임드는 미모사·퀼리안·르루주 브랜드 디렉터, 르누아르 네임드는 구스타프·쿠르베입니다.
-- 보호막이 피해를 흡수하더라도 공격의 전체 피해량이 숫자로 표시되도록 수정했습니다.
-- 추락, 철 지난 옷, 르루주 명품관의 주사위 판정에서 이방인 등 보정치를 합산한 최종 판정값을 표시하도록 개선했습니다.
-- 다음 턴에 적용되는 내부 매개 키워드가 전투 상태창에 노출되지 않도록 정리했습니다.
-- 욕망 아이템의 잃은 체력 비례 피해량 증가 효과를 1.5%에서 0.5%로 조정했습니다.
-
-## 사용 안내
-
-- 패치 노트는 첫 접속 시 표시되며, 상단의 패치 노트 버튼으로 언제든 다시 열 수 있습니다.
-- 카드덱은 로비 또는 탐색 화면의 '카드덱 보기 / 편집'에서 확인할 수 있습니다.
-
-- 이 패치노트는 정보시간에 작성된 사항입니다. 변한건 없습니다.
-
-- 어딘가에서 소리가 들려온다. ‘코드 500줄 이내는 게임 취급 안함’, ‘들여쓰기 왜 안함?’ ‘생성형 ai 작품인가요?’, ‘코드 왜 html이에요?’ ‘이거 css 처리 안됐네’, ‘JavaScript면 코딩도 아니죠’ ‘JavaScript도 코드라고요? 프론트엔드랑 백엔드랑 다른데 그것도 모르시네.’ ‘python으로 당연히 구동해주죠?’, ‘이거 Rust예요? 아, Java인가?’ ‘자세히 보니 코드가 너무 복잡하네요 ai 썼죠?’, ‘손코딩 아니면 프로그램 아님.’ ‘아 이거 서버 시스템 아니네’, ‘코드가 2000자는 넘어야 게임 코드죠’ ‘아 겉에 하드코딩 보이네’, ‘렌더링 안되어있네. 탈락.’ ‘최적화 왜 이래.’, ‘30mb는 넘겨줘야지’
-`;
+- 어딘가에서 소리가 들려온다. ‘코드 500줄 이내는 게임 취급 안함’, ‘들여쓰기 왜 안함?’ ‘생성형 ai 작품인가요?’, ‘코드 왜 html이에요?’ ‘이거 css 처리 안됐네’, ‘JavaScript면 코딩도 아니죠’ ‘JavaScript도 코드라고요? 프론트엔드랑 백엔드랑 다른데 그것도 모르시네.’ ‘python으로 당연히 구동해주죠?’, ‘이거 Rust예요? 아, Java인가?’ ‘자세히 보니 코드가 너무 복잡하네요 ai 썼죠?’, ‘손코딩 아니면 프로그램 아님.’ ‘아 이거 서버 시스템 아니네’, ‘코드가 2000자는 넘어야 게임 코드죠’ ‘아 겉에 하드코딩 보이네’, ‘렌더링 안되어있네. 탈락.’ ‘최적화 왜 이래.’, ‘30mb는 넘겨줘야지’\n`;
 function markdownToSafeHtml(md){return md.split(/\n{2,}/).map(block=>{const t=block.trim();if(!t)return '';if(t.startsWith('# '))return `<h2>${escapePatch(t.slice(2))}</h2>`;if(t.startsWith('## '))return `<h2>${escapePatch(t.slice(3))}</h2>`;if(t.split('\n').every(x=>x.trim().startsWith('- ')))return `<ul>${t.split('\n').map(x=>`<li>${inlinePatch(x.trim().slice(2))}</li>`).join('')}</ul>`;return `<p>${t.split('\n').map(inlinePatch).join('<br>')}</p>`}).join('')}
 function escapePatch(x){return x.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function inlinePatch(x){return escapePatch(x).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>')}
-async function showPatchOnFirstLobbyVisit(){let seen=false;try{seen=localStorage.getItem('sizif_patch_seen_v1_16')==='yes'}catch(e){}$('patchBody').innerHTML=markdownToSafeHtml(fallbackPatchMarkdown);if(!seen)$('patchBackdrop').classList.remove('hidden')}
-function closePatch(){$('patchBackdrop').classList.add('hidden');try{localStorage.setItem('sizif_patch_seen_v1_16','yes')}catch(e){}}
+async function showPatchOnFirstLobbyVisit(){let seen=false;try{seen=localStorage.getItem('sizif_patch_seen_v1_17')==='yes'}catch(e){}$('patchBody').innerHTML=markdownToSafeHtml(fallbackPatchMarkdown);if(!seen)$('patchBackdrop').classList.remove('hidden')}
+function closePatch(){$('patchBackdrop').classList.add('hidden');try{localStorage.setItem('sizif_patch_seen_v1_17','yes')}catch(e){}}
 $('openPatchAgain').onclick=()=>{$('patchBody').innerHTML=markdownToSafeHtml(fallbackPatchMarkdown);$('patchBackdrop').classList.remove('hidden')};$('patchClose').onclick=closePatch;$('patchX').onclick=closePatch;$('patchBackdrop').addEventListener('click',e=>{if(e.target===$('patchBackdrop'))closePatch()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('patchBackdrop').classList.contains('hidden'))closePatch()});
 
 $('openDeckLobby').onclick=()=>openDeckManager(false);$('openDeckExplore').onclick=()=>openDeckManager(false);$('deckArchiveToggle').onclick=()=>{deckArchiveView=!deckArchiveView;renderDeckManager();};$('openCardAcquireLobby').onclick=()=>openDeckManager(true);$('openCardAcquireExplore').onclick=()=>openDeckManager(true);$('closeDeck').onclick=()=>$('deckModal').classList.add('hidden');$('deckModal').addEventListener('click',e=>{if(e.target===$('deckModal'))$('deckModal').classList.add('hidden')});$('showCardAcquire').onclick=()=>{if(!testerModeEnabled){$('modeNotice').textContent='카드 추가는 먼저 테스터 모드를 선택해야 이용할 수 있습니다.';return;}$('cardAcquirePanel').classList.toggle('hidden');renderCardAcquireList()};$('discardNewCard').onclick=discardPendingCard;$('deckOverflowModal').addEventListener('click',e=>{if(e.target===$('deckOverflowModal'))discardPendingCard()});$('gameOverExit').onclick=()=>{$('gameOverModal').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.add('hidden');$('intro').classList.remove('hidden');run.active=false;};$('testerMode').onclick=setTesterMode;$('renoirMode').onclick=()=>addModeCards(renoirCards,'renoir');$('chefMode').onclick=()=>addModeCards(chefCards,'chef');$('start').onclick=startExploration;$('openInventory').onclick=()=>{renderInventory();$('inventoryModal').classList.remove('hidden')};$('closeInventory').onclick=()=>$('inventoryModal').classList.add('hidden');$('inventoryModal').addEventListener('click',e=>{if(e.target===$('inventoryModal'))$('inventoryModal').classList.add('hidden')});document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('inventoryModal').classList.add('hidden');$('deckModal').classList.add('hidden');if(!$('deckOverflowModal').classList.contains('hidden'))discardPendingCard();}});$('directCombat').onclick=begin;$('perfumerCombat').onclick=()=>startPerfumerCombat(false);$('testCombat').onclick=()=>startTestCombat(false);$('rukakiCombat').onclick=()=>startRukakiCombat(false);$('exploreRules').onclick=()=>alert('기본위력: 스킬 식의 맨 앞 숫자. 예) 1+2d3의 기본위력은 1. 코인위력(주사위): d3은 1~3 중 무작위 값, 2d3은 이를 2개 굴려 합산합니다. 최종위력: 기본위력 + 코인위력 합계이며, 위력 증가/감소 효과를 반영합니다. 피해량: 최종위력에 피해량 증가량을 곱한 값이며, 기본 피해량은 최종위력과 같습니다. 추가 피해: 지정한 수치만큼 체력에 직접 피해를 줍니다. 수비스킬: 회피입니다. 재사용: 공격 종료 후 같은 스킬을 다시 사용하며, 별도 지정이 없으면 수비스킬이 발동됩니다. 추가주사위: 기존 코인위력에 주사위를 더합니다. 예) 1+2d3에 4d5 추가 시 1+2d3+4d5. 사용시/공격시작시: 스킬 발동 시. 적중시: 공격이 적중했을 때. 공격종료시: 한 스킬의 모든 판정 종료 시. 턴종료시: 양측의 모든 카드 판정 종료 시. xn: 카드 n장. 공격력: 3당 피해량 증가량 +5%. 진동: 진동 폭발 시 수치만큼 추가 피해 후 소모. 호흡: 수치당 치명타 확률 5%, 치명타 시 피해 2배 후 호흡 1 소모. 침잠: 침잠이 걸린 자신의 공격 최종 위력을 수치당 1 감소. 출혈: 공격 처리 시 수치만큼 피해를 받고 1 감소. 화상: 턴 종료 시 수치만큼 피해, 1 감소. 충전: 방전 일격에서 최대 3 소모해 위력 강화. 르누아르 모드에서는 충전 획득이 보존으로 대체됩니다. 보존: 원 킥 변형에 사용됩니다.');$('skipExplore').onclick=()=>{if(confirm('탐색을 중단하고 시작 화면으로 돌아갈까요?')){$('explore').classList.add('hidden');$('intro').classList.remove('hidden')}};$('openEvents').onclick=showEventPicker;$('closeEvents').onclick=()=>{$('eventPicker').classList.add('hidden');$('eventActions').classList.add('hidden')};$('fight').onclick=startRound;$('clear').onclick=()=>{if(actionLocked||state.done)return;state.selected=[];setActionMessage('선택을 해제했습니다.');render()};$('next').onclick=()=>{if(run.active&&state.returnToExplore){$('game').classList.add('hidden');$('explore').classList.remove('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='전투에서 쓰러졌다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}run.logs.push(`시험 전투 종료 · ${state.done&&state.e.hp<=0?'승리':'전투 후 탐색 재개'}`);advanceExploreTurn();}};$('resetTop').onclick=()=>{if(confirm('전투 기록을 초기화할까요?')){if(state){state.logs=[];renderFeed()}run.logs=[];setActionMessage('기록이 초기화되었습니다.')}};$('stockClear').onclick=()=>{if(confirm('로비로 돌아가고 탐색·전투 기록을 모두 초기화할까요?')){actionLocked=false;run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,seasonShops:{},shopIntroduced:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],outdatedClothesEventSeen:false,welcomeEventSeen:false,seasonCount:0,shopDefeated:{},rank:0,canAscend:false};shuffleSeasonNames();state=fresh();$('game').classList.add('hidden');$('explore').classList.add('hidden');$('eventModal')?.classList.add('hidden');$('inventoryModal')?.classList.add('hidden');$('eventResultModal')?.classList.add('hidden');$('gameOverModal')?.classList.add('hidden');$('intro').classList.remove('hidden');$('next').classList.add('hidden');$('feed').innerHTML='';$('seasonLog').innerHTML='';$('eventTitle').textContent='백화점의 소음';$('eventText').textContent='새로운 탐색을 시작해 보자.';render();}};
