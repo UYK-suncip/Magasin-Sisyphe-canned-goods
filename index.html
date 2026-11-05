@@ -137,20 +137,20 @@ button:hover:not(:disabled){border-color:#d3deeb;box-shadow:0 0 10px #a9c7ed22,i
 .deck-actions button{flex:1}
 .deck-count{font-weight:850;color:var(--gold)}
 
-/* 상단 시지프 안내방송 오버레이 — 첨부 레퍼런스 비율 */
-.announcement-overlay{position:fixed;z-index:5000;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(760px,calc(100vw - 28px));display:grid;grid-template-columns:64px minmax(0,1fr);gap:4px;align-items:center;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility .9s ease}
+/* 상단 시지프 안내방송 — 첨부 이미지 335×67 규격 */
+.announcement-overlay{position:fixed;z-index:5000;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(335px,calc(100vw - 14px));aspect-ratio:5/1;display:grid;grid-template-columns:19.1% minmax(0,1fr);column-gap:2.4%;align-items:center;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility .9s ease}
 .announcement-overlay.show{opacity:1;visibility:visible}
 .announcement-overlay.fade{opacity:.28}
-/* 장식 프레임은 announcement_bg 전체를 늘려 사용하고, 인물/안내방송 그림은 안쪽에 작게 재단 */
-.announcement-art{width:64px;height:64px;min-height:64px;aspect-ratio:1/1;display:grid;place-items:center;background-image:url('assets/announcement/announcement_bg.png');background-position:center;background-size:100% 100%;background-repeat:no-repeat;border:0;outline:0;box-shadow:none;overflow:hidden;padding:13px;box-sizing:border-box}
-.announcement-image{display:block;width:38px;height:38px;max-width:100%;max-height:100%;object-fit:contain;object-position:center;transform:none;filter:drop-shadow(0 2px 4px #000b)}
-.announcement-plaque{height:50px;min-height:50px;display:flex;align-items:flex-start;justify-content:center;flex-direction:column;padding:6px 18px;background:#090f18;border:2px solid #c4b48e;outline:1px solid #6e624b;outline-offset:-5px;box-shadow:inset 0 0 0 1px #d8c99a22;color:#f1eee8;position:relative;overflow:hidden}
+/* 왼쪽 장식 프레임: 배경 자체를 프레임 전체 크기에 맞춰 늘림 */
+.announcement-art{width:100%;height:auto;aspect-ratio:1/1;display:grid;place-items:center;background-image:url('assets/announcement/announcement_bg.png');background-position:center;background-size:100% 100%;background-repeat:no-repeat;border:0;outline:0;box-shadow:none;overflow:hidden;padding:19%;box-sizing:border-box}
+.announcement-image{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center;transform:none;filter:drop-shadow(0 2px 4px #000b)}
+/* 오른쪽 패널은 전체 배너 높이의 약 75% */
+.announcement-plaque{width:100%;height:75%;min-height:0;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:center;flex-direction:column;padding:4px 7%;background:#090f18;border:2px solid #c4b48e;outline:1px solid #6e624b;outline-offset:-5px;box-shadow:inset 0 0 0 1px #d8c99a22;color:#f1eee8;position:relative;overflow:hidden}
 .announcement-plaque:before,.announcement-plaque:after{content:"";position:absolute;width:5px;height:5px;background:#d5c49b;border:1px solid #786a4c;transform:rotate(45deg);top:50%;margin-top:-3px}
 .announcement-plaque:before{left:5px}.announcement-plaque:after{right:5px}
-.announcement-heading{font-size:clamp(11px,2.2vw,14px);font-weight:900;color:#e9e0cc;margin-bottom:2px;letter-spacing:.04em}
-.announcement-message{font-size:clamp(12px,2.7vw,16px);line-height:1.3;font-weight:750;white-space:pre-line;overflow-wrap:anywhere}
-@media(max-width:520px){.announcement-overlay{grid-template-columns:58px minmax(0,1fr);gap:4px;width:calc(100vw - 14px)}.announcement-art{width:58px;height:58px;min-height:58px;padding:12px}.announcement-image{width:34px;height:34px}.announcement-plaque{height:48px;min-height:48px;padding:5px 13px}}
-@media(max-width:360px){.announcement-overlay{grid-template-columns:52px minmax(0,1fr);gap:3px}.announcement-art{width:52px;height:52px;min-height:52px;padding:10px}.announcement-image{width:30px;height:30px}.announcement-plaque{height:46px;min-height:46px;padding:5px 10px}.announcement-heading{font-size:10px}.announcement-message{font-size:11px}}
+.announcement-heading{font-size:clamp(9px,3.3vw,11px);font-weight:900;color:#e9e0cc;margin-bottom:2px;letter-spacing:.04em}
+.announcement-message{font-size:clamp(10px,3.6vw,12px);line-height:1.3;font-weight:750;white-space:pre-line;overflow-wrap:anywhere}
+@media(max-width:360px){.announcement-plaque{border-width:1.5px;padding-left:6%}.announcement-heading{font-size:9px}.announcement-message{font-size:10px}}
 </style></head><body>
 <div id="announcementOverlay" class="announcement-overlay" aria-live="polite" aria-atomic="true"><div class="announcement-art"><img id="announcementPortrait" class="announcement-image" src="assets/announcement/announcement.png" alt="" aria-hidden="true"></div><div class="announcement-plaque"><div class="announcement-heading">시지프 백화점 안내방송</div><div id="announcementMessage" class="announcement-message"></div></div></div>
 <div id="patchBackdrop" class="patch-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="patchTitle"><section class="patch-modal"><div class="patch-top"><div><div class="patch-kicker">Grand Magasin Sisyphe · UPDATE</div><h1 class="patch-title" id="patchTitle">패치 노트</h1></div><button id="patchX" class="secondary" aria-label="패치 노트 닫기">✕</button></div><div id="patchBody" class="patch-body"><p>패치 노트를 불러오는 중...</p></div><div class="patch-footer"><span class="patch-note">로비에 처음 접속했을 때 표시됩니다.</span><button id="patchClose" class="patch-close">확인하고 입장</button></div></section></div>
