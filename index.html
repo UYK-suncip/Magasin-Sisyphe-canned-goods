@@ -44,7 +44,7 @@
 .event-result-kicker{font-size:11px;font-weight:900;letter-spacing:.15em;color:var(--gold)}
 .event-result-card h2{font-size:25px;margin:8px 0 16px}.event-result-card p{white-space:pre-line;color:#d8dbe5;margin:0 0 18px}
 .event-result-card.success h2{color:#8ce0bd}.event-result-card.failure h2{color:#ff8f98}
-.event-result-card button{width:100%}.check-dice-panel{margin:0 0 18px;padding:16px;border:1px solid #555b70;border-radius:14px;background:#10131c;text-align:center}.check-dice-label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em}.check-dice{width:92px;height:92px;margin:12px auto 8px;display:grid;place-items:center;border:0;border-radius:0;background:url('assets/ui/symbolic-die-frame.png') center/100% 100% no-repeat;font-size:32px;font-weight:950;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px #0009;box-shadow:none}.check-dice.rolling{animation:checkDiceRoll .12s linear infinite}.check-dice.success{border-color:#72bfa4;color:#8ce0bd;box-shadow:0 0 22px #72bfa433}.check-dice.failure{border-color:#bd6b73;color:#ff8f98;box-shadow:0 0 22px #bd6b7333}.check-dice-outcome{font-size:13px;font-weight:850;color:var(--muted)}.check-dice-outcome.success{color:#8ce0bd}.check-dice-outcome.failure{color:#ff8f98}@keyframes checkDiceRoll{0%{transform:rotate(-8deg) scale(.94)}50%{transform:rotate(8deg) scale(1.06)}100%{transform:rotate(-8deg) scale(.94)}}
+.event-result-card button{width:100%}.check-dice-panel{margin:0 0 18px;padding:16px;border:1px solid #555b70;border-radius:14px;background:#10131c;text-align:center}.check-dice-label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em}.check-dice{width:92px;height:92px;margin:12px auto 8px;display:grid;place-items:center;border:0;border-radius:0;background:url('assets/ui/symbolic-die-frame.png') center/100% 100% no-repeat;font-size:32px;font-weight:950;font-variant-numeric:tabular-nums;text-shadow:0 2px 8px #0009;box-shadow:none}.check-dice.rolling{animation:none}.check-dice.success{border-color:#72bfa4;color:#8ce0bd;box-shadow:0 0 22px #72bfa433}.check-dice.failure{border-color:#bd6b73;color:#ff8f98;box-shadow:0 0 22px #bd6b7333}.check-dice-outcome{font-size:13px;font-weight:850;color:var(--muted)}.check-dice-outcome.success{color:#8ce0bd}.check-dice-outcome.failure{color:#ff8f98}
 
 @media(max-width:560px){body:has(#game:not(.hidden)) .app{padding:3px}body:has(#game:not(.hidden)) .top{margin-bottom:3px}body:has(#game:not(.hidden)) .layout{gap:4px}body:has(#game:not(.hidden)) .panel{padding:6px}body:has(#game:not(.hidden)) .left .unit{padding:5px;margin-bottom:4px}body:has(#game:not(.hidden)) .left h2{font-size:12px;margin-bottom:4px}body:has(#game:not(.hidden)) .tags{gap:3px;margin-top:3px}body:has(#game:not(.hidden)) .tag{font-size:9px;padding:1px 3px}body:has(#game:not(.hidden)) .footer-note{display:none}body:has(#game:not(.hidden)) .arena{min-height:68px;padding:5px;gap:4px}body:has(#game:not(.hidden)) .portrait{font-size:29px}body:has(#game:not(.hidden)) .enemy-name{font-size:14px}body:has(#game:not(.hidden)) .arena-caption{font-size:9px}body:has(#game:not(.hidden)) .duel{margin-top:2px}body:has(#game:not(.hidden)) .die{width:30px;height:30px;font-size:15px;margin:2px auto}body:has(#game:not(.hidden)) .skill-name{font-size:10px;min-height:12px;margin-top:1px}body:has(#game:not(.hidden)) .section-title{margin:4px 0;font-size:10px}body:has(#game:not(.hidden)) .cards{gap:4px}body:has(#game:not(.hidden)) .card{padding:5px}body:has(#game:not(.hidden)) .card h3{font-size:10px;margin-bottom:2px}body:has(#game:not(.hidden)) .card p{font-size:9px;line-height:1.2;margin:2px 0}body:has(#game:not(.hidden)) .controls{margin-top:4px}body:has(#game:not(.hidden)) .controls button{padding:6px;font-size:10px}body:has(#game:not(.hidden)) .feed{max-height:65px}}
 
@@ -257,6 +257,16 @@ const bossDeck=[
 {id:'human',name:'인형이 되고 싶었던 사람',power:4,dice:4,rolls:3,desc:'위력 4 + 3d4 · 잔향 5 부여',apply:{잔향:5}},
 {id:'grave',name:'살고자 하는 모든 것들과 무덤으로 돌아가리',power:20,dice:20,rolls:1,desc:'위력 20 + 1d20 · 궁극기',apply:{잔향:-30},ultimate:true}];
 let state;let actionLocked=false;const $=id=>document.getElementById(id);
+let checkDiceRollTimer=null;
+function startCheckDiceRoll(){
+ if(checkDiceRollTimer)clearInterval(checkDiceRollTimer);
+ const die=$('checkDice');
+ const roll=()=>{die.textContent=String(Math.floor(Math.random()*100)+1)};
+ roll();
+ checkDiceRollTimer=window.setInterval(roll,45);
+}
+function stopCheckDiceRoll(){if(checkDiceRollTimer){clearInterval(checkDiceRollTimer);checkDiceRollTimer=null}}
+
 const seasonNames=['스트라이프','파이톤','헤링본','트위드','샤무드','스웨이드','누벅','벨벳','새틴','태피터','오간자','데님','코듀로이','플란넬','트윌','자카드','체크','하운즈투스','글렌체크','핀스트라이프','도비','캔버스','그레인','페블','크링클'];
 let seasonNameOrder=[];function shuffleSeasonNames(){seasonNameOrder=[...seasonNames];for(let i=seasonNameOrder.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[seasonNameOrder[i],seasonNameOrder[j]]=[seasonNameOrder[j],seasonNameOrder[i]]}}
 let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,rankNoticeIndex:-1,seasonShops:{},shopIntroduced:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],materials:{leatherFabric:0,renoirFabric:0},outdatedClothesEventSeen:false,welcomeEventSeen:false,seasonCount:0,shopDefeated:{},rank:0,canAscend:false,level:1,xp:0,spentEyes:0,customerRank:'토파즈'};
@@ -631,9 +641,9 @@ function resolveExploreAction(i){
  if(success){gainEyes(120,'추락 · 살더미에서 눈알 획득');state.p.hp=Math.max(0,state.p.hp-3);resultText='살더미를 뒤져 쓸 만한 것을 건졌다.\n\n눈알 120 획득, 체력 3 감소.';}
  else{state.p.hp=Math.max(0,state.p.hp-15);resultText='살더미를 파헤치다 다른 고객들에게 떠밀리고 옷더미에 깔렸다.\n\n체력 15 감소.';}
  run.logs.push(`추락 · ${check.formula} · ${success?'성공':'실패'} · ${success?'눈알 +120, 체력 -3':'체력 -15'}`);
- $('checkDice').className='check-dice rolling';$('checkDice').textContent='…';$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='주사위를 굴리는 중…';
+ $('checkDice').className='check-dice rolling';startCheckDiceRoll();$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='주사위를 굴리는 중…';
  $('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;$('eventResultModal').classList.remove('hidden');
- window.setTimeout(()=>{const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} · ${success?'성공 (40 이상)':'실패 (39 이하)'}`;},650);
+ window.setTimeout(()=>{stopCheckDiceRoll();const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} · ${success?'성공 (40 이상)':'실패 (39 이하)'}`;},650);
  $('eventResultConfirm').onclick=()=>{$('eventResultModal').classList.add('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3><p>탐색을 처음부터 다시 시작한다.</p></button>';$('restartExplore').onclick=startExploration;return;}advanceExploreTurn();};
  return;
 }
@@ -652,13 +662,13 @@ if(a.kind==='outdatedAsk'){
    resultText=`미모사가 당신을 전체적으로 훑어본다.\n\n"입은 꼬라지보니까 쇼핑백에 묻은 옷 쪼가리도 넙죽 받아입겠네. 줄게, 하지만 공짜는 아니야"\n\n"네 일부를 옷감으로 쓰게해줘, 그정도면 돼."\n\n체력 7 감소, 철 지난 르루주 옷 획득`;
   }
   run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — 철 지난 르루주: ${success?'판정 성공':'판정 실패'} · ${check.formula} · ${resultText.replace(/\n/g,' ')}`);
-  $('checkDice').className='check-dice rolling';$('checkDice').textContent='…';$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='주사위를 굴리는 중…';
+  $('checkDice').className='check-dice rolling';startCheckDiceRoll();$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='주사위를 굴리는 중…';
   $('eventResultCard').classList.toggle('success',success);
   $('eventResultCard').classList.toggle('failure',!success);
   $('eventResultTitle').textContent=success?'판정 성공':'판정 실패';
   $('eventResultText').textContent=resultText;
   $('eventResultModal').classList.remove('hidden');
-  window.setTimeout(()=>{const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} / 100 · ${success?'성공 (20 이상)':'실패 (19 이하)'}`;},650);
+  window.setTimeout(()=>{stopCheckDiceRoll();const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} / 100 · ${success?'성공 (20 이상)':'실패 (19 이하)'}`;},650);
   $('eventResultConfirm').onclick=()=>{
    $('eventResultModal').classList.add('hidden');
    if(state.p.hp<=0){
@@ -677,8 +687,8 @@ if(a.kind==='outdatedAsk'){
   const type=a.check;const base=Math.floor(Math.random()*100)+1;const bonus=type==='general'?0:Math.floor(Math.random()*8)+1;const check=resolveCheckRoll(base,bonus);const total=check.total;const threshold=type==='general'?60:70;const success=total>=threshold;const label=type==='attack'?'공격 판정':type==='evade'?'회피 판정':'일반 판정';
   let resultText;if(success){run.rank=(run.rank||0)+1;resultText=`르루주 점원은 당신을 잠시 바라보다가 시선을 거둔다. 당신은 명품관 안쪽에서 쓸 만한 물건을 발견해 챙겼다.\\n\\n등급 +1.`;if(!run.items.includes('rougeBoutiqueToken')){run.items.push('rougeBoutiqueToken');applyItemStats();resultText+='\\n르루주 명품관의 공사 잔여품을 획득했다.';}}else{state.p.hp=Math.max(0,state.p.hp-10);resultText='점원들이 당신을 공사 구역 밖으로 밀어낸다.\\n\\n체력 10 감소.';}
   run.logs.push(`르루주 명품관 · ${label} ${success?'성공':'실패'} (${check.formula})`);
-  $('checkDice').className='check-dice rolling';$('checkDice').textContent='…';$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='판정을 진행하는 중…';$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;$('eventResultModal').classList.remove('hidden');
-  window.setTimeout(()=>{const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total);outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} · ${success?'성공':'실패'}`;},650);
+  $('checkDice').className='check-dice rolling';startCheckDiceRoll();$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='판정을 진행하는 중…';$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;$('eventResultModal').classList.remove('hidden');
+  window.setTimeout(()=>{stopCheckDiceRoll();const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total);outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} · ${success?'성공':'실패'}`;},650);
   $('eventResultConfirm').onclick=()=>{$('eventResultModal').classList.add('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3><p>탐색을 처음부터 다시 시작한다.</p></button>';$('restartExplore').onclick=startExploration;return;}advanceExploreTurn();};
   return;
  }
