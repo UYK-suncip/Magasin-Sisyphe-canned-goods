@@ -641,7 +641,43 @@ function nextExploreEvent(){
 }
 function resolveExploreAction(i){
  const ev=run.event,a=ev.actions[i];if(!a)return;
-  if(a.kind==='duboisExplain'){const roll=Math.floor(Math.random()*100)+1,check=resolveCheckRoll(roll),success=check.total>=70;let resultText;if(success){gainXP(30,'뒤부아의 설명');run.items.push('fakeExperience');resultText='"역시 잘 이해되진 않지만 열심히 설명해주셔서 감사해요."\n\n이방인이 주머니를 뒤적거리다가 당신에게 무언가를 건냈다.\n\n"가짜 경험 통조림이에요! 이제 더는 필요 없을테니 선물로 드릴게요. 필요없으면 버리셔도 되요."\n\n"아무튼 감사했습니다. 다음에 또봐요! 아 그리고 제 이름은 뒤부아에요! 말 안한거같아서요."\n\n경험치 30, 위조 경험 획득.';}else{gainXP(30,'뒤부아의 설명');resultText='"역시 잘 이해가 되지 않네요... 그래도 열심히 설명해주셔서 감사해요."\n\n"언젠가 다시 봐요! 아, 제가 이름을 말 했던가요? 전 뒤부아에요!"\n\n이방인이 감사해하며 복도 너머로 사라진다.\n\n경험치 30 획득.';}run.logs.push(`화상 흉터의 이방인 · ${check.formula} · ${success?'성공':'실패'} · 경험치 +30${success?' · 위조 경험 획득':''}`);$('eventTitle').textContent='화상 흉터의 이방인';$('eventText').textContent=resultText;$('exploreActions').innerHTML='<button class="card" id="duboisContinue"><h3>계속한다</h3></button>';$('duboisContinue').onclick=()=>advanceExploreTurn();renderInventory();renderExplore();return;}
+  if(a.kind==='duboisExplain'){
+  const roll=Math.floor(Math.random()*100)+1,check=resolveCheckRoll(roll),success=check.total>=70;
+  let resultText;
+  if(success){
+   gainXP(30,'뒤부아의 설명');
+   if(!run.items.includes('fakeExperience'))run.items.push('fakeExperience');
+   resultText='"역시 잘 이해되진 않지만 열심히 설명해주셔서 감사해요."\n\n이방인이 주머니를 뒤적거리다가 당신에게 무언가를 건냈다.\n\n"가짜 경험 통조림이에요! 이제 더는 필요 없을테니 선물로 드릴게요. 필요없으면 버리셔도 되요."\n\n"아무튼 감사했습니다. 다음에 또봐요! 아 그리고 제 이름은 뒤부아에요! 말 안한거같아서요."\n\n경험치 30, 위조 경험 획득.';
+  }else{
+   gainXP(30,'뒤부아의 설명');
+   resultText='"역시 잘 이해가 되지 않네요... 그래도 열심히 설명해주셔서 감사해요."\n\n"언젠가 다시 봐요! 아, 제가 이름을 말 했던가요? 전 뒤부아에요!"\n\n이방인이 감사해하며 복도 너머로 사라진다.\n\n경험치 30 획득.';
+  }
+  run.logs.push(`화상 흉터의 이방인 · ${check.formula} · ${success?'성공':'실패'} · 경험치 +30${success?' · 위조 경험 획득':''}`);
+  renderInventory();
+  $('eventResultCard').classList.toggle('success',success);
+  $('eventResultCard').classList.toggle('failure',!success);
+  $('eventResultTitle').textContent=success?'뒤부아의 설명 · 성공':'뒤부아의 설명 · 실패';
+  $('eventResultText').textContent=resultText;
+  $('checkDice').className='check-dice rolling';
+  $('checkDice').textContent='—';
+  $('checkDiceOutcome').className='check-dice-outcome';
+  $('checkDiceOutcome').textContent='일반 판정 · 70 이상 성공';
+  $('eventResultModal').classList.remove('hidden');
+  startCheckDiceRoll();
+  window.setTimeout(()=>{
+   stopCheckDiceRoll();
+   $('checkDice').className='check-dice '+(success?'success':'failure');
+   $('checkDice').textContent=String(check.total).padStart(2,'0');
+   $('checkDiceOutcome').className='check-dice-outcome '+(success?'success':'failure');
+   $('checkDiceOutcome').textContent=`${check.formula} · ${success?'성공 (70 이상)':'실패 (69 이하)'}`;
+  },750);
+  $('eventResultConfirm').onclick=()=>{
+   stopCheckDiceRoll();
+   $('eventResultModal').classList.add('hidden');
+   advanceExploreTurn();
+  };
+  return;
+ }
  if(a.kind==='duboisFabric'){gainXP(5,'뒤부아에게 옷감으로 써도 되는지 물어봄');$('eventTitle').textContent='화상 흉터의 이방인';$('eventText').textContent='"옷감이요? 그게 뭐지... 은어인가?"\n\n말이 안통하는 것 같다.\n\n"아무튼 저는 설명이 필요한거지 옷감..?을 주고싶은게 아니라구요."\n\n이방인은 복도 너머로 사라졌다.\n\n경험치 5 획득.';$('exploreActions').innerHTML='<button class="card" id="duboisFabricContinue"><h3>계속한다</h3></button>';$('duboisFabricContinue').onclick=()=>advanceExploreTurn();renderExplore();return;}
   if(a.kind==='goldLeather'){const roll=Math.floor(Math.random()*100)+1;const amount=roll<=60?1:roll<=85?2:3;run.materials=run.materials||{leatherFabric:0,renoirFabric:0,goldLeather:0};run.materials.goldLeather=(Number(run.materials.goldLeather)||0)+amount;run.logs.push(`황금가죽 · ${amount}개 획득 (${run.materials.goldLeather}개 보유)`);$('eventTitle').textContent='황금가죽';$('eventText').textContent=`황금빛 조각을 주워 담았다.\n\n황금가죽 ${amount}개를 획득했다.`;$('exploreActions').innerHTML='<button class="card" id="goldLeatherContinue"><h3>계속한다</h3><p>황금빛 조각을 챙겨 복도로 향한다.</p></button>';$('goldLeatherContinue').onclick=()=>advanceExploreTurn();renderInventory();return;}
   if(a.kind==='fallDig'){
@@ -713,7 +749,7 @@ if(a.kind==='outdatedAsk'){
  advanceExploreTurn();
 }
 function showBrandShopItems(brandKey){const brand=brandShopGroups().find(g=>g.key===brandKey);if(brand)showShopItems(brandKey,brand.items,brand.title);}
-function showShopItems(key,providedIds=null,displayTitle='판매 상품'){if(run.event&&run.event.factionForced)return;const acts=$('exploreActions');const ids=(providedIds||shopItems[key]||[]).filter(id=>itemPrice(id)!==null);const factionOption='';acts.innerHTML='<div class="unit"><strong>'+displayTitle+'</strong><div class="meta">각 아이템은 한 번만 구매할 수 있습니다. 이미 보유한 상품은 다시 구매할 수 없습니다.</div></div>'+factionOption+ids.map(id=>{const it=itemCatalog[id],owned=run.items.includes(id),price=itemPrice(id),blocked=price===null;return `<button class="card" data-buy-item="${id}" ${owned||blocked||run.eyes<price?'disabled':''}><h3>${it.name}</h3><p>${itemDescriptionParts(id).description?itemDescriptionParts(id).description+'<br>':''}<span class="meta">효과: ${itemDescriptionParts(id).effect}</span>${owned?' · 이미 보유 중':blocked?' · 소속 진영 제한':''}</p><span class="power">${blocked?'구매 불가':price+' 눈알'}${price!==null&&price!==it.cost?` (정가 ${it.cost})`:''}</span></button>`}).join('')+'<button class="secondary" id="leaveShop">구매하지 않고 나가기</button>';if($('shopFactionChoice'))$('shopFactionChoice').onclick=()=>{const i=(run.event.actions||[]).findIndex(a=>a.kind==='factionMenu');if(i>=0)resolveExploreAction(i);else{run.event.actions=[{kind:'factionMenu'}];resolveExploreAction(0);}};acts.querySelectorAll('[data-buy-item]').forEach(b=>b.onclick=()=>{const id=b.dataset.buyItem,it=itemCatalog[id],price=itemPrice(id);if(price===null||run.eyes<price||run.items.includes(id))return;run.eyes-=price;spendEyes(price);run.items.push(id);syncFactionUnlock();applyItemStats();run.logs.push(`${it.name} 구매 · ${price}눈알 사용`);gainXP(Math.round((Number(it.cost)||0)/10),`${it.name} 구매 · 정가 기준`);renderExplore();showShopItems(key,providedIds,displayTitle);});$('leaveShop').onclick=()=>advanceExploreTurn();}
+function showShopItems(key,providedIds=null,displayTitle='판매 상품'){if(run.event&&run.event.factionForced)return;const acts=$('exploreActions');const ids=(providedIds||brandShopGroups().find(g=>g.key===key)?.items||shopItems[key]||[]).filter(id=>itemPrice(id)!==null);const factionOption='';acts.innerHTML='<div class="unit"><strong>'+displayTitle+'</strong><div class="meta">각 아이템은 한 번만 구매할 수 있습니다. 이미 보유한 상품은 다시 구매할 수 없습니다.</div></div>'+factionOption+ids.map(id=>{const it=itemCatalog[id],owned=run.items.includes(id),price=itemPrice(id),blocked=price===null;return `<button class="card" data-buy-item="${id}" ${owned||blocked||run.eyes<price?'disabled':''}><h3>${it.name}</h3><p>${itemDescriptionParts(id).description?itemDescriptionParts(id).description+'<br>':''}<span class="meta">효과: ${itemDescriptionParts(id).effect}</span>${owned?' · 이미 보유 중':blocked?' · 소속 진영 제한':''}</p><span class="power">${blocked?'구매 불가':price+' 눈알'}${price!==null&&price!==it.cost?` (정가 ${it.cost})`:''}</span></button>`}).join('')+'<button class="secondary" id="leaveShop">구매하지 않고 나가기</button>';if($('shopFactionChoice'))$('shopFactionChoice').onclick=()=>{const i=(run.event.actions||[]).findIndex(a=>a.kind==='factionMenu');if(i>=0)resolveExploreAction(i);else{run.event.actions=[{kind:'factionMenu'}];resolveExploreAction(0);}};acts.querySelectorAll('[data-buy-item]').forEach(b=>b.onclick=()=>{const id=b.dataset.buyItem,it=itemCatalog[id],price=itemPrice(id);if(price===null||run.eyes<price||run.items.includes(id))return;run.eyes-=price;spendEyes(price);run.items.push(id);syncFactionUnlock();applyItemStats();run.logs.push(`${it.name} 구매 · ${price}눈알 사용`);gainXP(Math.round((Number(it.cost)||0)/10),`${it.name} 구매 · 정가 기준`);renderExplore();showShopItems(key,providedIds,displayTitle);});$('leaveShop').onclick=()=>advanceExploreTurn();}
 function xpToNextLevel(){return 20+Math.max(0,(Number(run.level)||1)-1)*15;}
 function gainXP(amount,reason=''){amount=Math.round(Number(amount)||0);if(run.items?.includes('fakeExperience'))amount+=10;if(!run.active||amount<=0)return;run.xp=(Number(run.xp)||0)+amount;run.logs.push(`경험치 +${amount} XP${reason?' · '+reason:''}`);let levels=0;while(run.xp>=xpToNextLevel()){run.xp-=xpToNextLevel();run.level=(Number(run.level)||1)+1;levels++;}if(levels){const bonus=levels*2;state.p.max+=bonus;heal(state.p,bonus,250);state.p.attackPower=(Number(state.p.attackPower)||0)+bonus;run.logs.push(`레벨 업! 레벨 ${run.level} · 최대 체력 +${bonus}, 공격력 +${bonus}`);log(`레벨 업! Lv.${run.level} · 체력 +${bonus}, 공격력 +${bonus}`,'good');}renderExplore();}
 function applyItemStats(){const items=run.items.map(id=>itemCatalog[id]);const levelBonus=Math.max(0,(Number(run.level)||1)-1)*2;let max=876+levelBonus+items.reduce((n,x)=>n+(x.hp||0),0),speed=4+items.reduce((n,x)=>n+(x.speed||0),0),itemPower=items.reduce((n,x)=>n+(x.power||0),0),attackPower=levelBonus+items.reduce((n,x)=>n+(x.attackPower||0),0);if(hasPassive('이방인')){max=Math.floor(max*1.5);speed=Math.floor(speed*1.5);itemPower=Math.floor(itemPower*1.5);attackPower=Math.floor(attackPower*1.5);}state.p.max=max;state.p.hp=Math.min(state.p.max,state.p.hp);state.p.speed=speed;state.p.itemPower=itemPower;state.p.attackPower=attackPower;state.p.itemRegen=items.reduce((n,x)=>n+(x.regen||0),0);run.rank=Math.floor(run.items.length/5);}
@@ -728,6 +764,7 @@ function itemEffectText(it){
  if(it.startShield)effects.push('전투 시작 시 보호막 '+it.startShield+' 획득');if(it.startHeal)effects.push('전투 시작 시 체력 '+it.startHeal+' 회복');
  if(it.startCharge)effects.push('전투 시작 시 충전 '+it.startCharge+' 획득');
  if(it.eyesPerKill)effects.push('적 처치 시 눈알 '+it.eyesPerKill+' 추가 획득');
+ if(it.xpBonus)effects.push('모든 경험치 획득량 +'+it.xpBonus+' (뒤부아의 설명 포함)');
  if(it.desire)effects.push('잃은 체력 1%당 피해량 +0.5%');if(it.bond)effects.push('적 처치 시 15% 확률로 눈알 10 추가 획득');if(it.lullaby)effects.push('턴 첫 공격 적중 시 체력 3% 회복 (최소 10)');
  return effects.join(' · ')||'특수 효과';
 }
