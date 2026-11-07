@@ -615,7 +615,7 @@ function nextExploreEvent(){
  if(run.floor===1&&run.turn===run.length-1&&!run.seasonClosingNotice){run.seasonClosingNotice=true;showAnnouncement(`고객 여러분께 안내말씀 드립니다. 곧 ${run.seasonName} 시즌이 마감됩니다. 다음 시즌에도 보다 나은 경험을 고객 여러분께 드릴 수 있도록, 최선을 다하겠습니다. 감사합니다.`);}
  if(run.turn===1)run.seasonClosingNotice=false;
  if([1,3,4].includes(run.floor)&&run.turn===1&&run.seasonCount>0&&!run.shoppingEventsSeen[`${run.floor}-${run.seasonCount}`]){run.shoppingEventsSeen[`${run.floor}-${run.seasonCount}`]=true;run.event=makeBrandShopEvent();return;}
- if(run.floor===1&&!hasPassive('이방인')&&Math.random()<0.035){run.event={title:'화상 흉터의 이방인',text:'"아, 안녕하세요!"\n\n얼굴에 화상 흉터가 있는 누군가가 당신에게 말을 걸어왔다.\n\n행색을 보니 이방인인것같다.\n\n"전 시지프형을 받고 이곳에 왔는데 여기가 뭐하는 곳인지 모르겠어요."\n\n"보통 감옥은 간수도 있고 갑갑하지 않나요? 이렇게 자유롭게 돌아다닐 수있는 감옥은 처음봐요."\n\n"그래서 말인데 이곳이 어떤곳인지 설명 좀 해주실수있나요?"\n\n... 말이 좀 많은 것 같다.',actions:[{name:'설명해준다.',desc:'일반 판정 · 70 이상 성공',kind:'duboisExplain'},{name:'옷감으로 써도 되냐고 물어본다.',desc:'경험치 5 획득',kind:'duboisFabric'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};return;}
+ if(run.floor===1&&!hasPassive('이방인')&&!run.duboisEventSeen&&Math.random()<0.035){run.duboisEventSeen=true;run.event={title:'화상 흉터의 이방인',text:'"아, 안녕하세요!"\n\n얼굴에 화상 흉터가 있는 누군가가 당신에게 말을 걸어왔다.\n\n행색을 보니 이방인인것같다.\n\n"전 시지프형을 받고 이곳에 왔는데 여기가 뭐하는 곳인지 모르겠어요."\n\n"보통 감옥은 간수도 있고 갑갑하지 않나요? 이렇게 자유롭게 돌아다닐 수있는 감옥은 처음봐요."\n\n"그래서 말인데 이곳이 어떤곳인지 설명 좀 해주실수있나요?"\n\n... 말이 좀 많은 것 같다.',actions:[{name:'설명해준다.',desc:'일반 판정 · 70 이상 성공',kind:'duboisExplain'},{name:'옷감으로 써도 되냐고 물어본다.',desc:'경험치 5 획득',kind:'duboisFabric'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};return;}
  if(Math.random()<0.035){const gold=getGoldenMaterialInfo();run.event={title:gold.name,text:`벽에 가있는 균열에서 황금빛 조각이 몇개 굴러떨어진다.\n\n“영롱하고.. 탐스러운 황금빛이야”\n\n“${gold.name}이라면..!!”\n\n어느샌가 고객들이 모여들어 황금빛 조각을 하나둘 줍기 시작한다.`,actions:[{name:'주워간다.',desc:`${gold.name} 1개 60% · 2개 25% · 3개 15% 확률로 획득`,kind:'goldLeather'},{name:'무시하고 지나간다.',desc:'아무일도 없었다.',kind:'pass'}]};return;}
  if(run.floor===1&&run.turn===1&&!run.welcomeEventSeen){run.welcomeEventSeen=true;showAnnouncement(`고객 여러분께 안내드립니다. 이번 유행은 ${run.seasonName||getSeasonName()}입니다. 이번 시즌도 즐거운 쇼핑 되시길 바랍니다.`);}
  if(run.floor===1&&run.welcomeEventSeen&&!run.fallEventSeen){run.fallEventSeen=true;run.event={title:'추락',text:`"........쿵!"
@@ -645,18 +645,18 @@ function resolveExploreAction(i){
   const roll=Math.floor(Math.random()*100)+1,check=resolveCheckRoll(roll),success=check.total>=70;
   let resultText;
   if(success){
-   gainXP(30,'뒤부아의 설명');
+   gainXP(30,'이방인과의 대화');
    if(!run.items.includes('fakeExperience'))run.items.push('fakeExperience');
    resultText='"역시 잘 이해되진 않지만 열심히 설명해주셔서 감사해요."\n\n이방인이 주머니를 뒤적거리다가 당신에게 무언가를 건냈다.\n\n"가짜 경험 통조림이에요! 이제 더는 필요 없을테니 선물로 드릴게요. 필요없으면 버리셔도 되요."\n\n"아무튼 감사했습니다. 다음에 또봐요! 아 그리고 제 이름은 뒤부아에요! 말 안한거같아서요."\n\n경험치 30, 위조 경험 획득.';
   }else{
-   gainXP(30,'뒤부아의 설명');
+   gainXP(30,'이방인과의 대화');
    resultText='"역시 잘 이해가 되지 않네요... 그래도 열심히 설명해주셔서 감사해요."\n\n"언젠가 다시 봐요! 아, 제가 이름을 말 했던가요? 전 뒤부아에요!"\n\n이방인이 감사해하며 복도 너머로 사라진다.\n\n경험치 30 획득.';
   }
   run.logs.push(`화상 흉터의 이방인 · ${check.formula} · ${success?'성공':'실패'} · 경험치 +30${success?' · 위조 경험 획득':''}`);
   renderInventory();
   $('eventResultCard').classList.toggle('success',success);
   $('eventResultCard').classList.toggle('failure',!success);
-  $('eventResultTitle').textContent=success?'뒤부아의 설명 · 성공':'뒤부아의 설명 · 실패';
+  $('eventResultTitle').textContent=success?'대화 성공':'대화 실패';
   $('eventResultText').textContent=resultText;
   $('checkDice').className='check-dice rolling';
   $('checkDice').textContent='—';
@@ -678,7 +678,7 @@ function resolveExploreAction(i){
   };
   return;
  }
- if(a.kind==='duboisFabric'){gainXP(5,'뒤부아에게 옷감으로 써도 되는지 물어봄');$('eventTitle').textContent='화상 흉터의 이방인';$('eventText').textContent='"옷감이요? 그게 뭐지... 은어인가?"\n\n말이 안통하는 것 같다.\n\n"아무튼 저는 설명이 필요한거지 옷감..?을 주고싶은게 아니라구요."\n\n이방인은 복도 너머로 사라졌다.\n\n경험치 5 획득.';$('exploreActions').innerHTML='<button class="card" id="duboisFabricContinue"><h3>계속한다</h3></button>';$('duboisFabricContinue').onclick=()=>advanceExploreTurn();renderExplore();return;}
+ if(a.kind==='duboisFabric'){gainXP(5,'이방인과의 대화');$('eventResultCard').classList.remove('success');$('eventResultCard').classList.remove('failure');$('eventResultTitle').textContent='대화 종료';$('eventResultText').textContent='"옷감이요? 그게 뭐지... 은어인가?"\n\n말이 안 통하는 것 같다.\n\n"아무튼 저는 설명이 필요한 거지 옷감..?을 주고 싶은 게 아니라구요."\n\n이방인은 복도 너머로 사라졌다.\n\n경험치 5 획득.';document.querySelector('.check-dice-panel').classList.add('hidden');$('eventResultModal').classList.remove('hidden');$('eventResultConfirm').onclick=()=>{$('eventResultModal').classList.add('hidden');document.querySelector('.check-dice-panel').classList.remove('hidden');advanceExploreTurn();};return;}
   if(a.kind==='goldLeather'){const roll=Math.floor(Math.random()*100)+1;const amount=roll<=60?1:roll<=85?2:3;const gold=getGoldenMaterialInfo();run.materials=run.materials||{leatherFabric:0,renoirFabric:0,goldLeather:0};run.materials.goldLeather=(Number(run.materials.goldLeather)||0)+amount;run.logs.push(`${gold.name} · ${amount}개 획득 (${run.materials.goldLeather}개 보유)`);$('eventTitle').textContent=gold.name;$('eventText').textContent=`황금빛 조각을 주워 담았다.\n\n${gold.name} ${amount}개를 획득했다.`;$('exploreActions').innerHTML='<button class="card" id="goldLeatherContinue"><h3>계속한다</h3><p>황금빛 조각을 챙겨 복도로 향한다.</p></button>';$('goldLeatherContinue').onclick=()=>advanceExploreTurn();renderInventory();return;}
   if(a.kind==='fallDig'){
  const roll=Math.floor(Math.random()*100)+1,check=resolveCheckRoll(roll),total=check.total,success=total>=40;let resultText;
@@ -764,7 +764,7 @@ function itemEffectText(it){
  if(it.startShield)effects.push('전투 시작 시 보호막 '+it.startShield+' 획득');if(it.startHeal)effects.push('전투 시작 시 체력 '+it.startHeal+' 회복');
  if(it.startCharge)effects.push('전투 시작 시 충전 '+it.startCharge+' 획득');
  if(it.eyesPerKill)effects.push('적 처치 시 눈알 '+it.eyesPerKill+' 추가 획득');
- if(it.xpBonus)effects.push('모든 경험치 획득량 +'+it.xpBonus+' (뒤부아의 설명 포함)');
+ if(it.xpBonus)effects.push('모든 경험치 획득량 +'+it.xpBonus+'');
  if(it.desire)effects.push('잃은 체력 1%당 피해량 +0.5%');if(it.bond)effects.push('적 처치 시 15% 확률로 눈알 10 추가 획득');if(it.lullaby)effects.push('턴 첫 공격 적중 시 체력 3% 회복 (최소 10)');
  return effects.join(' · ')||'특수 효과';
 }
