@@ -596,6 +596,10 @@ function startExploration(){
  state=fresh();applyItemStats();state.p.hp=state.p.max;$('intro').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.remove('hidden');nextExploreEvent();renderExplore();
 }
 function getSeasonName(){return seasonNameOrder[(run.seasonCount)%seasonNameOrder.length]||seasonNames[(run.seasonCount)%seasonNames.length]}
+const seasonWeatherData={mannequinCurtain:{name:'마네킹 가림막',message:'마네킹과의 잦은 접촉으로 인해 잠시 쇼윈도에 가림막을 설치할 예정입니다. 쇼핑 및 관람에 참고 부탁드립니다.'},mannequinOutfit:{name:'마네킹 착장 교체',message:'보다 나은 전시를 위해 일부 마네킹의 착장을 교체 중입니다. 작업 중에는 마네킹의 행동이 제한되니 양해 바랍니다.'},mannequinCrowding:{name:'마네킹 과다 충돌',message:'현재 해당 층이 혼잡하여, 마네킹과의 충돌이 잦습니다. 원활한 이동을 위해 복도에 오래 머무르지 않도록 협조를 부탁드립니다.'},strongSun:{name:'강한 햇살',message:'복도에 햇볕이 강하게 내리쬐고 있습니다. 양산을 준비하지 못하신 고객님은 잠시 매장에 머물러주시길 바라며, 마네킹들과의 신체 접촉은 상호 간 허가되어있음을 다시 한번 말씀드립니다.'},escalatorJam:{name:'에스컬레이터 정체',message:'현재 대기 중인 고객이 많아, 에스컬레이터 내 정체가 발생하고 있습니다.'}};
+function initializeSeasonWeather(){const key=`${run.floor}-${run.seasonCount||0}-${run.season}`;if(run.weatherKey===key)return;run.weatherKey=key;run.weather=null;if(Math.random()>=.15)return;const keys=Object.keys(seasonWeatherData),chosen=keys[Math.floor(Math.random()*keys.length)];run.weather=chosen;const data=seasonWeatherData[chosen];if(chosen==='escalatorJam')run.length=Math.max(1,run.length-3);run.logs=run.logs||[];run.logs.push(`시즌 특수 현상 · ${data.name}`);showAnnouncement(data.message);}
+function consumeSeasonMental(amount=1){const spent=amount+(run.weather==='strongSun'?1:0);if(Number.isFinite(Number(run.mental)))run.mental=Math.max(0,Number(run.mental)-spent);return spent;}
+function isMannequinEnemy(enemyType){return enemyType==='leatherGlove';}
 function specialShopKey(){if(run.floor!==1)return null;return ({1:'mimosa',2:'renoirSpa',3:'renoir',4:'rouge'})[run.season]||null}
 function brandShopGroups(){return [{key:'mimosa',name:'르루주 SPA관',title:'르루주 SPA관',items:[...new Set([...shopItems.mimosa,'rougeSpaWallet'])]},{key:'renoirSpa',name:'르누아르 SPA관',title:'르누아르 SPA관',items:[...new Set([...shopItems.renoirSpa,'renoirSpaKilt'])]},{key:'renoir',name:'르누아르 컨템포러리관',title:'르누아르 컨템포러리관',items:shopItems.renoir},{key:'rouge',name:'르루주 컨템포러리관',title:'르루주 컨템포러리관',items:shopItems.rouge}];}
 function makeBrandShopEvent(){
@@ -612,7 +616,7 @@ function makeBrandShopEvent(){
 function makeShopEvent(key){const sh=shopCatalog[key];const shopFaction=['mimosa','rouge'].includes(key)?'르루주':['renoirSpa','renoir'].includes(key)?'르누아르':null;const sameFaction=!!shopFaction&&run.factionChoice===shopFaction;const oppositeFaction=!!shopFaction&&!!run.factionChoice&&run.factionChoice!==shopFaction;const actions=[];actions.push({name:'상점을 방문한다',desc:'자신의 진영에 소속된 상품만 구매할 수 있다.',kind:'visit'});const stockIds=(brandShopGroups().find(g=>g.key===key)?.items||shopItems[key]||[]);const hasStock=stockIds.some(id=>!run.items.includes(id)&&itemPrice(id)!==null);if((sh.enemy||key==='renoirSpa')&&!sameFaction)actions.push({name:`${sh.name}와 전투한다`,desc:'상점 주인과의 전투를 시작한다. 상품 재고와 관계없이 도전할 수 있으며, 승리하면 해당 상점은 폐점한다.',kind:'combat',enemy:sh.enemy||'courbet'});actions.push({name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'});return {shopKey:key,title:sh.title,text:sh.text,actions}}
 function nextExploreEvent(){
  run.shopIntroduced=run.shopIntroduced||{};run.shopDefeated=run.shopDefeated||{};run.seasonShops=run.seasonShops||{};run.shoppingEventsSeen=run.shoppingEventsSeen||{};
- run.seasonName=getSeasonName();const finalTurn=run.turn>=run.length;let key=null;
+ run.seasonName=getSeasonName();if(run.turn===1)initializeSeasonWeather();const finalTurn=run.turn>=run.length;let key=null;
  if(run.floor===1&&run.turn===run.length-1&&!run.seasonClosingNotice){run.seasonClosingNotice=true;showAnnouncement(`고객 여러분께 안내말씀 드립니다. 곧 ${run.seasonName} 시즌이 마감됩니다. 다음 시즌에도 보다 나은 경험을 고객 여러분께 드릴 수 있도록, 최선을 다하겠습니다. 감사합니다.`);}
  if(run.turn===1)run.seasonClosingNotice=false;
  if(run.floor===3&&run.season===1&&run.turn===1&&!run.sewingIntroSeen){run.sewingIntroSeen=true;run.event={title:'가위질 소리',text:'....어디서인가 가위질 소리가 들려온다.',actions:[{name:'가위질 소리가 들려오는 곳으로 향한다.',desc:'',kind:'sewingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않음',kind:'pass'}]};return;}
@@ -633,13 +637,13 @@ function nextExploreEvent(){
 
  if(run.floor===1&&!finalTurn&&run.season>=2&&Math.random()<.14){const available=Object.keys(run.shopIntroduced).filter(k=>run.shopIntroduced[k]&&!run.shopDefeated[k]);if(available.length){key=available[Math.floor(Math.random()*available.length)];run.seasonShops[run.season]=key;run.event=makeShopEvent(key);return;}}
  if(run.floor===1&&finalTurn)key=null;
- if(run.floor===3&&!run.leatherGloveEventSeen&&Math.random()<0.12){run.leatherGloveEventSeen=true;run.event={title:'가죽 장갑',text:'복도 한쪽에 놓인 가죽 제품 더미가 꿈틀거린다. 그 안에서 장갑 하나가 기어 나온다.',actions:[{name:'가죽 장갑과 전투한다',desc:'르카키와는 별개로 조우한 개체와 전투한다.',kind:'combat',enemy:'leatherGlove'}]};return;}
+ if(run.floor===3&&run.weather!=='mannequinCurtain'&&((run.weather==='mannequinCrowding'&&Math.random()<0.8)||(!run.leatherGloveEventSeen&&Math.random()<0.12))){run.leatherGloveEventSeen=true;run.event={title:'가죽 장갑',text:'복도 한쪽에 놓인 가죽 제품 더미가 꿈틀거린다. 그 안에서 장갑 하나가 기어 나온다.',actions:[{name:'가죽 장갑과 전투한다',desc:run.weather==='mannequinCrowding'?'마네킹 과다 충돌 · 등장확률 80%':'르카키와는 별개로 조우한 개체와 전투한다.',kind:'combat',enemy:'leatherGlove'}]};return;}
  if(run.floor>=1&&run.qualiaShopEncountered&&Math.random()<0.15){run.event={title:'따스한 햇살',text:'붉은 실 사이로 따스한 햇살이 비친다. 르루주 점원[햇살]이 당신의 앞을 가로막는다.',actions:[{name:'르루주 점원[햇살]과 전투한다',desc:'르루주 컨템포러리관 조우 이후 반복적으로 발생하는 확률 전투.',kind:'combat',enemy:'rougeSunClerk'}]};return;}if(run.factionChoice!=='르누아르'&&run.floor>=1&&run.renoirShopEncountered&&Math.random()<0.15){run.event={title:'흐트러짐 없는 원단',text:'르누아르 컨템포러리관을 떠난 뒤에도 누군가 당신을 지켜보고 있었다. 신중한 르누아르 점원이 원단을 정돈하며 다가온다.',actions:[{name:'신중한 르누아르 점원과 전투한다',desc:'르누아르 컨템포러리관 조우 이후 반복적으로 발생하는 확률 전투.',kind:'combat',enemy:'carefulRenoirClerk'}]};return;}if(run.floor>=1&&run.renoirShopEncountered&&Math.random()<0.15){run.event={title:'르누아르의 햇살',text:'르누아르 컨템포러리관의 유리 천장 너머로 햇살이 쏟아진다. 르누아르 점원[햇살]이 조용히 길을 막아선다.',actions:[{name:'르누아르 점원[햇살]과 전투한다',desc:'르누아르 컨템포러리관 조우 이후 반복적으로 발생하는 확률 전투.',kind:'combat',enemy:'renoirSunClerk'}]};return;}
  if(key&&run.shopDefeated[key])key=null;
  if(key){run.seasonShops[run.season]=key;run.event=makeShopEvent(key);return;}
  if(finalTurn){run.event={title:'시즌 마감 · '+run.seasonName,text:'시즌의 마지막 구간을 지나간다. 다음 시즌을 향해 이동할 수 있다.',actions:[{name:'다음 시즌으로',desc:'탐색을 계속한다.',kind:'continue'}]};return;}
  if(run.floor===1&&!run.loanEventSeen&&Math.random()<.12){run.loanEventSeen=true;const actions=[];if(run.eyes>=100)actions.push({name:'눈알을 빌려준다.',desc:'눈알 100 소모 · 채권 획득',kind:'loanGive'});actions.push({name:'눈알을 빌려주지 않는다.',desc:'아무 일도 없다.',kind:'loanDecline'});run.event={title:'눈알 대출',text:'"저, 저기... 혹시 병이나 손바닥 좀 갖고있어?"\n\n조급해보이는 르카키가 당신에게 다가왔다.\n\n"내, 내가 르누아르의 이번 신상을 꼭 사고싶은데 누 눈알이 없어.."\n\n이야기를 들어보니 당신에게 눈알을 빌리고 싶은 것 같다.\n\n눈알을 빌려줄까?',actions};return;}
- if(run.floor===2){run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'조금 더 깊이 들어가본다',desc:'공사 중인 르루주 명품관 안쪽으로 향한다.',kind:'rougeBoutique'},{name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'}]};return;}
+ if(run.floor===2){const floorActions=[{name:'조금 더 깊이 들어가본다',desc:'공사 중인 르루주 명품관 안쪽으로 향한다.',kind:'rougeBoutique'}];if(run.weather!=='escalatorJam')floorActions.push({name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'});else floorActions.push({name:'잠시 기다린다',desc:'에스컬레이터 정체로 이번 시즌에는 이동할 수 없다.',kind:'pass'});run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:floorActions};return;}
  if(Math.random()<.22){run.event={combat:true,title:run.floor===3?'3층 복도를 막아선 르카키':'복도를 막아선 르카키',text:'눈알에 혈안이 된 무언가가 달려온다.',actions:[{name:'르카키와 전투한다',desc:'복도를 막아선 점원을 상대한다.',kind:'combat',enemy:'rukaki'}]};return;}
  run.event={title:'복도를 걷는다',text:'복도를 따라 다음 구역으로 향한다.',actions:[{name:'계속한다.',desc:'탐색을 이어간다.',kind:'continue'}]};
 }
@@ -650,7 +654,7 @@ function resolveExploreAction(i){
   let resultText='';
   if(a.kind==='barrierReach'){
    if(success){gainEyes(200,'차단봉 너머 반짝임');gainXP(10,'차단봉 너머 반짝임');resultText='눈알을 몇 개 주웠다.\n\n경험치 10, 200 눈알 획득.';}
-   else{state.p.hp=Math.max(0,state.p.hp-5);if(Number.isFinite(Number(run.mental)))run.mental=Math.max(0,Number(run.mental)-1);gainXP(5,'차단봉 너머 반짝임');resultText='손이 닿지 않았다.\n\n시간만 버렸다.\n\n체력 5 감소, 정신력 1 감소, 경험치 5 획득.';}
+   else{state.p.hp=Math.max(0,state.p.hp-5);const mentalSpent=consumeSeasonMental(1);gainXP(5,'차단봉 너머 반짝임');resultText='손이 닿지 않았다.\n\n시간만 버렸다.\n\n체력 5 감소, 정신력 1 감소, 경험치 5 획득.';if(mentalSpent>1)resultText=resultText.replace('정신력 1 감소',`정신력 ${mentalSpent} 감소`);}
   }else{
    state.p.hp=Math.max(0,state.p.hp-(success?7:8));run.vendingAttackDownBattles=Math.max(Number(run.vendingAttackDownBattles)||0,3);
    if(success){gainEyes(300,'식품 자판기');resultText='당신은 자판기를 발로 찼다.\n\n자판기에서 눈알이 쏟아졌다.\n\n... 뭔가 불이익을 받은 것 같다.\n\n체력 7 감소, 다음 3번의 전투 동안 공격 위력 감소 1 획득, 눈알 300 획득.';}
@@ -815,7 +819,7 @@ function advanceExploreTurn(){
    const eligible=run.canAscend;
    $('exploreActions').innerHTML=`<button class="card" id="stayFloor"><h3>1층에 더 머무른다</h3><p>계속 1층을 탐색한다.</p></button>${eligible?'<button class="card" id="nextFloor"><h3>2층으로 올라간다</h3><p>고객등급 아메시스트 이상.</p></button>':'<div class="meta">2층 진입 조건: 고객등급 아메시스트 이상. 현재 '+getCustomerRank()+'.</div>'}`;
    $('stayFloor').onclick=()=>{run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.logs.push('— 1층에 계속 머무르기로 했다 —');run.seasonName=getSeasonName();showAnnouncement(`고객 여러분께 안내드립니다. ${previous} 시즌이 방금 마감되었습니다. 이번 유행은 ${run.seasonName}입니다. 이번 시즌도 즐거운 쇼핑 되시길 바랍니다.`);nextExploreEvent();renderExplore();};
-   if(eligible)$('nextFloor').onclick=()=>{run.floor=2;run.season=1;run.turn=1;run.length=7+Math.floor(Math.random()*4);run.seasonShops={};run.logs.push('— 2층 진입 —');run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'조금 더 깊이 들어가본다',desc:'공사 중인 르루주 명품관 안쪽으로 향한다.',kind:'rougeBoutique'},{name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'}]};renderExplore();};
+   if(eligible&&run.weather!=='escalatorJam')$('nextFloor').onclick=()=>{run.floor=2;run.season=1;run.turn=1;run.length=7+Math.floor(Math.random()*4);run.seasonShops={};run.logs.push('— 2층 진입 —');run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'조금 더 깊이 들어가본다',desc:'공사 중인 르루주 명품관 안쪽으로 향한다.',kind:'rougeBoutique'},{name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'}]};renderExplore();};
    $('exploreProgress').textContent=`등급 ${run.rank} · 아이템 ${run.items.length}/5`;return;
   }
   if(run.season>5){run.season=1;}
@@ -829,7 +833,7 @@ function advanceExploreTurn(){
 function startNamedCombat(enemyType,fromExplore=true){
  if(enemyType==='test')return startTestCombat(fromExplore);
  if(enemyType==='rukaki')return startRukakiCombat(fromExplore);
- const enemy={mimosa:mimosaEnemy,gustav:gustavEnemy,qualia:qualiaEnemy,leatherGlove:leatherGloveEnemy,rougeSunClerk:rougeSunClerkEnemy,carefulRenoirClerk:carefulRenoirClerkEnemy,renoirSunClerk:renoirSunClerkEnemy,courbet:courbetEnemy,rougeDirector:rougeDirectorEnemy}[enemyType];if(!enemy)return;
+ let enemy={mimosa:mimosaEnemy,gustav:gustavEnemy,qualia:qualiaEnemy,leatherGlove:leatherGloveEnemy,rougeSunClerk:rougeSunClerkEnemy,carefulRenoirClerk:carefulRenoirClerkEnemy,renoirSunClerk:renoirSunClerkEnemy,courbet:courbetEnemy,rougeDirector:rougeDirectorEnemy}[enemyType];if(!enemy)return;if(isMannequinEnemy(enemyType)&&run.weather==='mannequinOutfit')enemy={...enemy,hp:Math.ceil(enemy.hp*1.5),max:Math.ceil(enemy.max*1.5)};
  const carriedPlayer=(run.active&&fromExplore&&state)?state.p:null;actionLocked=false;state=fresh();if(carriedPlayer)state.p=carriedPlayer;applyCombatStartItems();
  state.e={hp:enemy.hp,max:enemy.max,speed:enemy.speed,kw:{호흡:0,진동:0,침잠:0,잔향:0,화상:0,출혈:0,충전:0,보존:0,맥동:0,생동:0,안내불이행:0,트리코테:0,우스티드원단:0,보호막:0}};if(enemyType==='mimosa')state.e.kw.맥동=5;if(enemyType==='rougeSunClerk')state.e.kw.맥동=5;if(enemyType==='rougeDirector')state.e.kw.맥동=15;state.enemyName=enemy.name;state.enemyCaption=enemy.caption;state.enemyPortrait=enemy.portrait;state.enemyType=enemyType;
  $('intro').classList.add('hidden');$('explore').classList.add('hidden');$('game').classList.remove('hidden');$('fight').classList.remove('hidden');$('next').classList.add('hidden');state.logs=[];log(`전투 시작 · ${enemy.name} (${enemy.hp} 체력)`);render();state.returnToExplore=fromExplore;
