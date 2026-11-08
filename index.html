@@ -144,11 +144,13 @@ button:hover:not(:disabled){border-color:#d3deeb;box-shadow:0 0 10px #a9c7ed22,i
 .announcement-seal{height:160px;width:102px;flex:none;box-sizing:border-box;display:grid;place-items:center;background:url('assets/announcement/announcement_bg.png') center center / 100% 100% no-repeat;border:0;outline:0;box-shadow:none;color:#f1d9a7;font-family:Georgia,serif;font-size:27px;font-weight:900;position:relative;text-shadow:0 2px 4px #000}
 .announcement-seal:before,.announcement-seal:after{content:none}
 .announcement-plaque{box-sizing:border-box;min-height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:14px 22px;background:linear-gradient(110deg,#111722f5,#090e18f5);border:5px double #ddc69d;outline:1px solid #776344;box-shadow:0 5px 22px #000b;color:#f1eee8;position:relative}
+.announcement-plaque:before{content:'';position:absolute;inset:0;background:url('assets/announcement/announcement.png') center center / auto 78% no-repeat;opacity:.9;pointer-events:none}
+.announcement-heading,.announcement-message{position:relative;z-index:1}
 .announcement-heading{font-size:clamp(13px,2.8vw,17px);font-weight:900;color:#e9d7b4;margin-bottom:7px;letter-spacing:.04em}
 .announcement-message{font-size:clamp(14px,3.5vw,19px);line-height:1.45;font-weight:750;white-space:pre-line;overflow-wrap:anywhere}
 @media(max-width:420px){.announcement-overlay{grid-template-columns:89px minmax(0,1fr);gap:8px}.announcement-seal{width:89px;height:140px;font-size:22px}.announcement-plaque{min-height:140px;padding:10px 13px;border-width:4px}}
 </style></head><body>
-<div id="announcementOverlay" class="announcement-overlay" aria-live="polite" aria-atomic="true"><div class="announcement-seal" aria-hidden="true">U⁺</div><div class="announcement-plaque"><div class="announcement-heading">시지프 백화점 안내방송</div><div id="announcementMessage" class="announcement-message"></div></div></div>
+<div id="announcementOverlay" class="announcement-overlay" aria-live="polite" aria-atomic="true"><div class="announcement-seal" aria-hidden="true"></div><div class="announcement-plaque"><div class="announcement-heading">시지프 백화점 안내방송</div><div id="announcementMessage" class="announcement-message"></div></div></div>
 <div id="patchBackdrop" class="patch-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="patchTitle"><section class="patch-modal"><div class="patch-top"><div><div class="patch-kicker">Grand Magasin Sisyphe · UPDATE</div><h1 class="patch-title" id="patchTitle">패치 노트</h1></div><button id="patchX" class="secondary" aria-label="패치 노트 닫기">✕</button></div><div id="patchBody" class="patch-body"><p>패치 노트를 불러오는 중...</p></div><div class="patch-footer"><span class="patch-note">로비에 처음 접속했을 때 표시됩니다.</span><button id="patchClose" class="patch-close">확인하고 입장</button></div></section></div>
 
 <div class="app">
