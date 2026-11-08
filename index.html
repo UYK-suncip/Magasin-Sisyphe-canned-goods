@@ -757,14 +757,12 @@ ${closureData?.maisonText||'[회의의 종결 연동 텍스트 더미]'}`,action
   const resultText=success
    ? '"역시 잘 이해되진 않지만 열심히 설명해주셔서 감사해요."\n\n이방인이 주머니를 뒤적거리다가 당신에게 무언가를 건냈다.\n\n"가짜 경험 통조림이에요! 이제 더는 필요 없을테니 선물로 드릴게요. 필요없으면 버리셔도 되요."\n\n"아무튼 감사했습니다. 다음에 또봐요! 아 그리고 제 이름은 뒤부아에요! 말 안한거같아서요."'
    : '"역시 잘 이해가 되지 않네요... 그래도 열심히 설명해주셔서 감사해요."\n\n"언젠가 다시 봐요! 아, 제가 이름을 말 했던가요? 전 뒤부아에요!"\n\n이방인이 감사해하며 복도 너머로 사라진다.';
-  gainXP(30,'이방인과의 대화');
-  if(success&&!run.items.includes('fakeExperience'))run.items.push('fakeExperience');
-  run.logs.push(`화상 흉터의 이방인 · ${check.formula} · ${success?'성공':'실패'} · 경험치 +30${success?' · 위조 경험 획득':''}`);
   $('checkDice').className='check-dice rolling';startCheckDiceRoll();
   $('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='판정 중…';
   $('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);
   $('eventResultTitle').textContent='뒤부아의 설명 · 판정';
   $('eventResultText').textContent='당신의 설명은 뒤부아에게 얼마나 잘 전달되었을까?';
+  $('eventResultConfirm').disabled=true;
   $('eventResultModal').classList.remove('hidden');
   window.setTimeout(()=>{
    stopCheckDiceRoll();
@@ -773,9 +771,15 @@ ${closureData?.maisonText||'[회의의 종결 연동 텍스트 더미]'}`,action
    $('checkDiceOutcome').className='check-dice-outcome '+(success?'success':'failure');
    $('checkDiceOutcome').textContent=`${check.formula} · ${success?'성공 (70 이상)':'실패 (69 이하)'}`;
    $('eventResultText').textContent=`판정 결과: ${success?'성공':'실패'}`;
+   $('eventResultConfirm').disabled=false;
+   if(window.sizifSfx)window.sizifSfx(success?'success':'failure');
   },650);
   $('eventResultConfirm').onclick=()=>{
    $('eventResultModal').classList.add('hidden');
+   $('eventResultConfirm').disabled=false;
+   gainXP(30,'이방인과의 대화');
+   if(success&&!run.items.includes('fakeExperience'))run.items.push('fakeExperience');
+   run.logs.push(`화상 흉터의 이방인 · ${check.formula} · ${success?'성공':'실패'} · 경험치 +30${success?' · 위조 경험 획득':''}`);
    run.event={title:success?'뒤부아의 설명 · 성공':'뒤부아의 설명 · 실패',text:`${resultText}\n\n경험치 30 획득${success?' · 위조 경험 획득':''}.`,actions:[{name:'계속한다.',desc:'뒤부아와의 대화를 마치고 탐색을 이어간다.',kind:'pass'}]};
    renderExplore();
   };
