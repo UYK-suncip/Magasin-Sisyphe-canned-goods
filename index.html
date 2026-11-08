@@ -141,7 +141,7 @@ button:hover:not(:disabled){border-color:#d3deeb;box-shadow:0 0 10px #a9c7ed22,i
 .announcement-overlay{position:fixed;z-index:5000;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min( min(760px, calc(100vw - 28px)), 760px);display:grid;grid-template-columns:94px minmax(0,1fr);gap:12px;align-items:center;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility .9s ease}
 .announcement-overlay.show{opacity:1;visibility:visible}
 .announcement-overlay.fade{opacity:.28}
-.announcement-seal{height:94px;width:94px;flex:none;box-sizing:border-box;display:grid;place-items:center;background:url('assets/announcement/announcement_bg.png') center center / auto 251% no-repeat;border:0;outline:0;box-shadow:none;color:#f1d9a7;font-family:Georgia,serif;font-size:27px;font-weight:900;position:relative;text-shadow:0 2px 4px #000}
+.announcement-seal{height:94px;width:94px;flex:none;box-sizing:border-box;display:grid;place-items:center;background:url('assets/announcement/announcement_bg.png') center center / contain no-repeat;border:0;outline:0;box-shadow:none;color:#f1d9a7;font-family:Georgia,serif;font-size:27px;font-weight:900;position:relative;text-shadow:0 2px 4px #000}
 .announcement-seal:before,.announcement-seal:after{content:none}
 .announcement-plaque{box-sizing:border-box;min-height:94px;display:flex;align-items:flex-start;justify-content:center;flex-direction:column;padding:14px 22px;background:linear-gradient(110deg,#111722f5,#090e18f5);border:5px double #ddc69d;outline:1px solid #776344;box-shadow:0 5px 22px #000b;color:#f1eee8;position:relative}
 .announcement-heading{font-size:clamp(13px,2.8vw,17px);font-weight:900;color:#e9d7b4;margin-bottom:7px;letter-spacing:.04em}
