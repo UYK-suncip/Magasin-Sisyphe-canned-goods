@@ -816,7 +816,7 @@ if(a.kind==='outdatedAsk'){
    acquireItem('outdatedRougeClothes');
    resultText=`미모사가 당신을 전체적으로 훑어본다.\n\n"하, 가져가. 입은 꼬라지보니까 쇼핑백에 묻은 옷 쪼가리도 넙죽 받아입겠네"\n\n철 지난 르루주 옷 획득.`;
   }else{
-   state.p.hp=Math.max(0,state.p.hp-7);run.items.push('outdatedRougeClothes');applyItemStats();
+   state.p.hp=Math.max(0,state.p.hp-7);acquireItem('outdatedRougeClothes');
    resultText=`미모사가 당신을 전체적으로 훑어본다.\n\n"입은 꼬라지보니까 쇼핑백에 묻은 옷 쪼가리도 넙죽 받아입겠네. 줄게, 하지만 공짜는 아니야"\n\n"네 일부를 옷감으로 쓰게해줘, 그정도면 돼."\n\n체력 7 감소, 철 지난 르루주 옷 획득`;
   }
   run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — 철 지난 르루주: ${success?'판정 성공':'판정 실패'} · ${check.formula} · ${resultText.replace(/\n/g,' ')}`);
