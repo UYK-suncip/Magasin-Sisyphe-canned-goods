@@ -538,7 +538,7 @@ const importedEvents=[
 {id:'corridor',title:'핏자국이 남은 통로',text:'바닥에 말라붙은 핏자국이 이어진다. 벽 안쪽에서 긁는 소리가 들린다.',actions:[{name:'흔적을 조사한다',desc:'출혈 +2, 체력 2 감소',effect(){return {hp:-2,kw:{출혈:2},msg:'날카로운 파편을 주웠다. 출혈 +2, 체력 2 감소.'}}},{name:'빠르게 지나간다',desc:'25% 확률로 체력 3 감소',effect(){if(Math.random()<.25)return {hp:-3,msg:'이상한 소리에 정신이 흔들렸다. 체력 3을 잃었다.'};return {msg:'숨을 죽이고 통로를 빠져나왔다.'}}}]},
 {id:'fog',title:'검은 안개',text:'바닥에 검은 안개가 고인다. 안개 속에 서 있자 상대의 움직임이 둔해지는 상상이 든다.',actions:[{name:'안개를 모은다',desc:'침잠 +2',effect(){return {kw:{침잠:2},msg:'검은 안개를 모았다. 침잠 +2.'}}},{name:'안개를 피해 돌아간다',desc:'체력 4 회복',effect(){return {hp:4,msg:'안개를 피해 돌아가 체력 4를 회복했다.'}}}]},
 {id:'embers',title:'불씨가 남은 작업대',text:'작업대 위에서 작은 불씨가 타오른다. 금속 도구가 붉게 달아올라 있다.',actions:[{name:'불씨를 옮긴다',desc:'화상 +2',effect(){return {kw:{화상:2},msg:'불씨를 옮기는 과정에서 열기가 스며들었다. 화상 +2.'}}},{name:'금속을 챙긴다',desc:'금속의 에너지를 흡수해 충전 +2',effect(){return {kw:{충전:2},msg:renoirModeEnabled?'금속 도구에서 에너지를 회수했다. 보존 +2.':'금속 도구에서 에너지를 회수했다. 충전 +2.'}}}]},
-{id:'meetingClosureDummy',title:'회의의 종결',text:'[더미 데이터] 회의의 종결 이벤트 본문과 선택지는 추후 제공된 설정에 맞춰 작성합니다. 현재 실제 탐색 이벤트에는 연결되어 있지 않습니다.',actions:[{name:'더미 이벤트 확인',desc:'실제 효과 및 후속 분기 없음',effect(){return {msg:'회의의 종결 이벤트 더미 데이터입니다. 실제 게임 진행에는 영향을 주지 않습니다.'}}}]}
+{id:'meetingClosureDummy',title:'회의의 종결',text:'[더미 데이터] 회의의 종결 이벤트 본문과 선택지는 추후 제공된 설정에 맞춰 작성합니다.',maisonText:'[회의의 종결 연동 텍스트 더미] 회의의 종결에서 발생한 내용이 이곳에 반영됩니다.',maisonChoices:[{name:'[회의의 종결 연동 선택지 더미]',desc:'회의의 종결에서 설정될 조건을 충족했을 때 표시됩니다.',kind:'meetingClosureDummyBranch',condition:()=>false}],actions:[{name:'더미 이벤트 확인',desc:'회의의 종결 더미 데이터를 확인한다.',effect(){return {msg:'회의의 종결 더미 데이터입니다. 일반 탐색에는 등장하지 않으며 르누아르 메종의 텍스트와 선택지 조건에서 참조됩니다.'}}}]}
 ];
 
 const exploreEvents=[
@@ -724,12 +724,17 @@ function resolveExploreAction(i){
 
 모처럼 잘 해결된 것 같다.`,actions:[{name:'르누아르 점원을 따라 안쪽으로 들어간다.',desc:'르누아르 메종으로 향한다.',kind:'meetingMaison'}]};renderExplore();return;
  }
+ if(a.kind==='meetingClosureDummyBranch'){
+  run.event={title:'회의의 종결',text:'[더미 분기] 회의의 종결에서 이어지는 내용은 추후 설정을 받아 연결합니다.',actions:[{name:'확인',desc:'더미 분기를 닫는다.',kind:'pass'}]};renderExplore();return;
+ }
  if(a.kind==='meetingMaison'){
   if(run.meetingRoute!=='feltFlannel')return;
   if(!run.items.includes('renoirMaisonScarf')){
    run.items.push('renoirMaisonScarf');applyItemStats();
    run.logs.push('르누아르 메종 목도리 획득 · 전투 시작 시 보호막 3');renderInventory();
   }
+  const closureData=importedEvents.find(e=>e.id==='meetingClosureDummy');
+  const closureChoices=(closureData?.maisonChoices||[]).filter(choice=>typeof choice.condition==='function'&&choice.condition(run));
   run.event={title:'르누아르 메종',text:`"...그래서... 그것들 중 일부는 안쪽에 계속 틀어박혀 있다는데..."
 "...그래, 백화점이 무너지는 것은 시간문제다."
 "원래부터 제정신이 아닌 놈들이었지만 더욱 미쳐가는..."
@@ -739,7 +744,9 @@ function resolveExploreAction(i){
 "여기는 르누아르 메종. 보다시피 귀한 옷을 판매하는 곳이지."
 "뭐라도 하나 걸치게나"
 
-르누아르 메종 목도리를 획득했다.`,actions:[{name:'확인',desc:'르누아르 메종을 나선다.',kind:'pass'}]};renderExplore();return;
+르누아르 메종 목도리를 획득했다.
+
+${closureData?.maisonText||'[회의의 종결 연동 텍스트 더미]'}`,actions:[{name:'확인',desc:'르누아르 메종을 나선다.',kind:'pass'},...closureChoices]};renderExplore();return;
  }
   if(a.kind==='sewingApproach'){run.event={title:'가위질 소리',text:'사방에는 실타래와 오려진 천 조각이 걸려 있었고 그 한복판에는 누군가가 규칙적으로 팔을 오르내리며 무언가를 깁고 있었다.\n\n"...어깨선이 조금 쳐졌고, 소매는 한 뼘쯤 짧구나. 그래, 손볼 데가 많은 이방인이야. 무얼 고치러 왔니?"\n\n"나는 아네트, 수선사 아네트란다. 너희는... 물을 필요도 없이 이방인들이겠구나."',actions:[{name:'옷을 구매할 수 있을지 물어본다.',desc:'',kind:'sewingFabric'},{name:'가위를 얻을 수 있냐고 묻는다.',desc:'',kind:'sewingScissors'}]};renderExplore();return;}
  if(a.kind==='sewingFabric'){if(!run.items.includes('tailorFabric')){run.items.push('tailorFabric');applyItemStats();run.logs.push('수선실에서 파는 천 획득 · 체력 +1');renderInventory();}run.event={title:'가위질 소리',text:'"여긴 다른 매장처럼 화려한 옷을 파는 곳이 아니란다. 완성된 것을 걸고 뽐내는 자리가 아니거든."\n\n"나는 묵묵히 천을 깁고 손볼 뿐이지."\n\n"그래도 너희에게 쓸모 있을 만한 건 팔고 있어. 웬만해선 해지지 않는 두꺼운 원단은 어떠니?"\n\n"기울 것이 필요할 때도 내게로 찾아와. 백화점에서 내 손끝으로 엮어낼 수 없는 원단은 존재하지 않거든"\n\n수선실에서 파는 천을 획득했다.',actions:[{name:'계속한다.',desc:'',kind:'pass'}]};renderExplore();return;}
