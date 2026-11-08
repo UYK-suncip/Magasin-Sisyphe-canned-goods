@@ -1021,7 +1021,7 @@ $('openDeckLobby').onclick=()=>openDeckManager(false);$('openDeckExplore').oncli
 
 /* Procedural sound effects: generated locally with Web Audio; no external files required. */
 (function(){
- let audioCtx=null, muted=false, lastSound=0;
+ let audioCtx=null, muted=false;const diceRollAudio=new Audio('assets/audio/dice-roll.mp3');diceRollAudio.preload='auto';
  function ctx(){if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;audioCtx=new AC()}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
  function tone(freq,start,duration,type='sine',volume=.04,endFreq=null){
   const a=ctx();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(freq,start);if(endFreq)o.frequency.exponentialRampToValueAtTime(Math.max(1,endFreq),start+duration);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(volume,start+.012);g.gain.exponentialRampToValueAtTime(.0001,start+duration);o.connect(g);g.connect(a.destination);o.start(start);o.stop(start+duration+.02)
@@ -1033,7 +1033,7 @@ $('openDeckLobby').onclick=()=>openDeckManager(false);$('openDeckExplore').oncli
  function sfx(name){
   if(muted)return;const a=ctx();if(!a)return;const t=a.currentTime;
   if(name==='click'){tone(520,t,.045,'sine',.018,680)}
-  else if(name==='roll'){/* Louder, longer dice-rattle: irregular hard clacks plus a continuous gritty shuffle. */ noise(t,.82,.085,3200);for(let i=0;i<13;i++){const at=t+i*(.045+Math.random()*.025);tone(260+Math.random()*420,at,.045,'triangle',.075,95+Math.random()*150);noise(at,.055,.065,2600+Math.random()*1200)}tone(150,t+.72,.12,'triangle',.055,72);}
+  else if(name==='roll'){diceRollAudio.pause();diceRollAudio.currentTime=0;diceRollAudio.play().catch(()=>{});}
   else if(name==='success'){tone(523,t,.13,'sine',.045,660);tone(784,t+.11,.2,'sine',.04,1047)}
   else if(name==='failure'){tone(260,t,.18,'triangle',.04,190);tone(175,t+.13,.28,'sawtooth',.025,95)}
   else if(name==='hit'){noise(t,.12,.065,1100);tone(115,t,.14,'sine',.045,55)}
