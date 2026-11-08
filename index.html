@@ -259,6 +259,7 @@ const bossDeck=[
 let state;let actionLocked=false;const $=id=>document.getElementById(id);
 let checkDiceRollTimer=null;
 function startCheckDiceRoll(){
+ if(window.sizifSfx)window.sizifSfx('roll');
  if(checkDiceRollTimer)clearInterval(checkDiceRollTimer);
  const die=$('checkDice');
  const roll=()=>{die.textContent=String(Math.floor(Math.random()*100)+1)};
@@ -414,6 +415,7 @@ async function strike(attacker,defender,card,isPlayer,chargeSpentAtUse=0){
  const baseDiceCount=Math.max(0,Number(card.rolls)||0),extraDiceCount=Math.max(0,Number(card.extraDice)||0);const paralysisSpent=card.zeroDice?0:Math.min(Math.max(0,Number(attacker.kw.마비)||0),baseDiceCount+extraDiceCount);if(paralysisSpent){attacker.kw.마비=Math.max(0,Number(attacker.kw.마비||0)-paralysisSpent);log(`${attacker===state.p?'당신':state.enemyName} · 마비 ${paralysisSpent} 소모, 공격 주사위 최솟값 고정`,'bad');}const baseParalyzed=Math.min(paralysisSpent,baseDiceCount),extraParalyzed=Math.max(0,paralysisSpent-baseDiceCount);let diceResults=card.zeroDice?Array(baseDiceCount).fill(0):[...Array(baseParalyzed).fill(0),...roll(card.dice,baseDiceCount-baseParalyzed)];let extraDiceResults=card.zeroDice?Array(extraDiceCount).fill(0):[...Array(extraParalyzed).fill(0),...roll(card.extraSides||card.dice,extraDiceCount-extraParalyzed)];let raw=sum(diceResults)+(card.decadenceMin?card.decadenceMin*(baseDiceCount-baseParalyzed):0)+sum(extraDiceResults)+(card.decadenceMin?card.decadenceMin*(extraDiceCount-extraParalyzed):0);if(card.chefDieBonus&&diceResults.includes(4))power+=44;
  if(attacker===state.e&&state.enemyType==='rougeDirector')power-=2;let finalPower=Math.max(0,power-guidancePenalty-attackPowerPenalty);let atk=Math.max(0,finalPower+raw-sinkPenalty);if(attacker===state.e&&state.enemyType==='rougeDirector'){const lostPct=Math.max(0,(attacker.max-attacker.hp)/Math.max(1,attacker.max));const aspiration=1+lostPct*2;const distress=attacker.hp<=attacker.max*.25?1.5:1;atk=Math.floor(atk*aspiration*distress);}
  // 공격 주사위를 먼저 굴리고, 공격 결과가 확정된 뒤 수비 주사위 결과를 즉시 표시한다.
+ if(window.sizifSfx)window.sizifSfx('roll');
  atkEl.classList.add('rolling');
  for(let i=0;i<7;i++){const previewBase=card.zeroDice?0:sum([...Array(baseParalyzed).fill(0),...roll(card.dice,baseDiceCount-baseParalyzed)]);const previewExtra=card.zeroDice?0:sum([...Array(extraParalyzed).fill(0),...roll(card.extraSides||card.dice,extraDiceCount-extraParalyzed)]);atkEl.textContent=Math.max(0,previewBase+previewExtra);await wait(55)}
  atkEl.classList.remove('rolling');
@@ -1051,9 +1053,7 @@ $('openDeckLobby').onclick=()=>openDeckManager(false);$('openDeckExplore').oncli
  toggle.addEventListener('click',()=>{muted=!muted;toggle.textContent=muted?'🔇 효과음 꺼짐':'🔊 효과음 켜짐';toggle.setAttribute('aria-pressed',String(!muted));if(!muted)sfx('click')});
  document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b===toggle||b.disabled||muted)return;
-  if(b.id==='fight'){sfx('roll');return}
   if(b.id==='eventResultConfirm')return;
-  if(b.id==='start'||b.id==='directCombat'||b.id==='testCombat'||b.id==='rukakiCombat'){sfx('roll');return}
   if(b.matches('.card,[data-buy-item]'))sfx('click');
   else if(b.id!=='clear'&&b.id!=='resetTop'&&b.id!=='openPatchAgain'&&b.id!=='patchClose'&&b.id!=='patchX')sfx('click');
  },true);
