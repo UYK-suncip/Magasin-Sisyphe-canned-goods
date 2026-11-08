@@ -620,7 +620,7 @@ function nextExploreEvent(){
  if(run.floor===1&&run.turn===run.length-1&&!run.seasonClosingNotice){run.seasonClosingNotice=true;showAnnouncement(`고객 여러분께 안내말씀 드립니다. 곧 ${run.seasonName} 시즌이 마감됩니다. 다음 시즌에도 보다 나은 경험을 고객 여러분께 드릴 수 있도록, 최선을 다하겠습니다. 감사합니다.`);}
  if(run.turn===1)run.seasonClosingNotice=false;
  if(run.floor===3&&run.season===1&&run.turn===1&&!run.sewingIntroSeen){run.sewingIntroSeen=true;run.event={title:'가위질 소리',text:'....어디서인가 가위질 소리가 들려온다.',actions:[{name:'가위질 소리가 들려오는 곳으로 향한다.',desc:'',kind:'sewingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않음',kind:'pass'}]};return;}
- if(run.floor===3&&run.season===1&&run.turn===2&&!run.meetingIntroSeen){run.meetingIntroSeen=true;run.event={title:'끝나지 않는 회의',text:'알록달록한 무언가가 눈에 띈다.\\n저자들에게 매장 안내나 눈알을 받을 수 있지 않을까?',actions:[{name:'다가가본다.',desc:'무언가 회의 중인 듯하다.',kind:'meetingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};return;}
+ if(run.floor===3&&run.season===1&&run.turn===2&&!run.meetingIntroSeen){run.meetingIntroSeen=true;run.event={title:'끝나지 않는 회의',text:`알록달록한 무언가가 눈에 띈다.\n저자들에게 매장 안내나 눈알을 받을 수 있지 않을까?`,actions:[{name:'다가가본다.',desc:'저자들에게 다가간다.',kind:'meetingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};return;}
  if([1,3,4].includes(run.floor)&&run.turn===1&&run.seasonCount>0&&!run.shoppingEventsSeen[`${run.floor}-${run.seasonCount}`]){run.shoppingEventsSeen[`${run.floor}-${run.seasonCount}`]=true;run.event=makeBrandShopEvent();return;}
  if(run.floor===1&&finalTurn&&(key=specialShopKey())&&!run.shopIntroduced[key]){if(!run.shopDefeated[key]){run.shopIntroduced[key]=true;run.seasonShops[run.season]=key;if(key==='rouge')run.qualiaShopEncountered=true;if(key==='renoir')run.renoirShopEncountered=true;run.event=makeShopEvent(key);return;}key=null;}
  if(run.floor===1&&!hasPassive('이방인')&&!run.duboisEventSeen&&Math.random()<0.035){run.duboisEventSeen=true;run.event={title:'화상 흉터의 이방인',text:'"아, 안녕하세요!"\n\n얼굴에 화상 흉터가 있는 누군가가 당신에게 말을 걸어왔다.\n\n행색을 보니 이방인인것같다.\n\n"전 시지프형을 받고 이곳에 왔는데 여기가 뭐하는 곳인지 모르겠어요."\n\n"보통 감옥은 간수도 있고 갑갑하지 않나요? 이렇게 자유롭게 돌아다닐 수있는 감옥은 처음봐요."\n\n"그래서 말인데 이곳이 어떤곳인지 설명 좀 해주실수있나요?"\n\n... 말이 좀 많은 것 같다.',actions:[{name:'설명해준다.',desc:'일반 판정 · d100 · 70 이상 성공',tooltip:'d100 판정에 이방인 보정이 적용됩니다. 최종 판정값 70 이상이면 성공합니다.',kind:'duboisExplain'},{name:'옷감으로 써도 되냐고 물어본다.',desc:'경험치 5 획득',kind:'duboisFabric'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};return;}
@@ -676,12 +676,70 @@ function resolveExploreAction(i){
   if(a.kind==='vendingEnergy'){if(!run.items.includes('energyDrink')){run.items.push('energyDrink');applyItemStats();resultText='당신은 눈알 투입구에 100 눈알을 넣었다.\n\n자판기 배출구로 에너지 음료가 굴러 떨어졌다.\n\n눈알 100 소모, 에너지 음료 획득.';}else resultText='에너지 음료를 이미 가지고 있다.\n\n눈알 100 소모, 에너지 음료를 하나 더 얻지는 못했다.';}
   run.logs.push(`식품 자판기 · ${a.name} · ${resultText.replace(/\\n/g,' ')}`);run.event={title:'식품 자판기',text:resultText,actions:[{name:'계속한다.',desc:'자판기를 떠난다.',kind:'continue'}]};renderExplore();return;
  }
- if(a.kind==='meetingApproach'){run.event={title:'끝나지 않는 회의',text:'뒤쪽 매장으로 들어가는 길을 막고 있는 것 같다.\\n\\n"이곳은 회의!, 회의가 가득해."\\n"그래서 들어갈 수 없어. 자리가 없거든."\\n\\n"회의는 무슨 맛일까?"\\n"짜지, 아주 짜. 눈물처럼 짜서 아무도 못 삼켜."\\n\\n"그래서 회의는 끝나지 않아. 삼켜야 끝나는데, 못 삼키니까."',actions:[{name:'안건이 무엇인지 물어본다.',desc:'회의의 안건을 듣는다.',kind:'meetingAgenda'},{name:'비켜줄 수 있는지 묻는다.',desc:'회의가 끝나야 길을 비켜줄 수 있다고 한다.',kind:'meetingEndless'},...(run.factionChoice==='르누아르'?[{name:'자신의 소속을 밝힌다.',desc:'르누아르 소속임을 밝힌다.',kind:'meetingRenoir'}]:[])]};renderExplore();return;}
- if(a.kind==='meetingAgenda'){run.event={title:'안건',text:'"안건 하나. 누가 겉이고 누가 안감인가."\\n"안건 둘. 누가 오른팔이고 누가 왼팔인가."\\n"음음, 좋은 안건이야. 회의록에 적어 놔야지."\\n\\n왠지 가까이 가면 안될 것 같다.',actions:[{name:'무시하고 지나간다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};renderExplore();return;}
- if(a.kind==='meetingEndless'){run.event={title:'회의가 끝나지 않아!',text:'"회의? 아직! 안 끝났어."\\n"오른팔이 반대표를 던졌고..."\\n"겉은 안감을 못 이겼거든."\\n\\n"회의가 끝나기 전에는 비켜줄 수 없어"\\n"회의, 회의가 끝나지 않아!"\\n\\n"언제? 언제더라."\\n"시작이 언제였고 끝이 언제지?"\\n\\n"아, 그래. 안건 셋. 누가 서기이고 누가 발표자인가."\\n"음음, 좋은 안건이야. 역시 회의록에 적어 놔야겠어."\\n\\n아무래도 당분간 회의가 끝날 일은 없어보인다.',actions:[{name:'무시하고 지나간다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};renderExplore();return;}
- if(a.kind==='meetingRenoir'){run.meetingRoute='feltFlannel';run.event={title:'펠트와 플라넬',text:'"투피스, 저자들은 르누아르다."\\n"너희는 둘이었다. 자, 이제 회의가 끝나지 않았나?"\\n\\n"너, 저기 있네? 여태 내 안에 있는 줄 알았는데."\\n"너, 거기 있네? 여태 내 밖에 있는 줄 알았는데."\\n\\n"안건이 끝났어, 드디어 끝났어."\\n"그래, 두명... 우리는 두명이었어."\\n\\n모처럼 잘 해결된 것 같다.',actions:[{name:'르누아르 점원을 따라 안쪽으로 들어간다.',desc:'르누아르 메종으로 향한다.',kind:'meetingMaison'}]};renderExplore();return;}
- if(a.kind==='meetingMaison'){if(!run.items.includes('renoirMaisonScarf')){run.items.push('renoirMaisonScarf');applyItemStats();run.logs.push('르누아르 메종 목도리 획득 · 전투 시작 시 보호막 3');renderInventory();}const neutral=!['르누아르','르루주'].includes(run.factionChoice);run.event={title:'르누아르 메종',text:'"...그래서... 그것들 중 일부는 안쪽에 계속 틀어박혀 있다는데..."\\n"...그래, 백화점이 무너지는 것은 시간문제다."\\n"원래부터 제정신이 아닌 놈들이었지만 더욱 미쳐가는..."\\n"하지만 그게 정말일까? 그것들이 만약..."\\n\\n"아, 귀한 손님을 두고 실례를 범했군."\\n"여기는 르누아르 메종. 보다시피 귀한 옷을 판매하는 곳이지."\\n"뭐라도 하나 걸치게나"\\n\\n르누아르 메종 목도리를 획득했다.',actions:[...(neutral?[{name:'중립적인 가치를 추구한다고 말한다.',desc:'어느 브랜드든 원단을 원한다면 거래할 수 있다고 말한다.',kind:'meetingMaisonNeutral'}]:[]),{name:'계속한다.',desc:'르누아르 메종을 나선다.',kind:'pass'}]};renderExplore();return;}
- if(a.kind==='meetingMaisonNeutral'){if(!run.items.includes('tailorFabric')){run.items.push('tailorFabric');applyItemStats();run.logs.push('수선실에서 파는 천 획득 · 체력 +1');renderInventory();}run.event={title:'르누아르 메종',text:'"르루주, 르누아르도 아닌 나는 중립적인 가치를 추구해. 어느 브랜드든 원단을 원한다면, 기꺼이 거래할 거야."\\n\\n수선실에서 파는 천을 획득했다.\\n체력 +1.',actions:[{name:'계속한다.',desc:'르누아르 메종을 나선다.',kind:'pass'}]};renderExplore();return;}
+ if(a.kind==='meetingApproach'){
+  run.event={title:'끝나지 않는 회의',text:`뒤쪽 매장으로 들어가는 길을 막고 있는 것 같다.
+
+"이곳은 회의!, 회의가 가득해."
+"그래서 들어갈 수 없어. 자리가 없거든."
+
+"회의는 무슨 맛일까?"
+"짜지, 아주 짜. 눈물처럼 짜서 아무도 못 삼켜."
+
+"그래서 회의는 끝나지 않아. 삼켜야 끝나는데, 못 삼키니까."`,actions:[{name:'안건이 무엇인지 물어본다.',desc:'회의의 안건을 물어본다.',kind:'meetingAgenda'},{name:'비켜줄 수 있는지 묻는다.',desc:'회의가 끝나야 길을 비켜줄 수 있다고 한다.',kind:'meetingEndless'},...(run.factionChoice==='르누아르'?[{name:'자신의 소속을 밝힌다.',desc:'르누아르 소속임을 밝힌다.',kind:'meetingRenoir'}]:[])]};renderExplore();return;
+ }
+ if(a.kind==='meetingAgenda'){
+  run.event={title:'안건',text:`"안건 하나. 누가 겉이고 누가 안감인가."
+"안건 둘. 누가 오른팔이고 누가 왼팔인가."
+"음음, 좋은 안건이야. 회의록에 적어 놔야지."
+
+왠지 가까이 가면 안될 것 같다.`,actions:[{name:'무시하고 지나간다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};renderExplore();return;
+ }
+ if(a.kind==='meetingEndless'){
+  run.event={title:'회의가 끝나지 않아!',text:`"회의? 아직! 안 끝났어."
+"오른팔이 반대표를 던졌고..."
+"겉은 안감을 못 이겼거든."
+
+"회의가 끝나기 전에는 비켜줄 수 없어"
+"회의, 회의가 끝나지 않아!"
+
+"언제? 언제더라."
+"시작이 언제였고 끝이 언제지?"
+
+"아, 그래. 안건 셋. 누가 서기이고 누가 발표자인가."
+"음음, 좋은 안건이야. 역시 회의록에 적어 놔야겠어."
+
+아무래도 당분간 회의가 끝날 일은 없어보인다.`,actions:[{name:'무시하고 지나간다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};renderExplore();return;
+ }
+ if(a.kind==='meetingRenoir'){
+  run.meetingRoute='feltFlannel';
+  run.event={title:'펠트와 플라넬',text:`"투피스, 저자들은 르누아르다."
+"너희는 둘이었다. 자, 이제 회의가 끝나지 않았나?"
+
+"너, 저기 있네? 여태 내 안에 있는 줄 알았는데."
+"너, 거기 있네? 여태 내 밖에 있는 줄 알았는데."
+
+"안건이 끝났어, 드디어 끝났어."
+"그래, 두명... 우리는 두명이었어."
+
+모처럼 잘 해결된 것 같다.`,actions:[{name:'르누아르 점원을 따라 안쪽으로 들어간다.',desc:'르누아르 메종으로 향한다.',kind:'meetingMaison'}]};renderExplore();return;
+ }
+ if(a.kind==='meetingMaison'){
+  if(run.meetingRoute!=='feltFlannel')return;
+  if(!run.items.includes('renoirMaisonScarf')){
+   run.items.push('renoirMaisonScarf');applyItemStats();
+   run.logs.push('르누아르 메종 목도리 획득 · 전투 시작 시 보호막 3');renderInventory();
+  }
+  run.event={title:'르누아르 메종',text:`"...그래서... 그것들 중 일부는 안쪽에 계속 틀어박혀 있다는데..."
+"...그래, 백화점이 무너지는 것은 시간문제다."
+"원래부터 제정신이 아닌 놈들이었지만 더욱 미쳐가는..."
+"하지만 그게 정말일까? 그것들이 만약..."
+
+"아, 귀한 손님을 두고 실례를 범했군."
+"여기는 르누아르 메종. 보다시피 귀한 옷을 판매하는 곳이지."
+"뭐라도 하나 걸치게나"
+
+르누아르 메종 목도리를 획득했다.`,actions:[{name:'확인',desc:'르누아르 메종을 나선다.',kind:'pass'}]};renderExplore();return;
+ }
   if(a.kind==='sewingApproach'){run.event={title:'가위질 소리',text:'사방에는 실타래와 오려진 천 조각이 걸려 있었고 그 한복판에는 누군가가 규칙적으로 팔을 오르내리며 무언가를 깁고 있었다.\n\n"...어깨선이 조금 쳐졌고, 소매는 한 뼘쯤 짧구나. 그래, 손볼 데가 많은 이방인이야. 무얼 고치러 왔니?"\n\n"나는 아네트, 수선사 아네트란다. 너희는... 물을 필요도 없이 이방인들이겠구나."',actions:[{name:'옷을 구매할 수 있을지 물어본다.',desc:'',kind:'sewingFabric'},{name:'가위를 얻을 수 있냐고 묻는다.',desc:'',kind:'sewingScissors'}]};renderExplore();return;}
  if(a.kind==='sewingFabric'){if(!run.items.includes('tailorFabric')){run.items.push('tailorFabric');applyItemStats();run.logs.push('수선실에서 파는 천 획득 · 체력 +1');renderInventory();}run.event={title:'가위질 소리',text:'"여긴 다른 매장처럼 화려한 옷을 파는 곳이 아니란다. 완성된 것을 걸고 뽐내는 자리가 아니거든."\n\n"나는 묵묵히 천을 깁고 손볼 뿐이지."\n\n"그래도 너희에게 쓸모 있을 만한 건 팔고 있어. 웬만해선 해지지 않는 두꺼운 원단은 어떠니?"\n\n"기울 것이 필요할 때도 내게로 찾아와. 백화점에서 내 손끝으로 엮어낼 수 없는 원단은 존재하지 않거든"\n\n수선실에서 파는 천을 획득했다.',actions:[{name:'계속한다.',desc:'',kind:'pass'}]};renderExplore();return;}
  if(a.kind==='sewingScissors'){if(run.factionChoice==='르누아르'){if(!run.items.includes('sewingScissors')){run.items.push('sewingScissors');applyItemStats();run.logs.push('재봉 가위 획득 · 공격력 +2');renderInventory();}run.event={title:'가위질 소리',text:'"무언가를 자르고 싶은 열망으로 가득찬 눈이야. 마음에 들어."\n\n"가위는... 보다시피 있어."\n\n재봉 가위를 획득했다.',actions:[{name:'계속한다.',desc:'',kind:'pass'}]};}else{run.event={title:'가위질 소리',text:'"...내 가위는 진열대에 걸어두는 물건은 아니야. 난 아무에게나 날을 내어주지 않거든."\n\n"무언가를 자르고 싶은 눈을 보이는 고객에게만 내어주지. 이를테면, 내게 원단을 지어달라 찾아오는 오랜 고객, 르누아르 같은."\n\n지금으로썬 진전이 없어보인다.',actions:[{name:'계속한다.',desc:'',kind:'pass'}]};}renderExplore();return;}
