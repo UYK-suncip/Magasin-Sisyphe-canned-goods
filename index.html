@@ -274,7 +274,7 @@ function startCheckDiceRoll(){
  checkDiceRollTimer=window.setInterval(roll,18);
 }
 function stopCheckDiceRoll(){if(checkDiceRollTimer){clearInterval(checkDiceRollTimer);checkDiceRollTimer=null}}
-let eventResultRevealTimer=null;const eventResultModalNode=$('eventResultModal'),eventResultCardNode=$('eventResultCard');if(eventResultModalNode&&eventResultCardNode){new MutationObserver(()=>{if(!eventResultModalNode.classList.contains('hidden')){eventResultCardNode.classList.remove('result-ready');clearTimeout(eventResultRevealTimer);eventResultRevealTimer=setTimeout(()=>{if(!eventResultModalNode.classList.contains('hidden'))eventResultCardNode.classList.add('result-ready');},300);}else{clearTimeout(eventResultRevealTimer);eventResultCardNode.classList.remove('result-ready');}}).observe(eventResultModalNode,{attributes:true,attributeFilter:['class']});}
+let eventResultRevealTimer=null;const eventResultModalNode=$('eventResultModal'),eventResultCardNode=$('eventResultCard');if(eventResultModalNode&&eventResultCardNode){new MutationObserver(()=>{if(!eventResultModalNode.classList.contains('hidden')){eventResultCardNode.classList.remove('result-ready');clearTimeout(eventResultRevealTimer);eventResultRevealTimer=setTimeout(()=>{if(!eventResultModalNode.classList.contains('hidden'))eventResultCardNode.classList.add('result-ready');},500);}else{clearTimeout(eventResultRevealTimer);eventResultCardNode.classList.remove('result-ready');}}).observe(eventResultModalNode,{attributes:true,attributeFilter:['class']});}
 
 const seasonNames=['스트라이프','파이톤','헤링본','트위드','샤무드','스웨이드','누벅','벨벳','새틴','태피터','오간자','데님','코듀로이','플란넬','트윌','자카드','체크','하운즈투스','글렌체크','핀스트라이프','도비','캔버스','그레인','페블','크링클'];
 let seasonNameOrder=[];function shuffleSeasonNames(){seasonNameOrder=[...seasonNames];for(let i=seasonNameOrder.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[seasonNameOrder[i],seasonNameOrder[j]]=[seasonNameOrder[j],seasonNameOrder[i]]}}
@@ -702,7 +702,7 @@ function resolveExploreAction(i){
   }
   run.logs.push(`${ev.title} · ${check.formula} · ${success?'성공':'실패'} · ${resultText.replace(/\\n/g,' ')}`);
   $('eventResultCard').classList.remove('success','failure');$('eventResultTitle').textContent='판정 진행 중…';$('eventResultText').textContent='주사위가 멈출 때까지 기다려주세요.';$('checkDice').className='check-dice rolling';$('checkDice').textContent='—';$('checkDiceOutcome').textContent='주사위를 굴리는 중…';$('eventResultModal').classList.remove('hidden');startCheckDiceRoll();
-  window.setTimeout(()=>{stopCheckDiceRoll();if(window.sizifSfx)window.sizifSfx('revolver');$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;$('checkDice').className='check-dice '+(success?'success':'failure');$('checkDice').textContent=String(check.total).padStart(2,'0');$('checkDiceOutcome').className='check-dice-outcome '+(success?'success':'failure');$('checkDiceOutcome').textContent=`${check.formula} · ${success?'성공':'실패'} (${threshold} 이상)`;},280);
+  window.setTimeout(()=>{stopCheckDiceRoll();if(window.sizifSfx)window.sizifSfx('revolver');$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;$('checkDice').className='check-dice '+(success?'success':'failure');$('checkDice').textContent=String(check.total).padStart(2,'0');$('checkDiceOutcome').className='check-dice-outcome '+(success?'success':'failure');$('checkDiceOutcome').textContent=`${check.formula} · ${success?'성공':'실패'} (${threshold} 이상)`;},480);
   $('eventResultConfirm').onclick=()=>{$('eventResultModal').classList.add('hidden');stopCheckDiceRoll();if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}advanceExploreTurn();};return;
  }
  if(a.kind==='vendingChicken'||a.kind==='vendingHotdog'||a.kind==='vendingEnergy'){
@@ -814,7 +814,7 @@ ${closureData?.maisonText||'[회의의 종결 연동 텍스트 더미]'}`,action
    $('eventResultText').textContent=`판정 결과: ${success?'성공':'실패'}`;
    $('eventResultConfirm').disabled=false;
    if(window.sizifSfx)window.sizifSfx(success?'success':'failure');
-  },280);
+  },480);
   $('eventResultConfirm').onclick=()=>{
    $('eventResultModal').classList.add('hidden');
    $('eventResultConfirm').disabled=false;
@@ -835,7 +835,7 @@ ${closureData?.maisonText||'[회의의 종결 연동 텍스트 더미]'}`,action
  run.logs.push(`추락 · ${check.formula} · ${success?'성공':'실패'} · ${success?'눈알 +120, 체력 -3':'체력 -15'}`);
  $('checkDice').className='check-dice rolling';startCheckDiceRoll();$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='주사위를 굴리는 중…';
  $('eventResultCard').classList.remove('success','failure');$('eventResultTitle').textContent='판정 진행 중…';$('eventResultText').textContent='주사위가 멈출 때까지 기다려주세요.';$('eventResultModal').classList.remove('hidden');
- window.setTimeout(()=>{stopCheckDiceRoll();if(window.sizifSfx)window.sizifSfx('revolver');$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} · ${success?'성공 (40 이상)':'실패 (39 이하)'}`;},280);
+ window.setTimeout(()=>{stopCheckDiceRoll();if(window.sizifSfx)window.sizifSfx('revolver');$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} · ${success?'성공 (40 이상)':'실패 (39 이하)'}`;},480);
  $('eventResultConfirm').onclick=()=>{$('eventResultModal').classList.add('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3><p>탐색을 처음부터 다시 시작한다.</p></button>';$('restartExplore').onclick=startExploration;return;}advanceExploreTurn();};
  return;
 }
@@ -861,7 +861,7 @@ if(a.kind==='outdatedAsk'){
   $('eventResultText').textContent='주사위가 멈출 때까지 기다려주세요.';
   $('eventResultCard').classList.remove('success','failure');
   $('eventResultModal').classList.remove('hidden');
-  window.setTimeout(()=>{stopCheckDiceRoll();if(window.sizifSfx)window.sizifSfx('revolver');$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} / 100 · ${success?'성공 (20 이상)':'실패 (19 이하)'}`;},280);
+  window.setTimeout(()=>{stopCheckDiceRoll();if(window.sizifSfx)window.sizifSfx('revolver');$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total).padStart(2,'0');outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} / 100 · ${success?'성공 (20 이상)':'실패 (19 이하)'}`;},480);
   $('eventResultConfirm').onclick=()=>{
    $('eventResultModal').classList.add('hidden');
    if(state.p.hp<=0){
@@ -881,7 +881,7 @@ if(a.kind==='outdatedAsk'){
   let resultText;if(success){run.rank=(run.rank||0)+1;resultText=`르루주 점원은 당신을 잠시 바라보다가 시선을 거둔다. 당신은 명품관 안쪽에서 쓸 만한 물건을 발견해 챙겼다.\\n\\n등급 +1.`;if(!run.items.includes('rougeBoutiqueToken')){run.items.push('rougeBoutiqueToken');applyItemStats();resultText+='\\n르루주 명품관의 공사 잔여품을 획득했다.';}}else{state.p.hp=Math.max(0,state.p.hp-10);resultText='점원들이 당신을 공사 구역 밖으로 밀어낸다.\\n\\n체력 10 감소.';}
   run.logs.push(`르루주 명품관 · ${label} ${success?'성공':'실패'} (${check.formula})`);
   $('checkDice').className='check-dice rolling';startCheckDiceRoll();$('checkDiceOutcome').className='check-dice-outcome';$('checkDiceOutcome').textContent='판정을 진행하는 중…';$('eventResultCard').classList.remove('success','failure');$('eventResultTitle').textContent='판정 진행 중…';$('eventResultText').textContent='주사위가 멈출 때까지 기다려주세요.';$('eventResultModal').classList.remove('hidden');
-  window.setTimeout(()=>{stopCheckDiceRoll();if(window.sizifSfx)window.sizifSfx('revolver');$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total);outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} · ${success?'성공':'실패'}`;},280);
+  window.setTimeout(()=>{stopCheckDiceRoll();if(window.sizifSfx)window.sizifSfx('revolver');$('eventResultCard').classList.toggle('success',success);$('eventResultCard').classList.toggle('failure',!success);$('eventResultTitle').textContent=success?'판정 성공':'판정 실패';$('eventResultText').textContent=resultText;const die=$('checkDice'),outcome=$('checkDiceOutcome');die.className='check-dice '+(success?'success':'failure');die.textContent=String(total);outcome.className='check-dice-outcome '+(success?'success':'failure');outcome.textContent=`${check.formula} · ${success?'성공':'실패'}`;},480);
   $('eventResultConfirm').onclick=()=>{$('eventResultModal').classList.add('hidden');if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3><p>탐색을 처음부터 다시 시작한다.</p></button>';$('restartExplore').onclick=startExploration;return;}advanceExploreTurn();};
   return;
  }
@@ -1084,7 +1084,7 @@ $('openDeckLobby').onclick=()=>openDeckManager(false);$('openDeckExplore').oncli
   else if(name==='success'){tone(523,t,.13,'sine',.045,660);tone(784,t+.11,.2,'sine',.04,1047)}
   else if(name==='failure'){tone(260,t,.18,'triangle',.04,190);tone(175,t+.13,.28,'sawtooth',.025,95)}
   else if(name==='hit'){noise(t,.12,.065,1100);tone(115,t,.14,'sine',.045,55)}
-  else if(name==='evade'){noise(t,.14,.085,2600);tone(1450,t,.09,'sine',.012,850)}
+  else if(name==='evade'){noise(t,.18,.14,1050);tone(190,t,.13,'triangle',.045,65);tone(620,t+.025,.09,'sine',.012,260)}
   else if(name==='victory'){tone(392,t,.12,'sine',.04);tone(523,t+.12,.12,'sine',.04);tone(659,t+.24,.25,'sine',.04)}
   else if(name==='defeat'){tone(330,t,.18,'triangle',.04,220);tone(220,t+.16,.3,'triangle',.035,110)}
  }
