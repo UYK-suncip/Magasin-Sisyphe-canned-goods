@@ -297,8 +297,8 @@ const denimWalletEnemy={name:'데님 지갑',hp:31,max:31,speed:10,speedDice:{co
 const leatherFatherEnemy={name:'가죽아비',hp:105,max:105,speed:1,speedDice:{count:1,sides:1},dodgeDice:{count:0,sides:0},alwaysLast:true,keywords:['마네킹'],caption:'아래쪽 복도를 지키듯 묵묵히 서 있다.',portrait:'♟'};
 const spinningMobileEnemy={name:'빙글 모빌',hp:70,max:70,speed:4,speedDice:{count:2,sides:2},dodgeDice:{count:1,sides:5},keywords:['마네킹'],caption:'빙글빙글 회전하며 길을 가로막는다.',portrait:'✥'};
 const denimWalletDeck=[{id:'denim_wallet_bash',name:'몸통박치기',cost:3,power:0,dice:4,rolls:1,desc:'1d4'}];
-const leatherFatherDeck=[{id:'leather_father_stab',name:'찌르기',cost:0,power:0,dice:4,rolls:1,desc:'1d4'},{id:'leather_father_sweep',name:'휩쓸기',power:3,dice:5,rolls:1,desc:'3+1d5 · 출혈 2 부여 · 충전 7 소모 시 다음 턴 취약 1 부여',apply:{출혈:2},costCharge:7,applyNextVulnerable:1,cost:3}];
-const spinningMobileDeck=[{id:'spinning_mobile_stab',name:'찌르기',cost:0,power:0,dice:4,rolls:1,desc:'1d4'},{id:'spinning_mobile_charge',name:'돌진',power:1,dice:4,rolls:1,desc:'1+1d4 · 적중 시 다음 턴 신속 2 획득',hitKwNext:{신속:2},cost:2},{id:'spinning_mobile_pierce',name:'뚫어내기',power:2,dice:4,rolls:1,desc:'2+1d4 · 속도가 대상보다 빠르면 1d2 추가 · 속도 차이 4 이상이면 최종 위력 +2',speedPierce:true,cost:3}];
+const leatherFatherDeck=[{id:'leather_father_stab',name:'찌르기',cost:0,power:0,dice:4,rolls:1,desc:'1d4'},{id:'leather_father_sweep',name:'휩쓸기',cost:3,power:3,dice:5,rolls:1,desc:'3+1d5 · 출혈 2 부여 · 충전 7 소모 시 다음 턴 취약 1 부여',apply:{출혈:2},costCharge:7,applyNextVulnerable:1,cost:3}];
+const spinningMobileDeck=[{id:'spinning_mobile_stab',name:'찌르기',cost:0,power:0,dice:4,rolls:1,desc:'1d4'},{id:'spinning_mobile_charge',name:'돌진',cost:2,power:1,dice:4,rolls:1,desc:'1+1d4 · 적중 시 다음 턴 신속 2 획득',hitKwNext:{신속:2},cost:2},{id:'spinning_mobile_pierce',name:'뚫어내기',cost:3,power:2,dice:4,rolls:1,desc:'2+1d4 · 속도가 대상보다 빠르면 1d2 추가 · 속도 차이 4 이상이면 최종 위력 +2',speedPierce:true,cost:3}];
 const rukakiDeck=[
 {id:'rukaki_hit',name:'때리기',cost:0,power:1,dice:2,rolls:1,desc:'위력 1 + 1d2 · 진동 1 부여',apply:{진동:1}},
 {id:'rukaki_slam',name:'내리찍기',cost:1,power:1,dice:3,rolls:1,desc:'위력 1 + 1d3 · 진동 1 부여 · 진동 폭발 · 출혈 1 부여',kind:'burst',apply:{진동:1,출혈:1}}
