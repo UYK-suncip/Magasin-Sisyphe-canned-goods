@@ -500,7 +500,7 @@ async function usePlayerCard(originalCard){
 }
 function enemyActionCount(){if(state.enemyType==='pincushionGlove')return 5;if(state.enemyType==='aliune')return 3;if(state.enemyType==='spinningMobile')return 3;const isRougeDirector=state.enemyType==='rougeDirector'||state.enemyName==='르루주 브랜드 디렉터';if(isRougeDirector)return (Number(state.e?.kw?.['폭주[데카당스]'])||0)>0?5:4;if(['rukaki','leatherGlove','spinningMobile','mimosa','gustav','qualia','perfumer','rougeSunClerk','carefulRenoirClerk','renoirSunClerk','courbet'].includes(state.enemyType))return 2+(state.sunshineExtraAction?1:0);return 1}
 const perfumerDeck=[{id:'perfumer_scent',name:'조향',power:0,dice:1,rolls:1,desc:'비공격 스킬 · 향 3 획득',kind:'perfumerSupport',effect:{향:3}},{id:'perfumer_stench',name:'코를 찌르는 향취',power:1,dice:3,rolls:1,desc:'1+1d3 · 악취 2 부여 · 대상 회피 최종위력 최대 5',apply:{악취:2},dodgeMax:5},{id:'perfumer_spread',name:'앵 파흐팽 키 스 흐팡',power:3,dice:3,rolls:3,desc:'3+3d3 · 사용 시 향 3 · 적중 시 악취 5',useKw:{향:3},apply:{악취:5}},{id:'perfumer_pain',name:'고통의 향기',power:1,dice:3,rolls:6,desc:'1+6d3 · 르 둘뢰르 전부 소모, 소모량당 피해량 +5%',painPerfume:true}];
-function bossCard(){if(state.enemyType==='denimWallet')return denimWalletDeck[0];if(state.enemyType==='leatherFather')return leatherFatherDeck[Math.floor(Math.random()*leatherFatherDeck.length)];if(state.enemyType==='spinningMobile')return spinningMobileDeck[Math.floor(Math.random()*spinningMobileDeck.length)];if(state.enemyType==='perfumer'){if((Number(state.e.kw.르둘뢰르)||0)>=10){state.perfumerEquipped=false;return {...perfumerDeck[3],painSpent:Math.max(0,Number(state.e.kw.르둘뢰르)||0)};}return perfumerDeck[Math.random()<0.22?0:Math.random()<0.58?1:2];}if(state.enemyType==='rougeDirector'){const c=rougeDirectorCard();return c.directorConsume?{...c,reuse:Math.min(7,Math.floor((state.e.kw.맥동||0)/3))}:c;}if(state.enemyType==='rukaki')return rukakiDeck[Math.floor(Math.random()*rukakiDeck.length)];if(state.enemyType==='leatherGlove')return leatherGloveDeck[Math.floor(Math.random()*leatherGloveDeck.length)];if(state.enemyType==='pincushionGlove')return pincushionGloveDeck[0];if(state.enemyType==='mimosa'||state.enemyType==='gustav'||state.enemyType==='qualia'||state.enemyType==='rougeSunClerk'||state.enemyType==='carefulRenoirClerk'||state.enemyType==='renoirSunClerk'||state.enemyType==='courbet'){const deck=enemyDecks[state.enemyType].flatMap(c=>Array(c.copies||1).fill(c));return deck[Math.floor(Math.random()*deck.length)]}if(state.enemyType==='test')return testEnemyDeck[Math.floor(Math.random()*testEnemyDeck.length)];let target=state.p;if((target.kw.잔향||0)>=30)return bossDeck[3];return bossDeck[Math.floor(Math.random()*3)]}
+function bossCard(){if(state.enemyType==='denimWallet')return denimWalletDeck[0];if(state.enemyType==='leatherFather')return leatherFatherDeck[Math.floor(Math.random()*leatherFatherDeck.length)];if(state.enemyType==='spinningMobile')return spinningMobileDeck[Math.floor(Math.random()*spinningMobileDeck.length)];if(state.enemyType==='perfumer'){if((Number(state.e.kw.르둘뢰르)||0)>=10){state.perfumerEquipped=false;return {...perfumerDeck[3],painSpent:Math.max(0,Number(state.e.kw.르둘뢰르)||0)};}return perfumerDeck[Math.random()<0.22?0:Math.random()<0.58?1:2];}if(state.enemyType==='rougeDirector'){const c=rougeDirectorCard();return c.directorConsume?{...c,reuse:Math.min(7,Math.floor((state.e.kw.맥동||0)/3))}:c;}if(state.enemyType==='rukaki')return rukakiDeck[Math.floor(Math.random()*rukakiDeck.length)];if(state.enemyType==='leatherGlove')return leatherGloveDeck[Math.floor(Math.random()*leatherGloveDeck.length)];if(state.enemyType==='pincushionGlove')return pincushionGloveDeck[0];if(state.enemyType==='mimosa'||state.enemyType==='gustav'||state.enemyType==='qualia'||state.enemyType==='rougeSunClerk'||state.enemyType==='carefulRenoirClerk'||state.enemyType==='renoirSunClerk'||state.enemyType==='courbet'){const deck=enemyDecks[state.enemyType].flatMap(c=>Array(c.copies||1).fill(c));return deck[Math.floor(Math.random()*deck.length)]}if(state.enemyType==='test')return testEnemyDeck[Math.floor(Math.random()*testEnemyDeck.length)];if(state.enemyType==='aliune'){let target=state.p;if((target.kw.잔향||0)>=30)return bossDeck[3];return bossDeck[Math.floor(Math.random()*3)]}return {id:'unknown_enemy_basic',name:'기본 공격',power:1,dice:3,rolls:1,desc:'1+1d3'}}
 const testEnemyDeck=[
 {id:'sweep',name:'바닥 쓸기',power:4,dice:6,rolls:1,desc:'위력 4 + 1d6 · 출혈 1 부여',apply:{출혈:1}},
 {id:'shove',name:'무거운 손수레',power:6,dice:4,rolls:1,desc:'위력 6 + 1d4 · 진동 2 부여',apply:{진동:2}},
@@ -592,6 +592,11 @@ function getFloor3LocationEvent(){
  run.floor3EventSeen=run.floor3EventSeen||{};
  if(run.floor3EventSeen[seenKey])return {title:floor3Locations[location]?.name||'3층',text:'이번 턴에 이 장소에서 확인할 수 있는 일은 더 이상 없는 것 같다.',actions:[{name:'계속한다.',desc:'탐색을 이어간다.',kind:'continue'}]};
  run.floor3EventSeen[seenKey]=true;
+ if(location==='lowerCorridor'&&Math.random()<0.22){
+  const enemy=Math.random()<0.5?'leatherFather':'spinningMobile';
+  const name=enemy==='leatherFather'?'가죽아비':'빙글 모빌';
+  return {combat:true,title:name+'의 출현',text:'아래쪽 복도에서 무언가 다가온다.',actions:[{name:name+'와 전투한다',desc:'아래쪽 복도를 막아선 적을 상대한다.',kind:'combat',enemy}]};
+ }
  if(eventKey==='tailorIntro')return {title:'어디선가 들려오는 가위질 소리',text:'....어디서인가 가위질 소리가 들려온다.',actions:[{name:'가위질 소리가 들려오는 곳으로 향한다.',desc:'수선실 안쪽으로 다가간다.',kind:'sewingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않음',kind:'pass'}]};
  if(eventKey==='meetingIntro')return {title:'끝나지 않는 회의',text:'알록달록한 무언가가 눈에 띈다.\\n저자들에게 매장 안내나 눈알을 받을 수 있지 않을까?',actions:[{name:'다가가본다.',desc:'저자들에게 다가간다.',kind:'meetingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};
  const place=floor3Locations[location]?.name||'장소';
@@ -630,13 +635,8 @@ function renderExplore(){
  $('eventText').textContent=ev.text||'복도를 따라 이동한다.';
  $('eventHint').textContent=ev.combat?'복도를 지나려면 전투에서 승리해야 한다.':'사건이 발생했다. 아래 행동 중 하나를 선택하자.';
  const actions=$('exploreActions');
- if(ev.combat){
-   actions.innerHTML='<button class="card" id="fightRukaki"><h3>르카키와 전투한다</h3><p>복도를 막아선 점원을 상대한다.</p></button>';
-   $('fightRukaki').onclick=()=>startRukakiCombat(true);
- }else{
-   actions.innerHTML=(ev.actions||[]).map((a,i)=>`<button class="card" title="${String(a.tooltip||a.desc||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" data-explore-action="${i}"><h3>${a.name}</h3><p>${a.desc||''}</p></button>`).join('');
-   actions.querySelectorAll('[data-explore-action]').forEach(b=>b.onclick=()=>resolveExploreAction(Number(b.dataset.exploreAction)));
- }
+ actions.innerHTML=(ev.actions||[]).map((a,i)=>`<button class="card" title="${String(a.tooltip||a.desc||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" data-explore-action="${i}"><h3>${a.name}</h3><p>${a.desc||''}</p></button>`).join('');
+ actions.querySelectorAll('[data-explore-action]').forEach(b=>b.onclick=()=>resolveExploreAction(Number(b.dataset.exploreAction)));
  $('seasonLog').innerHTML=(run.logs||[]).slice(-12).reverse().map(x=>`<div class="logline">${String(x).replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`).join('')||'<div class="meta">아직 기록이 없습니다.</div>';
  if(!$('inventoryModal').classList.contains('hidden'))renderInventory();
 }
