@@ -250,7 +250,7 @@ function cardArchiveHasKeyword(c,keyword){
  return source.includes(keyword);
 }
 function cardArchiveHasNoKeyword(c){
- return !["출혈","진동","파열","침잠","충전","맥동","보존"].some(k=>cardArchiveHasKeyword(c,k));
+ return !["출혈","진동","파열","침잠","충전","맥동","보존","화상"].some(k=>cardArchiveHasKeyword(c,k));
 }
 function renderDeckManager(){
  const list=$("deckCardList");if(!list)return;
@@ -260,7 +260,7 @@ function renderDeckManager(){
  if(filters){
   filters.classList.toggle("hidden",!deckArchiveView);
   if(deckArchiveView){
-   const names=["전체","노키워드","출혈","진동","파열","침잠","충전","맥동","보존"];
+   const names=["전체","노키워드","출혈","진동","파열","침잠","충전","맥동","보존","화상"];
    filters.innerHTML=names.map(n=>'<button type="button" data-archive-keyword="'+n+'" class="'+(deckArchiveKeywordFilter===n?'active':'')+'">'+n+'</button>').join("");
    filters.querySelectorAll("[data-archive-keyword]").forEach(btn=>btn.onclick=()=>{deckArchiveKeywordFilter=btn.dataset.archiveKeyword;renderDeckManager();});
   }
