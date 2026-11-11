@@ -245,15 +245,17 @@ function addModeCards(cards,mode){
  let added=0;for(const c of cards)if(queueDeckCard(c,`${mode} 모드 카드`,playerDeck,playerCardArchive))added++;if(mode==='renoir')renoirModeEnabled=true;const n=$('modeNotice');if(n)n.textContent=added?'모드 활성화 · 덱에 카드 '+added+'장 추가 또는 교체 선택 대기':'모드 활성화 · 해당 카드가 이미 덱에 있습니다.';$(mode==='tester'?'testerMode':'renoirMode').textContent=mode==='tester'?'테스터 모드 ✓':'르누아르 모드 (임시) ✓';$(mode==='tester'?'testerMode':'renoirMode').classList.add('mode-added');}
 function escapeCardText(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function allAvailableCards(){const byId=new Map();const enemyCards=[...bossDeck,...Object.values(enemyDecks).flat(),...leatherGloveDeck,...pincushionGloveDeck,...rukakiDeck,...perfumerDeck,...rougeDirectorDeck];for(const c of [...playerDeck,...testerCards,...renoirCards,...chefCards,...enemyCards])if(c&&c.id&&!byId.has(c.id))byId.set(c.id,c);return [...byId.values()];}
-function cardArchiveKeyword(c){
- const source=[c.name,c.desc,...Object.keys(c.apply||{}),...Object.keys(c.hitKw||{}),...Object.keys(c.useKw||{}),...Object.keys(c.onUse||{})].join(" ");
- for(const keyword of ["출혈","진동","파열","침잠","충전","맥동","보존"])if(source.includes(keyword))return keyword;
- return "노키워드";
+function cardArchiveHasKeyword(c,keyword){
+ const source=JSON.stringify(c||{});
+ return source.includes(keyword);
+}
+function cardArchiveHasNoKeyword(c){
+ return !["출혈","진동","파열","침잠","충전","맥동","보존"].some(k=>cardArchiveHasKeyword(c,k));
 }
 function renderDeckManager(){
  const list=$("deckCardList");if(!list)return;
  const deck=activeCombatDeck(),archive=activeCardArchive();
- const shown=deckArchiveView?archive.filter(c=>deckArchiveKeywordFilter==="전체"||cardArchiveKeyword(c)===deckArchiveKeywordFilter):deck;
+ const shown=deckArchiveView?archive.filter(c=>deckArchiveKeywordFilter==="전체"||(deckArchiveKeywordFilter==="노키워드"?cardArchiveHasNoKeyword(c):cardArchiveHasKeyword(c,deckArchiveKeywordFilter))):deck;
  const filters=$("deckArchiveFilters");
  if(filters){
   filters.classList.toggle("hidden",!deckArchiveView);
