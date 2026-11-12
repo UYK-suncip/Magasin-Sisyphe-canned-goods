@@ -718,7 +718,9 @@ function nextExploreEvent(){
  run.seasonName=getSeasonName();if(run.turn===1)initializeSeasonWeather();const finalTurn=run.turn>=run.length;let key=null;
  if(run.floor===1&&run.turn===run.length-1&&!run.seasonClosingNotice){run.seasonClosingNotice=true;showAnnouncement(`고객 여러분께 안내말씀 드립니다. 곧 ${run.seasonName} 시즌이 마감됩니다. 다음 시즌에도 보다 나은 경험을 고객 여러분께 드릴 수 있도록, 최선을 다하겠습니다. 감사합니다.`);}
  if(run.turn===1)run.seasonClosingNotice=false;
- if([1,3,4].includes(run.floor)&&run.turn===1&&run.seasonCount>0&&!run.shoppingEventsSeen[`${run.floor}-${run.seasonCount}`]){run.shoppingEventsSeen[`${run.floor}-${run.seasonCount}`]=true;run.event=makeBrandShopEvent();return;}
+ const floor3Location=run.location||'corridor';const floor3EventKey=run.floor===3?floor3LocationEventData[floor3Location]?.[`${run.season}-${run.turn}`]:null;const floor3SeenKey=`${run.seasonCount||0}-${run.season}-${run.turn}-${floor3Location}`;
+ if(run.floor===3&&floor3EventKey&&!run.floor3EventSeen?.[floor3SeenKey]){run.event=getFloor3LocationEvent();return;}
+ if([1,3,4].includes(run.floor)&&(run.turn===1||run.floor===3)&&run.seasonCount>0&&!run.shoppingEventsSeen[`${run.floor}-${run.seasonCount}`]){run.shoppingEventsSeen[`${run.floor}-${run.seasonCount}`]=true;run.event=makeBrandShopEvent();return;}
  if(run.floor===3){run.event=getFloor3LocationEvent();return;}
  if(run.floor===1&&finalTurn&&(key=specialShopKey())&&!run.shopIntroduced[key]){if(!run.shopDefeated[key]){run.shopIntroduced[key]=true;run.seasonShops[run.season]=key;if(key==='rouge')run.qualiaShopEncountered=true;if(key==='renoir')run.renoirShopEncountered=true;run.event=makeShopEvent(key);return;}key=null;}
  if(run.floor===1&&!hasPassive('이방인')&&!run.duboisEventSeen&&Math.random()<0.035){run.duboisEventSeen=true;run.event={title:'화상 흉터의 이방인',text:'"아, 안녕하세요!"\n\n얼굴에 화상 흉터가 있는 누군가가 당신에게 말을 걸어왔다.\n\n행색을 보니 이방인인것같다.\n\n"전 시지프형을 받고 이곳에 왔는데 여기가 뭐하는 곳인지 모르겠어요."\n\n"보통 감옥은 간수도 있고 갑갑하지 않나요? 이렇게 자유롭게 돌아다닐 수있는 감옥은 처음봐요."\n\n"그래서 말인데 이곳이 어떤곳인지 설명 좀 해주실수있나요?"\n\n... 말이 좀 많은 것 같다.',actions:[{name:'설명해준다.',desc:'일반 판정 · d100 · 70 이상 성공',tooltip:'d100 판정에 이방인 보정이 적용됩니다. 최종 판정값 70 이상이면 성공합니다.',kind:'duboisExplain'},{name:'옷감으로 써도 되냐고 물어본다.',desc:'경험치 5 획득',kind:'duboisFabric'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};return;}
@@ -775,7 +777,6 @@ function resolveExploreAction(i){
   run.logs.push(`식품 자판기 · ${a.name} · ${resultText.replace(/\\n/g,' ')}`);run.event={title:'식품 자판기',text:resultText,actions:[{name:'계속한다.',desc:'자판기를 떠난다.',kind:'continue'}]};renderExplore();return;
  }
  if(a.kind==='meetingApproach'){
-  run.floor3MovementUnlocked=true;renderFloorLocation();
   run.event={title:'끝나지 않는 회의',text:`뒤쪽 매장으로 들어가는 길을 막고 있는 것 같다.
 
 "이곳은 회의!, 회의가 가득해."
@@ -950,7 +951,7 @@ if(a.kind==='outdatedAsk'){
  if(a.kind==='vending'){if(!run.items.includes('energyDrink')){run.items.push('energyDrink');applyItemStats();run.logs.push('자판기에서 에너지 음료 획득 · 최종 위력 +1');}else{run.logs.push('자판기에서 에너지 음료를 발견했지만 이미 보유 중이라 지나쳤다.');}advanceExploreTurn();return;}
  if(a.kind==='announcement'){nextExploreEvent();renderExplore();return;}
  if(a.kind==='continueFloor'){ run.floor=3;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.location='corridor';run.floor3MovementUnlocked=false;run.floor3EventSeen={};run.logs.push('무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자');run.logs.push('— 3층 진입 —');nextExploreEvent();renderExplore();return;}
- if(a.kind==='pass'||a.kind==='continue'){run.logs.push(`${run.seasonName} 시즌 — ${ev.title}: ${a.name}`);advanceExploreTurn();return;}
+ if(a.kind==='pass'||a.kind==='continue'){run.logs.push(`${run.seasonName} 시즌 — ${ev.title}: ${a.name}`);if(run.floor===3&&['안건','회의가 끝나지 않아!','펠트와 플라넬','르누아르 메종'].includes(ev.title)){run.floor3MovementUnlocked=true;renderFloorLocation();}advanceExploreTurn();return;}
  if(a.kind==='combat'){if(a.enemy==='denimWallet'){startNamedCombat('denimWallet',true);return;}if(a.enemy==='leatherGlove'){startNamedCombat('leatherGlove',true);return;}startNamedCombat(a.enemy,true);return;}
  const result=a.fn?a.fn():'';run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — ${ev.title}: ${a.name}. ${result}`);
  if(state.p.hp<=0){$('eventTitle').textContent='의식이 끊긴다';$('eventText').textContent='체력을 모두 잃었다. 탐색이 종료되었다.';$('exploreActions').innerHTML='<button class="card" id="restartExplore"><h3>다시 탐색</h3></button>';$('restartExplore').onclick=startExploration;return;}
