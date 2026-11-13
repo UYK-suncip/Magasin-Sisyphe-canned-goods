@@ -165,6 +165,7 @@ button:hover:not(:disabled){border-color:#d3deeb;box-shadow:0 0 10px #a9c7ed22,i
 <button id="testerMode" class="secondary" style="width:100%;margin-top:18px;border-color:#c9a85f;color:#e5c77d">테스터 모드 · 카드 추가</button>
 <button id="renoirMode" class="secondary" style="width:100%;margin-top:9px;border-color:#91c9b7;color:#91c9b7">르누아르 모드 (임시) · 카드 추가</button>
 <button id="chefMode" class="secondary" style="width:100%;margin-top:9px;border-color:#ff7045;color:#ff9b78">이게 요리라는 거예요 (수셰프 모드)</button>
+<button id="floor3Mode" class="secondary" style="width:100%;margin-top:9px;border-color:#986555;color:#a9c83a">3층으로 바로가기</button>
 <div id="modeNotice" class="meta" style="margin-top:7px;text-align:center" aria-live="polite"></div><button id="openEvents" class="secondary hidden" style="width:100%;margin-top:9px">사건 선택 후 전투</button><div id="eventPicker" class="hidden" style="margin-top:16px;text-align:left"><div class="section-title">탐색 중 마주친 사건</div><p class="meta">사건을 선택하고 행동을 고르면 효과가 적용된 뒤 알리우네 전투가 시작됩니다. 정신력·자산처럼 이 전투판에 없는 수치는 체력 또는 전투 키워드 효과로 조정했습니다.</p><div id="eventChoices" class="cards"></div><div id="eventActions" class="hidden" style="margin-top:12px"></div><button id="closeEvents" class="secondary" style="width:100%;margin-top:8px">선택 취소</button></div></section>
 
 <section id="explore" class="panel hidden" style="max-width:900px;margin:20px auto">
@@ -233,7 +234,7 @@ const chefCards=[
 {id:'chef_spacecut',name:'공간참-맛',cost:4,power:3,dice:3,rolls:2,desc:'3+2d3 · 출혈 1 · 대상 매콤매콤소스 1당 1회 재사용 · 사용 시 소스가 5 이상이면 극공간참-존맛으로 강화',apply:{출혈:1},chefSauceReuse:true,chefMode:true},
 {id:'chef_ultimate',name:'극공간참-존맛',cost:4,power:15,dice:5,rolls:3,desc:'15+3d5 · 적중 시 상대 출혈 2회 발동 · 매콤매콤소스 전부 소모 후 소모량만큼 추가 피해',apply:{},chefUltimate:true,chefMode:true}
 ];
-let testerModeEnabled=false,renoirModeEnabled=false,chefModeEnabled=false;
+let testerModeEnabled=false,renoirModeEnabled=false,chefModeEnabled=false,floor3ModeEnabled=false;
 const testerDeck=testerCards.map(c=>({...c}));
 const playerCardArchive=[];const testerCardArchive=[];let deckArchiveView=false;let deckArchiveKeywordFilter="전체";
 function activeCombatDeck(){return testerModeEnabled?testerDeck:playerDeck;}
@@ -308,7 +309,8 @@ let eventResultRevealTimer=null;const eventResultModalNode=$('eventResultModal')
 
 const seasonNames=['스트라이프','파이톤','헤링본','트위드','샤무드','스웨이드','누벅','벨벳','새틴','태피터','오간자','데님','코듀로이','플란넬','트윌','자카드','체크','하운즈투스','글렌체크','핀스트라이프','도비','캔버스','그레인','페블','크링클'];
 let seasonNameOrder=[];function shuffleSeasonNames(){seasonNameOrder=[...seasonNames];for(let i=seasonNameOrder.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[seasonNameOrder[i],seasonNameOrder[j]]=[seasonNameOrder[j],seasonNameOrder[i]]}}
-let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,rankNoticeIndex:-1,seasonShops:{},shopIntroduced:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],materials:{leatherFabric:0,renoirFabric:0,goldLeather:0},outdatedClothesEventSeen:false,welcomeEventSeen:false,seasonCount:0,shopDefeated:{},rank:0,canAscend:false,level:1,xp:0,spentEyes:0,customerRank:'토파즈'};
+if(floor3ModeEnabled==true) {let run={floor:3,season:1,turn:1,length:5,event:null,logs:[],active:false,rankNoticeIndex:-1,seasonShops:{},shopIntroduced:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],materials:{leatherFabric:0,renoirFabric:0,goldLeather:0},outdatedClothesEventSeen:false,welcomeEventSeen:false,seasonCount:0,shopDefeated:{},rank:1,canAscend:false,level:1,xp:0,spentEyes:0,customerRank:'아메시스트'};}
+else {let run={floor:1,season:1,turn:1,length:5,event:null,logs:[],active:false,rankNoticeIndex:-1,seasonShops:{},shopIntroduced:{},seasonName:'스트라이프',lastEvent:null,eyes:0,items:[],materials:{leatherFabric:0,renoirFabric:0,goldLeather:0},outdatedClothesEventSeen:false,welcomeEventSeen:false,seasonCount:0,shopDefeated:{},rank:0,canAscend:false,level:1,xp:0,spentEyes:0,customerRank:'토파즈'};}
 // 비전투 인물도 향후 이벤트·조건 분류에 사용할 수 있도록 소속 키워드를 별도 보관한다.
 const characterAffiliationKeywords={
  '아네트(수선사)':['르카키'],
@@ -647,8 +649,8 @@ function getFloor3LocationEvent(){
   return {combat:true,title:name+'의 출현',text:'아래쪽 복도에서 무언가 다가온다.',actions:[{name:name+'와 전투한다',desc:'아래쪽 복도를 막아선 적을 상대한다.',kind:'combat',enemy}]};
  }
  if(eventKey==='tailorIntro')return {title:'어디선가 들려오는 가위질 소리',text:'....어디서인가 가위질 소리가 들려온다.',actions:[{name:'가위질 소리가 들려오는 곳으로 향한다.',desc:'수선실 안쪽으로 다가간다.',kind:'sewingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않음',kind:'pass'}]};
- if(eventKey==='meetingIntro')return {title:'끝나지 않는 회의',text:'알록달록한 무언가가 눈에 띈다.\\n저자들에게 매장 안내나 눈알을 받을 수 있지 않을까?',actions:[{name:'다가가본다.',desc:'저자들에게 다가간다.',kind:'meetingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};
- if(location==='renoir'&&run.maisonUnlocked)return {shopKey:'renoirMaison',title:'르누아르 메종',text:'"여기는 르누아르 메종. 보다시피 귀한 옷을 판매하는 곳이지."\n\n"고객님의 몸을 가리고, 보완하는 옷을 준비해두었네. 천천히 둘러보게나."',actions:[{name:'상품을 둘러본다.',desc:'르누아르 메종의 의류를 구매한다.',kind:'visit'},{name:'그냥 지나간다.',desc:'이번에는 구매하지 않는다.',kind:'continue'}]};
+ if(eventKey==='meetingIntro')return {title:'끝나지 않는 회의',text:'알록달록한 무언가가 눈에 띈다.\n저자들에게 매장 안내나 눈알을 받을 수 있지 않을까?',actions:[{name:'다가가본다.',desc:'저자들에게 다가간다.',kind:'meetingApproach'},{name:'무시한다.',desc:'아무 일도 일어나지 않는다.',kind:'pass'}]};
+ if(location==='renoir'&&run.maisonUnlocked)return {shopKey:'renoirMaison',title:'르누아르 메종',text:'',actions:[{name:'상품을 둘러본다.',desc:'르누아르 메종의 의류를 구매한다.',kind:'visit'}]};
  const place=floor3Locations[location]?.name||'장소';
  return {title:place,text:`${place}을 둘러본다. 이번 턴에 정해진 별도의 사건은 없다.`,actions:[{name:'계속한다.',desc:'탐색을 이어간다.',kind:'continue'}]};
 }
