@@ -621,7 +621,7 @@ const importedEvents=[
 {id:'corridor',title:'핏자국이 남은 통로',text:'바닥에 말라붙은 핏자국이 이어진다. 벽 안쪽에서 긁는 소리가 들린다.',actions:[{name:'흔적을 조사한다',desc:'출혈 +2, 체력 2 감소',effect(){return {hp:-2,kw:{출혈:2},msg:'날카로운 파편을 주웠다. 출혈 +2, 체력 2 감소.'}}},{name:'빠르게 지나간다',desc:'25% 확률로 체력 3 감소',effect(){if(Math.random()<.25)return {hp:-3,msg:'이상한 소리에 정신이 흔들렸다. 체력 3을 잃었다.'};return {msg:'숨을 죽이고 통로를 빠져나왔다.'}}}]},
 {id:'fog',title:'검은 안개',text:'바닥에 검은 안개가 고인다. 안개 속에 서 있자 상대의 움직임이 둔해지는 상상이 든다.',actions:[{name:'안개를 모은다',desc:'침잠 +2',effect(){return {kw:{침잠:2},msg:'검은 안개를 모았다. 침잠 +2.'}}},{name:'안개를 피해 돌아간다',desc:'체력 4 회복',effect(){return {hp:4,msg:'안개를 피해 돌아가 체력 4를 회복했다.'}}}]},
 {id:'embers',title:'불씨가 남은 작업대',text:'작업대 위에서 작은 불씨가 타오른다. 금속 도구가 붉게 달아올라 있다.',actions:[{name:'불씨를 옮긴다',desc:'화상 +2',effect(){return {kw:{화상:2},msg:'불씨를 옮기는 과정에서 열기가 스며들었다. 화상 +2.'}}},{name:'금속을 챙긴다',desc:'금속의 에너지를 흡수해 충전 +2',effect(){return {kw:{충전:2},msg:renoirModeEnabled?'금속 도구에서 에너지를 회수했다. 보존 +2.':'금속 도구에서 에너지를 회수했다. 충전 +2.'}}}]},
-{id:'meetingClosureDummy',title:'회의의 종결',text:'[더미 데이터] 회의의 종결 이벤트 본문과 선택지는 추후 제공된 설정에 맞춰 작성합니다.',maisonText:'[회의의 종결 연동 텍스트 더미] 회의의 종결에서 발생한 내용이 이곳에 반영됩니다.',maisonChoices:[{name:'[회의의 종결 연동 선택지 더미]',desc:'회의의 종결에서 설정될 조건을 충족했을 때 표시됩니다.',kind:'meetingClosureDummyBranch',condition:()=>false}],actions:[{name:'더미 이벤트 확인',desc:'회의의 종결 더미 데이터를 확인한다.',effect(){return {msg:'회의의 종결 더미 데이터입니다. 일반 탐색에는 등장하지 않으며 르누아르 메종의 텍스트와 선택지 조건에서 참조됩니다.'}}}]}
+{id:'meetingClosureDummy',title:'회의의 종결',text:'[더미 데이터] 회의의 종결 이벤트 본문과 선택지는 추후 제공된 설정에 맞춰 작성합니다.',maisonText:'회의는 끝났다. 투피스가 갈라진 자리 너머로 르누아르 메종의 문이 열려 있다.',maisonChoices:[{name:'[회의의 종결 연동 선택지 더미]',desc:'회의의 종결에서 설정될 조건을 충족했을 때 표시됩니다.',kind:'meetingClosureDummyBranch',condition:()=>false}],actions:[{name:'더미 이벤트 확인',desc:'회의의 종결 더미 데이터를 확인한다.',effect(){return {msg:'회의의 종결 더미 데이터입니다. 일반 탐색에는 등장하지 않으며 르누아르 메종의 텍스트와 선택지 조건에서 참조됩니다.'}}}]}
 ];
 
 const exploreEvents=[
@@ -796,16 +796,9 @@ function resolveExploreAction(i){
  if(a.kind==='sewingHeadPermission'){run.event={title:'날이 잘 든 재봉 가위',text:"\"호오... 이렇게 생겼구나...\"\n\"이렇게 활용을 하다니, 정교하고 꼿꼿하네. 잘 다려진 셔츠의 깃 같아.\"\n\n\"잘 보았어. 이제 꿰매 줄 거야. 움직이지 않고 가만히...\"\n\"고마워, 네 머리는 뭐랄까... 오랫만에 마주하는 즐거움이었어.\"\n\"이 정도면 눈알 없이도 대가를 치렀다고 볼 수 있겠어. 가위는 가져가도록 해.",actions:[{name:'확인',desc:'',kind:'sharpScissorsGrant'}]};renderExplore();return;}
  if(a.kind==='sharpScissorsGrant'){run.event={shopKey:'annette',title:'날이 잘 든 재봉 가위',text:'아네트가 날이 잘 든 재봉 가위를 내어놓았다.',actions:[{name:'상품을 둘러본다.',desc:'',kind:'visit'},{name:'그냥 지나간다.',desc:'',kind:'pass'}]};renderExplore();return;}
  if(a.kind==='meetingCutTwoPiece'){run.items=run.items.filter(id=>id!=='sharpSewingScissors');if(!run.items.includes('dullSewingScissors'))run.items.push('dullSewingScissors');applyItemStats();run.event={title:'투피스의 분리',text:"\"어라?\"\n\"어라?\"\n\n\"너, 저기 있네? 여태 내 안에 있는 줄 알았는데.\"\n\"너, 거기 있네? 여태 내 밖에 있는 줄 알았는데.\"\n\n\"안건이 끝났어, 드디어 끝났어.\"\n\"그래, 두명... 우리는 두명이었어.\"",actions:[{name:'확인',desc:'르누아르 메종 출입 열림',kind:'meetingClosureConfirm'}]};renderExplore();return;}
- if(a.kind==='meetingClosureConfirm'){run.maisonUnlocked=true;run.meetingClosureComplete=true;run.meetingRoute='feltFlannel';run.logs.push('회의의 종결 · 르누아르 메종 출입 개방');run.event={title:'펠트와 플라넬',text:`"투피스, 저자들은 르누아르다."
-"너희는 둘이었다. 자, 이제 회의가 끝나지 않았나?"
+ if(a.kind==='meetingClosureConfirm'){run.maisonUnlocked=true;run.meetingClosureComplete=true;run.meetingRoute='feltFlannel';run.logs.push('회의의 종결 · 르누아르 메종 출입 개방');run.event={title:'르누아르 메종',text:`회의가 끝났다. 투피스가 갈라진 자리 너머로 르누아르 메종의 문이 열려 있다.
 
-"너, 저기 있네? 여태 내 안에 있는 줄 알았는데."
-"너, 거기 있네? 여태 내 밖에 있는 줄 알았는데."
-
-"안건이 끝났어, 드디어 끝났어."
-"그래, 두명... 우리는 두명이었어."
-
-모처럼 잘 해결된 것 같다.`,actions:[{name:'르누아르 점원을 따라 안쪽으로 들어간다.',desc:'',kind:'meetingMaison'}]};renderExplore();return;}
+르누아르 점원이 안쪽에서 기다리고 있다.`,actions:[{name:'르누아르 메종으로 들어간다.',desc:'',kind:'meetingMaison'}]};renderExplore();return;}
  if(a.kind==='meetingApproach'){
   run.event={title:'끝나지 않는 회의',text:`뒤쪽 매장으로 들어가는 길을 막고 있는 것 같다.
 
