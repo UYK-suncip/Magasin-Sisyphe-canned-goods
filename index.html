@@ -850,25 +850,43 @@ function resolveExploreAction(i){
   run.maisonUnlocked=true;run.event={title:'회의의 종결',text:'[더미 분기] 회의의 종결에서 이어지는 내용은 추후 설정을 받아 연결합니다.',actions:[{name:'확인',desc:'더미 분기를 닫는다.',kind:'pass'}]};renderExplore();return;
  }
  if(a.kind==='meetingMaison'){
-  if(run.meetingRoute!=='feltFlannel')return;
-  if(!run.items.includes('renoirMaisonScarf')){
-   run.items.push('renoirMaisonScarf');applyItemStats();
-   run.logs.push('르누아르 메종 목도리 획득 · 전투 시작 시 보호막 3');renderInventory();
-  }
-  const closureData=importedEvents.find(e=>e.id==='meetingClosureDummy');
-  const closureChoices=(closureData?.maisonChoices||[]).filter(choice=>typeof choice.condition==='function'&&choice.condition(run));
-  run.event={title:'르누아르 메종',text:`"...그래서... 그것들 중 일부는 안쪽에 계속 틀어박혀 있다는데..."
+  if(!run.maisonUnlocked)return;
+  const intro=`"...그래서... 그것들 중 일부는 안쪽에 계속 틀어박혀 있다는데..."
 "...그래, 백화점이 무너지는 것은 시간문제다."
 "원래부터 제정신이 아닌 놈들이었지만 더욱 미쳐가는..."
-"하지만 그게 정말일까? 그것들이 만약..."
+"하지만 그게 정말일까? 그것들이 만약..."`;
+  if(run.meetingRoute==='feltFlannel'){
+   if(!run.items.includes('renoirMaisonScarf')){run.items.push('renoirMaisonScarf');applyItemStats();run.logs.push('르누아르 메종 목도리 획득 · 전투 시작 시 보호막 3');renderInventory();}
+   run.event={title:'르누아르 메종',text:`${intro}
 
 "아, 귀한 손님을 두고 실례를 범했군."
 "여기는 르누아르 메종. 보다시피 귀한 옷을 판매하는 곳이지."
 "뭐라도 하나 걸치게나"
 
-르누아르 메종 목도리를 획득했다.
+르누아르 메종 목도리를 획득했다.`,actions:[{name:'확인',desc:'르누아르 메종을 나선다.',kind:'pass'}]};renderExplore();return;
+  }
+  run.event={title:'르누아르 메종',text:`${intro}
 
-${closureData?.maisonText||'[회의의 종결 연동 텍스트 더미]'}`,actions:[{name:'확인',desc:'르누아르 메종을 나선다.',kind:'pass'},...closureChoices]};renderExplore();return;
+"...!"
+"너희, 어떻게 들어왔지? 방해받기 싫어서 기껏 눈알을 주고 투피스까지 고용했는데?"
+"누가 보냈지? 어디서 왔나?"`,actions:[
+   ...(run.factionChoice!=='르누아르'&&run.factionChoice!=='르루주'?[{name:'르누아르의 부탁을 듣고 왔다고 말한다.',desc:'르누아르의 부탁을 전한다.',kind:'maisonRumorTruth'}]:[]),
+   ...(run.factionChoice==='르루주'?[{name:'르루주라고 답한다.',desc:'소속을 밝힌다.',kind:'maisonRougeReveal'}]:[]),
+   ...(run.factionChoice==='르누아르'?[{name:'르누아르라고 답한다.',desc:'소속을 밝힌다.',kind:'maisonRenoirWelcome'}]:[])
+  ]};renderExplore();return;
+ }
+ if(a.kind==='maisonRumorTruth'){
+  run.event={title:'소문의 진실',text:'"르누아르의 부탁을 듣고 왔다고?"\n"...그렇다면 안쪽에서 있었던 일을 들려주지."\n\n그들이 감추고 있던 소문의 진실을 들을 수 있을 것 같다.',actions:[{name:'이야기를 듣는다.',desc:'소문의 진실을 확인한다.',kind:'pass'}]};renderExplore();return;
+ }
+ if(a.kind==='maisonRougeReveal'){
+  run.maisonConflictRoute='rouge';
+  run.event={title:'르누아르 메종',text:'"르루주라고? 하필이면 너희가..."\n점원의 표정이 굳었다. 안쪽에서 펠트가 걸어 나온다.',actions:[{name:'펠트와 전투한다.',desc:'르누아르 메종의 직원을 상대한다.',kind:'maisonFeltBattle'}]};renderExplore();return;
+ }
+ if(a.kind==='maisonFeltBattle'){
+  run.event={title:'펠트와 플라넬',text:'펠트와의 전투 데이터가 아직 연결되지 않았다. 전투 상대 데이터가 준비되면 이 지점에서 전투를 시작한다.',actions:[{name:'확인',desc:'전투 데이터 연결 대기',kind:'pass'}]};renderExplore();return;
+ }
+ if(a.kind==='maisonRenoirWelcome'){
+  run.event={title:'환대',text:'"아, 르누아르의 손님이었군. 실례했네."\n"안쪽으로 들지. 보여줄 것이 많다네."',actions:[{name:'안쪽으로 들어간다.',desc:'르누아르 메종의 환대를 받는다.',kind:'pass'}]};renderExplore();return;
  }
   if(a.kind==='broadcastAnswer'){if(!a.correct)run.broadcastWrongAnswers=(run.broadcastWrongAnswers||0)+1;run.broadcastReadingStep=(run.broadcastReadingStep||1)+1;if(run.broadcastReadingStep<=3){run.event=getBroadcastReadingEvent();renderExplore();return;}if((run.broadcastWrongAnswers||0)>=3){run.broadcastQuestState='combatPending';run.broadcastCombatPending=true;run.event={title:'방송실의 적대적 존재',text:'목소리가 뒤틀리며 방송실 안쪽에서 무언가가 모습을 드러내려 한다.\n\n[전투 상대 및 전투 데이터 미정 — 추후 연결]',actions:[{name:'확인',desc:'전투 연결은 추후 진행',kind:'broadcastCombatPending'}]};renderExplore();return;}run.event={title:'방송실 테이프',text:'그자의 손에 달린 새장이 열리며 테이프 하나가 굴러 떨어졌다.',actions:[{name:'테이프를 주워간다.',desc:'테이프 획득 · 르루주 부티크로 돌아가기',kind:'broadcastTapePickup'}]};renderExplore();return;}
  if(a.kind==='broadcastTapePickup'){if(!run.items.includes('broadcastTape')){run.items.push('broadcastTape');applyItemStats();renderInventory();}run.broadcastQuestState='return';const t=(run.tasks||[]).find(x=>x.id==='broadcast');if(t){t.text='르루주 부티크로 돌아가기';t.done=false;}run.event={title:'방송실 테이프',text:'테이프를 챙겼다. 이제 르루주 부티크로 돌아가자.',actions:[{name:'확인',desc:'탐색을 이어간다.',kind:'pass'}]};renderExplore();return;}
