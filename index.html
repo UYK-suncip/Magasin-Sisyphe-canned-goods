@@ -636,7 +636,7 @@ const exploreEvents=[
 
 const floor3Locations={sewing:{name:'수선실',neighbors:['corridor']},rouge:{name:'르루주',neighbors:['corridor','lowerCorridor']},corridor:{name:'복도',neighbors:['sewing','rouge','renoir']},renoir:{name:'르누아르 메종',neighbors:['corridor','lowerCorridor']},lowerCorridor:{name:'아래쪽 복도',neighbors:['rouge','renoir','broadcast']},broadcast:{name:'방송실',neighbors:['lowerCorridor']}};
 // 장소별 고정 이벤트 표. 키는 시즌-턴이며, 비어 있는 칸은 해당 장소의 기본 이벤트로 처리한다.
-const floor3LocationEventData={sewing:{},rouge:{},corridor:{'1-1':'tailorIntro'},renoir:{},lowerCorridor:{},broadcast:{}};
+const floor3LocationEventData={sewing:{},rouge:{},corridor:{'1-1':'tailorIntro','1-2':'meetingIntro'},renoir:{},lowerCorridor:{},broadcast:{}};
 function getFloor3LocationEvent(){
  const location=run.location||'corridor',eventKey=floor3LocationEventData[location]?.[`${run.season}-${run.turn}`],seenKey=`${run.seasonCount||0}-${run.season}-${run.turn}-${location}`,arrived=!!run.locationEntryPending;
  run.locationEntryPending=false;
