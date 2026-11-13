@@ -796,7 +796,7 @@ function resolveExploreAction(i){
  if(a.kind==='sewingHeadPermission'){run.event={title:'날이 잘 든 재봉 가위',text:"\"호오... 이렇게 생겼구나...\"\n\"이렇게 활용을 하다니, 정교하고 꼿꼿하네. 잘 다려진 셔츠의 깃 같아.\"\n\n\"잘 보았어. 이제 꿰매 줄 거야. 움직이지 않고 가만히...\"\n\"고마워, 네 머리는 뭐랄까... 오랫만에 마주하는 즐거움이었어.\"\n\"이 정도면 눈알 없이도 대가를 치렀다고 볼 수 있겠어. 가위는 가져가도록 해.",actions:[{name:'확인',desc:'',kind:'sharpScissorsGrant'}]};renderExplore();return;}
  if(a.kind==='sharpScissorsGrant'){run.event={shopKey:'annette',title:'날이 잘 든 재봉 가위',text:'아네트가 날이 잘 든 재봉 가위를 내어놓았다.',actions:[{name:'상품을 둘러본다.',desc:'',kind:'visit'},{name:'그냥 지나간다.',desc:'',kind:'pass'}]};renderExplore();return;}
  if(a.kind==='meetingCutTwoPiece'){run.items=run.items.filter(id=>id!=='sharpSewingScissors');if(!run.items.includes('dullSewingScissors'))run.items.push('dullSewingScissors');applyItemStats();run.event={title:'투피스의 분리',text:"\"어라?\"\n\"어라?\"\n\n\"너, 저기 있네? 여태 내 안에 있는 줄 알았는데.\"\n\"너, 거기 있네? 여태 내 밖에 있는 줄 알았는데.\"\n\n\"안건이 끝났어, 드디어 끝났어.\"\n\"그래, 두명... 우리는 두명이었어.\"",actions:[{name:'확인',desc:'르누아르 메종 출입 열림',kind:'meetingClosureConfirm'}]};renderExplore();return;}
- if(a.kind==='meetingClosureConfirm'){run.maisonUnlocked=true;run.meetingClosureComplete=true;run.meetingRoute='feltFlannel';run.logs.push('회의의 종결 · 르누아르 메종 출입 개방');run.event={title:'르누아르 메종',text:`회의가 끝났다. 투피스가 갈라진 자리 너머로 르누아르 메종의 문이 열려 있다.
+ if(a.kind==='meetingClosureConfirm'){run.maisonUnlocked=true;run.meetingClosureComplete=true;run.meetingRoute='meetingClosure';run.logs.push('회의의 종결 · 르누아르 메종 출입 개방');run.event={title:'르누아르 메종',text:`회의가 끝났다. 투피스가 갈라진 자리 너머로 르누아르 메종의 문이 열려 있다.
 
 르누아르 점원이 안쪽에서 기다리고 있다.`,actions:[{name:'르누아르 메종으로 들어간다.',desc:'',kind:'meetingMaison'}]};renderExplore();return;}
  if(a.kind==='meetingApproach'){
