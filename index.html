@@ -669,7 +669,7 @@ function getFloor3LocationEvent(){
  if(location==='sewing'&&!run.blackRedThreadFound&&Math.random()<.08)return {title:'검고 붉은 실',text:'수선실 우측 벽에 검고 붉은 실이 걸려 있다.',actions:[{name:'우측 벽을 조사한다.',desc:'검고 붉은 실을 획득한다.',kind:'floor3Item',item:'blackRedThread'}]};
  if(location==='corridor'&&arrived&&Math.random()<.22){const vending=Math.random()<.5;return vending?{title:'식품 자판기',text:'복도 한쪽에 식품 자판기가 놓여 있다. 안에는 여러 먹을 것이 보인다.',actions:[{name:'인스턴트 치킨 [20 눈알]',desc:'체력 10% 회복',kind:'vendingChicken'},{name:'핫도그빵 [50 눈알]',desc:'체력 20%, 정신력 2 회복',kind:'vendingHotdog'},{name:'에너지 음료 [100 눈알]',desc:'에너지 음료 획득',kind:'vendingEnergy'},{name:'자판기를 발로 찬다.',desc:'공격 판정 · 65 이상 성공',kind:'vendingKick'},{name:'무시한다.',desc:'',kind:'pass'}]}:{title:'차단봉',text:'복도 끝의 차단봉 너머에 무언가 반짝인다.',actions:[{name:'차단봉 너머에 손을 뻗는다.',desc:'판정 · 50 이상 성공',kind:'barrierReach'},{name:'무시한다.',desc:'',kind:'pass'}]};}
  if(location==='rouge'&&run.rougeBoutiqueShopUnlocked&&Math.random()<.16){const sunny=Math.random()<.5;return {combat:true,title:sunny?'르루주의 햇살':'르루주 부티크 점원',text:sunny?'르루주 부티크 안쪽에서 르루주[햇살]이 다가온다.':'르루주 부티크 안쪽에서 르루주 점원이 다가온다.',actions:[{name:sunny?'르루주[햇살]과 전투한다.':'르루주 점원과 전투한다.',desc:'부티크에서 무작위로 조우한다.',kind:'combat',enemy:sunny?'rougeSunClerk':'rougeClerk'}]};}
- if(location==='renoir'&&run.maisonUnlocked&&Math.random()<.16){const flanel=Math.random()<.5;return {combat:true,title:flanel?'플라넬의 등장':'르누아르의 햇살',text:flanel?'르누아르 메종의 원단 진열대 앞에서 플라넬이 다가온다.':'르누아르 메종의 마네킹 사이에서 르누아르[햇살]이 모습을 드러낸다.',actions:[{name:flanel?'플라넬과 전투한다.':'르누아르[햇살]과 전투한다.',desc:'메종에서 무작위로 조우한다.',kind:'combat',enemy:flanel?'flanel':'renoirSunClerk'}]};}
+
  
  const place=floor3Locations[location]?.name||'장소';
  return {title:place,text:`${place}을 둘러본다. 이번 턴에 정해진 별도의 사건은 없다.`,actions:[{name:'계속한다.',desc:'탐색을 이어간다.',kind:'continue'}]};
@@ -739,7 +739,7 @@ function makeBrandShopEvent(){
 
 어느곳을 이용할까?`,actions};
 }
-function makeShopEvent(key){const sh=shopCatalog[key];const shopFaction=['mimosa','rouge'].includes(key)?'르루주':['renoirSpa','renoir'].includes(key)?'르누아르':null;const sameFaction=!!shopFaction&&run.factionChoice===shopFaction;const oppositeFaction=!!shopFaction&&!!run.factionChoice&&run.factionChoice!==shopFaction;const actions=[];actions.push({name:'상점을 방문한다',desc:'자신의 진영에 소속된 상품만 구매할 수 있다.',kind:'visit'});const stockIds=(brandShopGroups().find(g=>g.key===key)?.items||shopItems[key]||[]);const hasStock=stockIds.some(id=>!run.items.includes(id)&&itemPrice(id)!==null);if((sh.enemy||key==='renoirSpa')&&!sameFaction)actions.push({name:`${sh.name}와 전투한다`,desc:'상점 주인과의 전투를 시작한다. 상품 재고와 관계없이 도전할 수 있으며, 승리하면 해당 상점은 폐점한다.',kind:'combat',enemy:sh.enemy||'courbet'});actions.push({name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'});return {shopKey:key,title:sh.title,text:sh.text,actions}}
+function makeShopEvent(key){const sh=shopCatalog[key];const actions=[];actions.push({name:'상점을 방문한다',desc:'자신의 진영에 소속된 상품만 구매할 수 있다.',kind:'visit'});actions.push({name:`${sh.name}와 전투한다`,desc:'상점 주인과의 전투를 시작한다. 상품 재고와 관계없이 도전할 수 있으며, 승리하면 해당 상점은 폐점한다.',kind:'combat',enemy:sh.enemy||'courbet'});actions.push({name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'});return {shopKey:key,title:sh.title,text:sh.text,actions}}
 function nextExploreEvent(){
  run.shopIntroduced=run.shopIntroduced||{};run.shopDefeated=run.shopDefeated||{};run.seasonShops=run.seasonShops||{};run.shoppingEventsSeen=run.shoppingEventsSeen||{};
  run.seasonName=getSeasonName();if(run.turn===1)initializeSeasonWeather();const finalTurn=run.turn>=run.length;let key=null;
@@ -908,9 +908,7 @@ function resolveExploreAction(i){
   run.event={title:'르누아르 메종',text:`"르루주라고? 하필이면 너희가..."
 점원의 표정이 굳었다. 안쪽에서 펠트가 걸어 나온다.`,actions:[{name:'펠트와 전투한다.',desc:'르누아르 메종의 직원을 상대한다.',kind:'maisonFeltBattle'}]};renderExplore();return;
  }
- if(a.kind==='maisonFeltBattle'){
-  run.event={title:'펠트와 플라넬',text:'펠트와의 전투 데이터가 아직 연결되지 않았다. 전투 상대 데이터가 준비되면 이 지점에서 전투를 시작한다.',actions:[{name:'확인',desc:'전투 데이터 연결 대기',kind:'pass'}]};renderExplore();return;
- }
+ if(a.kind==='maisonFeltBattle'){startNamedCombat('flanel',true);return;}
  if(a.kind==='maisonRenoirWelcome'){
   run.event={title:'환대',text:`"아, 르누아르 소속이군."
 "최근 르루주가 조급해 보이던데, 혹시 그 이유를 알겠나?"
