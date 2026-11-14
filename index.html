@@ -663,7 +663,7 @@ function getFloor3LocationEvent(){
  if(arrived&&location==='sewing')return {shopKey:'annette',title:'수선실',text:'아네트가 수선실에서 손님을 기다리고 있다.',actions:[{name:'상품을 둘러본다.',desc:'아네트의 상품을 확인한다.',kind:'visit'},{name:'그냥 지나간다.',desc:'',kind:'pass'}]};
  if(arrived&&location==='rouge'&&!run.rougeBoutiqueVisited){run.rougeBoutiqueVisited=true;return getVoiceOriginEvent();}
  if(arrived&&location==='rouge'&&run.rougeBoutiqueShopUnlocked)return {shopKey:'rougeBoutique',title:'르루주 부티크',text:'르루주 부티크의 상품을 살펴본다.',actions:[{name:'상품을 둘러본다.',desc:'르루주 부티크 상품 구매',kind:'visit'},{name:'그냥 지나간다.',desc:'',kind:'pass'}]};
- if(arrived&&location==='renoir'&&run.maisonUnlocked)return {shopKey:'renoirMaison',title:'르누아르 메종',text:'',actions:[{name:'상품을 둘러본다.',desc:'르누아르 메종의 의류를 구매한다.',kind:'visit'},{name:'그냥 지나간다.',desc:'',kind:'pass'}]};
+ if(arrived&&location==='renoir'&&run.maisonUnlocked)return {shopKey:'renoirMaison',title:'르누아르 메종',text:'',actions:[{name:'상품을 둘러본다.',desc:'르누아르 메종의 의류를 구매한다.',kind:'visit'},...(run.factionChoice!=='르누아르'?[{name:'플라넬과 전투한다.',desc:'르누아르 메종의 직원을 상대한다.',kind:'combat',enemy:'flanel'}]:[]),{name:'그냥 지나간다.',desc:'',kind:'pass'}]};
  if(location==='renoir'&&!run.maisonSocksFound&&Math.random()<.12)return {title:'마네킹의 양말',text:'르누아르 메종 가운데에 서 있는 마네킹의 발에 양말이 신겨져 있다.',actions:[{name:'마네킹을 조사한다.',desc:'양말을 획득한다.',kind:'floor3Item',item:'maisonSocks'}]};
  if(location==='broadcast'){if(!run.deadBirdFound&&Math.random()<.08)return {title:'방송실의 나팔',text:'방송실 가운데 최상단에 있는 나팔에서 작은 깃털이 삐져나와 있다.',actions:[{name:'나팔을 조사한다.',desc:'죽은 새를 획득한다.',kind:'floor3Item',item:'deadBird'}]};if(!run.oldRecorderFound&&Math.random()<.08)return {title:'환풍기 안쪽',text:'방송실 우측 중앙, B 블록과 C 블록 사이의 환풍기에서 무언가 부딪히는 소리가 난다.',actions:[{name:'환풍기를 조사한다.',desc:'낡은 녹음기를 획득한다.',kind:'floor3Item',item:'oldRecorder'}]};}
  if(location==='sewing'&&!run.blackRedThreadFound&&Math.random()<.08)return {title:'검고 붉은 실',text:'수선실 우측 벽에 검고 붉은 실이 걸려 있다.',actions:[{name:'우측 벽을 조사한다.',desc:'검고 붉은 실을 획득한다.',kind:'floor3Item',item:'blackRedThread'}]};
@@ -739,7 +739,7 @@ function makeBrandShopEvent(){
 
 어느곳을 이용할까?`,actions};
 }
-function makeShopEvent(key){const sh=shopCatalog[key];const actions=[];actions.push({name:'상점을 방문한다',desc:'자신의 진영에 소속된 상품만 구매할 수 있다.',kind:'visit'});actions.push({name:`${sh.name}와 전투한다`,desc:'상점 주인과의 전투를 시작한다. 상품 재고와 관계없이 도전할 수 있으며, 승리하면 해당 상점은 폐점한다.',kind:'combat',enemy:sh.enemy||'courbet'});actions.push({name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'});return {shopKey:key,title:sh.title,text:sh.text,actions}}
+function makeShopEvent(key){const sh=shopCatalog[key];const shopFaction=['mimosa','rouge'].includes(key)?'르루주':['renoirSpa','renoir'].includes(key)?'르누아르':null;const sameFaction=!!shopFaction&&run.factionChoice===shopFaction;const actions=[];actions.push({name:'상점을 방문한다',desc:'자신의 진영에 소속된 상품만 구매할 수 있다.',kind:'visit'});if(!sameFaction)actions.push({name:`${sh.name}와 전투한다`,desc:'상점 주인과의 전투를 시작한다. 상품 재고와 관계없이 도전할 수 있으며, 승리하면 해당 상점은 폐점한다.',kind:'combat',enemy:sh.enemy||'courbet'});actions.push({name:'그냥 지나간다',desc:'아무것도 구매하지 않고 통과한다.',kind:'pass'});return {shopKey:key,title:sh.title,text:sh.text,actions}}
 function nextExploreEvent(){
  run.shopIntroduced=run.shopIntroduced||{};run.shopDefeated=run.shopDefeated||{};run.seasonShops=run.seasonShops||{};run.shoppingEventsSeen=run.shoppingEventsSeen||{};
  run.seasonName=getSeasonName();if(run.turn===1)initializeSeasonWeather();const finalTurn=run.turn>=run.length;let key=null;
