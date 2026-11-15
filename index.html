@@ -726,7 +726,8 @@ function renderExplore(){
  const dialogueLine=Array.isArray(ev.dialogueLines)?ev.dialogueLines[Number(ev.dialogueIndex)||0]:null;
  const actions=$('exploreActions');
  if(dialogueLine){
-  $('eventText').textContent=dialogueLine.text;
+  const visibleDialogue=ev.dialogueLines.slice(0,(Number(ev.dialogueIndex)||0)+1);
+  $('eventText').textContent=visibleDialogue.map(line=>`${line.speaker||'대화'}: ${line.text}`).join('\\n\\n');
   $('eventHint').textContent=dialogueLine.speaker||'대화';
   if(dialogueLine.type==='redGod'&&!dialogueLine.started){dialogueLine.started=true;ev.dialogueVoiceBusy=true;const activeEvent=ev;showAnnouncement(dialogueLine.text,'redGod',()=>{if(run.event===activeEvent){activeEvent.dialogueVoiceBusy=false;renderExplore();}});}
   if(ev.dialogueVoiceBusy){actions.innerHTML='<button class="card" disabled><h3>목소리를 듣는 중...</h3><p>대사가 끝날 때까지 기다려주세요.</p></button>';}
