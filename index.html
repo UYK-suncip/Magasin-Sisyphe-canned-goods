@@ -873,11 +873,11 @@ function getFloor1LocationEvent(){
    if(!run.shopDefeated.renoirSpa)return makeShopEvent('renoirSpa');
   }
  }
- if(location==='renoirContemporary'&&run.locationEntryPending&&!run.renoirContemporaryFixedEventSeen){
+ if(location==='renoirContemporary'&&run.locationEntryPending){
   run.renoirContemporaryFixedEventSeen=true;run.shopIntroduced.renoir=true;
   if(!run.shopDefeated.renoir)return makeShopEvent('renoir');
  }
- if(location==='rougeContemporary'&&run.locationEntryPending&&!run.rougeContemporaryFixedEventSeen){
+ if(location==='rougeContemporary'&&run.locationEntryPending){
   run.rougeContemporaryFixedEventSeen=true;run.shopIntroduced.rouge=true;
   if(!run.shopDefeated.rouge)return makeShopEvent('rouge');
  }
@@ -897,11 +897,14 @@ function nextExploreEvent(){
  if(run.floor===1){
   const fixedLocation=run.location||'beautyCorridor';
   const fixedTurnSerial=Number(run.turnSerial)||0;
+  if(fixedLocation==='spa'&&run.locationEntryPending){
+   run.spaFixedEventStage=(run.outdatedClothesEventSeen||run.items.includes('outdatedRougeClothes'))?1:0;
+   run.spaFixedVisitActive=true;
+  }
   const spaStage=Number(run.spaFixedEventStage??((run.outdatedClothesEventSeen||run.items.includes('outdatedRougeClothes'))?1:0));
-  const spaFixedPending=fixedLocation==='spa'&&spaStage<3;
+  const spaFixedPending=fixedLocation==='spa'&&!!run.spaFixedVisitActive&&spaStage<3;
   const contemporaryFixedPending=run.locationEntryPending&&(
-   (fixedLocation==='renoirContemporary'&&!run.renoirContemporaryFixedEventSeen)||
-   (fixedLocation==='rougeContemporary'&&!run.rougeContemporaryFixedEventSeen)
+   fixedLocation==='renoirContemporary'||fixedLocation==='rougeContemporary'
   );
   const fixedAlreadyHandled=run.floor1FixedEventTurnSerial===fixedTurnSerial&&run.floor1FixedEventLocation===fixedLocation;
   if(fixedAlreadyHandled)return;
@@ -910,6 +913,7 @@ function nextExploreEvent(){
    run.floor1FixedEventLocation=fixedLocation;
    run.event=getFloor1LocationEvent();
    run.locationEntryPending=false;
+   if(fixedLocation==='spa'&&Number(run.spaFixedEventStage)>=3)run.spaFixedVisitActive=false;
    return;
   }
  }
