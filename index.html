@@ -491,7 +491,7 @@ function damage(target,n,critical=false,bypassShield=false,popupDelay=0,damageTy
   target.hp=state.twoPieceRedHp+state.twoPieceBlueHp;shownDamage=hpBefore-target.hp;
  }else target.hp=Math.max(0,target.hp-incoming);
  if(target===state.p&&target.hp<=0&&(Number(target.kw.매화첨)||0)>0&&!state.highlightDeathSaveUsed){target.hp=1;state.highlightDeathSaveUsed=true;state.highlightDeathSaveRound=state.round;state.highlightFinalPending=true;log('매화첨 · 사망 유예 발동, 체력 1로 버틴다.','bad');}
- if(target===state.p&&state.highlightDeathSaveUsed&&state.highlightDeathSaveRound===state.round&&target.hp<1)target.hp=1;
+ if(target===state.p&&state.highlightDeathFinalTurn&&target.hp<1){target.hp=1;}else if(target===state.p&&state.highlightDeathSaveUsed&&state.highlightDeathSaveRound===state.round&&target.hp<1)target.hp=1;
  const hpDamage=hpBefore-target.hp;
  if(target===state.e&&state.enemyType==='twoPiece'&&hpDamage>0&&state.twoPieceAgendas?.some(x=>x.name==='회의는 무슨 맛일까?')&&!state.twoPieceAgendaResolving){
   state.twoPieceAgendaResolving=true;
