@@ -773,6 +773,7 @@ function getFloor3LocationEvent(){
  const location=run.location||'corridor',eventKey=floor3LocationEventData[location]?.[`${run.season}-${run.turn}`],seenKey=`${run.seasonCount||0}-${run.season}-${run.turn}-${location}`,arrived=!!run.locationEntryPending;
  run.locationEntryPending=false;
  run.floor3EventSeen=run.floor3EventSeen||{};
+ if(location==='rouge'&&run.rougeBoutiqueInteriorEntered&&run.items?.includes('redGodShard')&&run.items?.includes('flowerScissors')&&!run.redGodStoryStarted){return {title:'명품관',text:'명품관 앞에 서 있던 브랜드 디렉터는 보이지 않는다. 르누아르와 대대적인 전투가 있었던 듯하다. 안쪽에는 부서진 진열장과 찢긴 붉은 천이 어지럽게 흩어져 있다. 안으로 들어가자.',actions:[{name:'명품관 안으로 들어간다.',desc:'브랜드 디렉터가 사라진 명품관 내부로 향한다.',kind:'redGodBegin'}]};}
  if(run.floor3EventSeen[seenKey]&&!(location==='broadcast'&&run.broadcastQuestActive))return {title:floor3Locations[location]?.name||'3층',text:'이번 턴에 이 장소에서 확인할 수 있는 일은 더 이상 없는 것 같다.',actions:[{name:'계속한다.',desc:'탐색을 이어간다.',kind:'continue'}]};
  run.floor3EventSeen[seenKey]=true;
  if(location==='rouge'&&run.redGodVoiceNarrativePending){const text=run.redGodVoiceNarrativePending;run.redGodVoiceNarrativePending='';const voices=run.redGodVoicePendingLines||[];run.redGodVoicePendingLines=[];return withDialogue({title:'목소리의 근원',text:'',actions:[{name:'계속한다.',desc:'목소리를 되새긴다.',kind:'pass'}]},[...voices.map(text=>({speaker:'붉은 신의 목소리',text,type:'redGod'})),...dialogueLinesFromText(text)]);}
