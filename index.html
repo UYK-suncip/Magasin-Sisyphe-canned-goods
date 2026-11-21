@@ -1262,7 +1262,24 @@ if(a.kind==='outdatedAsk'){
   return;
 }
  if(a.kind==='outdatedIgnore'){run.logs.push(`${run.seasonName} 시즌 · ${run.turn}턴 — 철지난 옷: 미모사를 무시하고 지나갔다. 아무 일도 일어나지 않았다.`);advanceExploreTurn();return;}
- if(a.kind==='rougeBoutique'){run.event={title:'르루주 명품관',text:'"고객님들은 명품관에는 어울리지 않아요.\\n돌아가지 않는다면, 저도 조치할 수밖에 없어요."\\n\\n지금이라도 돌아가는 편이 낫지 않을까?',actions:[{name:'우선 돌아간다.',desc:'3층으로 이동한다.',kind:'continueFloor'},{name:'가지 않고 버틴다.',desc:'히든 보스 · 르루주 브랜드 디렉터와 전투한다.',kind:'rougeDirectorCombat'}]};renderExplore();return;}
+  if(a.kind==='rougeBoutique'){
+   const isRougeMember=run.factionChoice==='르루주';
+   run.event={title:'르루주 명품관',text:'"고객님들은 명품관에는 어울리지 않아요.\\n돌아가지 않는다면, 저도 조치할 수밖에 없어요."\\n\\n지금이라도 돌아가는 편이 낫지 않을까?',actions:[
+    {name:'우선 돌아간다.',desc:'3층으로 이동한다.',kind:'continueFloor'},
+    isRougeMember
+     ?{name:'명품관 내부로 들어간다.',desc:'르루주 소속 직원으로서 명품관 내부에 진입한다.',kind:'rougeBoutiqueInterior'}
+     :{name:'가지 않고 버틴다.',desc:'히든 보스 · 르루주 브랜드 디렉터와 전투한다.',kind:'rougeDirectorCombat'}
+   ]};
+   renderExplore();return;
+  }
+  if(a.kind==='rougeBoutiqueInterior'){
+   run.rougeBoutiqueInteriorEntered=true;
+   run.logs.push('르루주 명품관 · 소속 직원으로 명품관 내부에 진입했다.');
+   run.event={title:'르루주 명품관 내부',text:'브랜드 디렉터는 당신이 르루주 소속임을 확인하고 길을 비켜준다.\\n\\n명품관 내부로 들어섰다. 진열장 너머로 고급 가죽 제품과 붉은 실 장식이 보인다.\\n\\n안쪽에서 무언가 준비되고 있는 듯하다.',actions:[
+    {name:'내부를 둘러본다.',desc:'명품관 내부를 살펴본다. (내부 이벤트는 추후 추가)',kind:'pass'}
+   ]};
+   renderExplore();return;
+  }
  if(a.kind==='rougeDirectorCombat'){startNamedCombat('rougeDirector',true);return;}
  if(a.kind==='rougeCheck'){
   const type=a.check;const base=Math.floor(Math.random()*100)+1;const bonus=type==='general'?0:Math.floor(Math.random()*8)+1;const check=resolveCheckRoll(base,bonus);const total=check.total;const threshold=type==='general'?60:70;const success=total>=threshold;const label=type==='attack'?'공격 판정':type==='evade'?'회피 판정':'일반 판정';
