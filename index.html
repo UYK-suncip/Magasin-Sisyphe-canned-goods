@@ -928,12 +928,12 @@ function getSeasonName(){return seasonNameOrder[(run.seasonCount)%seasonNameOrde
 function getFloorDisplayName(floor=run.floor){return floor<0?'B'+Math.abs(floor):floor+'층';}
 function getAdjacentFloor(floor,direction){const order=[-3,-2,-1,1,2,3,4,5,6],i=order.indexOf(Number(floor));return i<0?null:order[i+direction]??null;}
 function showGenericFloorEvent(){
- const floor=getFloorDisplayName(),up=getAdjacentFloor(run.floor,1),down=getAdjacentFloor(run.floor,-1);
- run.event={title:floor+' 에스컬레이터',text:floor+'의 복도에는 아직 별다른 시설이 갖춰져 있지 않다.\n\n르카키 직원 한 명이 에스컬레이터 앞을 지키고 있다.\n\n"어... 어디로 가시나요? 위층으로 가시려는 건가요, 아래층으로 가시려는 건가요?"',actions:[
-  ...(up!==null?[{name:getFloorDisplayName(up)+'으로 올라간다.',desc:'에스컬레이터를 이용해 위층으로 이동한다.',kind:'floorTravel',destination:up}]:[]),
-  ...(down!==null?[{name:getFloorDisplayName(down)+'으로 내려간다.',desc:'에스컬레이터를 이용해 아래층으로 이동한다.',kind:'floorTravel',destination:down}]:[]),
-  {name:'이번에는 이동하지 않는다.',desc:'현재 층에 남는다.',kind:'pass'}
- ]};
+  const up=getAdjacentFloor(run.floor,1),down=getAdjacentFloor(run.floor,-1);
+  run.event={title:'에스컬레이터',text:'',actions:[
+   ...(up!==null?[{name:getFloorDisplayName(up)+'으로 이동',desc:'',kind:'floorTravel',destination:up}]:[]),
+   ...(down!==null?[{name:getFloorDisplayName(down)+'으로 이동',desc:'',kind:'floorTravel',destination:down}]:[]),
+   {name:'현재 층에 머무른다.',desc:'',kind:'pass'}
+  ]};
 }
 const seasonWeatherData={mannequinCurtain:{name:'마네킹 가림막',message:'마네킹과의 잦은 접촉으로 인해 잠시 쇼윈도에 가림막을 설치할 예정입니다. 쇼핑 및 관람에 참고 부탁드립니다.'},mannequinOutfit:{name:'마네킹 착장 교체',message:'보다 나은 전시를 위해 일부 마네킹의 착장을 교체 중입니다. 작업 중에는 마네킹의 행동이 제한되니 양해 바랍니다.'},mannequinCrowding:{name:'마네킹 과다 충돌',message:'현재 해당 층이 혼잡하여, 마네킹과의 충돌이 잦습니다. 원활한 이동을 위해 복도에 오래 머무르지 않도록 협조를 부탁드립니다.'},strongSun:{name:'강한 햇살',message:'복도에 햇볕이 강하게 내리쬐고 있습니다. 양산을 준비하지 못하신 고객님은 잠시 매장에 머물러주시길 바라며, 마네킹들과의 신체 접촉은 상호 간 허가되어있음을 다시 한번 말씀드립니다.'},escalatorJam:{name:'에스컬레이터 정체',message:'현재 대기 중인 고객이 많아, 에스컬레이터 내 정체가 발생하고 있습니다.'}};
 function initializeSeasonWeather(){const key=`${run.floor}-${run.seasonCount||0}-${run.season}`;if(run.weatherKey===key)return;run.weatherKey=key;run.weather=null;if(Math.random()>=.15)return;const keys=Object.keys(seasonWeatherData),chosen=keys[Math.floor(Math.random()*keys.length)];run.weather=chosen;const data=seasonWeatherData[chosen];if(chosen==='escalatorJam')run.length=Math.max(1,run.length-3);run.logs=run.logs||[];run.logs.push(`시즌 특수 현상 · ${data.name}`);showAnnouncement(data.message);}
@@ -1003,11 +1003,10 @@ function nextExploreEvent(){
  
  if(run.floor===3){run.event=getFloor3LocationEvent();return;}
  if(![1,2,3].includes(Number(run.floor))){
-  if(Math.random()<.35)run.event={combat:true,title:'르카키 직원의 접근',text:'아직 정돈되지 않은 층의 복도에서 르카키 직원이 다가온다.',actions:[{name:'르카키와 전투한다.',desc:'복도를 막아선 르카키를 상대한다.',kind:'combat',enemy:'rukaki'},{name:'지나친다.',desc:'아무 일도 하지 않고 이동한다.',kind:'pass'}]};
-  else{const floor=getFloorDisplayName();run.event={title:floor+' 복도',text:'아직 구현되지 않은 층이다.\n\n르카키 직원이 주변을 정리하고 있다.\n\n"아, 아직 준비가 덜 끝났어요. 그래도 둘러보시는 건 괜찮아요."',actions:[{name:'계속 둘러본다.',desc:'탐색을 이어간다.',kind:'continue'}]};}
-  return;
- }
- if(run.floor===1){
+   run.event={title:getFloorDisplayName(),text:'',actions:[{name:'계속한다.',desc:'',kind:'continue'}]};
+   return;
+  }
+  if(run.floor===1){
   const fixedLocation=run.location||'beautyCorridor';
   const fixedTurnSerial=Number(run.turnSerial)||0;
   if(fixedLocation==='spa'&&run.locationEntryPending){
@@ -1344,11 +1343,8 @@ if(a.kind==='outdatedAsk'){
   if(destination===3){run.locationLastVisitedTurn={corridor:Number(run.turnSerial)||0};run.floor3EventSeen={};}
   run.logs.push(`— 에스컬레이터를 통해 ${getFloorDisplayName(destination)} 이동 —`);
   if(destination===2)run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 르카키 직원이 공사 구역을 정리하고 있다.',actions:[{name:'공사 구역을 빠져나간다.',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'},{name:'주변을 둘러본다.',desc:'2층을 더 탐색한다.',kind:'pass'}]};
-  else if(destination===-2||destination===4){
-   const up=getAdjacentFloor(destination,1),down=getAdjacentFloor(destination,-1);
-   run.event={title:getFloorDisplayName(destination)+' 통로',text:'이 층에는 별도의 탐색 구역이 없다. 에스컬레이터 연결 통로를 통해 다른 층으로 이동할 수 있다.',actions:[{name:getFloorDisplayName(up)+'으로 이동한다.',desc:'에스컬레이터 연결 통로를 지난다.',kind:'floorTravel',destination:up},{name:getFloorDisplayName(down)+'으로 이동한다.',desc:'에스컬레이터 연결 통로를 지난다.',kind:'floorTravel',destination:down}]};
-  }else nextExploreEvent();
-  renderExplore();return;
+  else nextExploreEvent();
+   renderExplore();return;
  }
  if(a.kind==='continueFloor'){ run.floor=3;run.season=1;run.turn=1;run.turnSerial=Number(run.turnSerial)||0;run.locationLastVisitedTurn={corridor:run.turnSerial};run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.location='corridor';run.locationEnteredAtTurnKey=`${run.seasonCount||0}-1-1`;run.locationEntryPending=false;run.floor3MovementUnlocked=true;run.floor3EventSeen={};run.logs.push('무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자');run.logs.push('— 3층 진입 —');nextExploreEvent();renderExplore();return;}
  if(a.kind==='pass'||a.kind==='continue'){run.logs.push(`${run.seasonName} 시즌 — ${ev.title}: ${a.name}`);if(run.floor===3&&['안건','회의가 끝나지 않아!','펠트와 플라넬','르누아르 메종'].includes(ev.title)){run.floor3MovementUnlocked=true;renderFloorLocation();}advanceExploreTurn();return;}
