@@ -881,7 +881,7 @@ function renderExplore(){
  const ev=run.event;
  if(!ev)return;
  $('eyeCount').textContent=String(run.eyes);run.customerRank=getCustomerRank();syncFactionUnlock();
- $('exploreTitle').textContent=run.floor===1?`1층 · ${run.seasonName||getSeasonName()} 시즌`:`${run.floor}층 탐색`;
+ $('exploreTitle').textContent=`${getFloorDisplayName()} · ${run.seasonName||getSeasonName()} 시즌`;
  $('exploreProgress').textContent=`탐색 ${run.turn}턴 / ${run.length}턴 · 레벨 ${run.level||1} · 경험치 ${run.xp||0}/${xpToNextLevel()} XP · 소비 ${run.spentEyes||0}눈알 · 아이템 ${run.items.length}개`;
  const passives=['이방인','고객','르카키','눈알 수집','맥동','대사작용','보존','르누아르 원단','SPA관/욕망','SPA관/절제','햇살빛에 홀린','허무감','표류 관성','가위 소리','수선','수선실의 수선','재단','수선실의 가위 소리','수선사의 꽃가위','수선실의 꽃가위 소리'].filter(hasPassive);
  if(run.renaeangJoined){const baseFaction=run.factionChoice?(run.factionChoice==='르카키'?'고객':run.factionChoice+' '):'';$('exploreFaction').textContent=baseFaction+getPosition()+'/르네앙';$('explorePosition').textContent='';}else{$('exploreFaction').textContent=run.tailorJoined?'르카키 · 수선실':getFaction();$('explorePosition').textContent=getPosition();}
@@ -928,6 +928,16 @@ function startExploration(startFloor=1){
  state=fresh();if(testerModeEnabled&&!run.items.includes('flowerScissors')){run.items.push('flowerScissors');run.logs.push('테스트 모드 지급 · 꽃가위 획득');}applyItemStats();state.p.hp=state.p.max;$('intro').classList.add('hidden');$('game').classList.add('hidden');$('explore').classList.remove('hidden');nextExploreEvent();renderExplore();
 }
 function getSeasonName(){return seasonNameOrder[(run.seasonCount)%seasonNameOrder.length]||seasonNames[(run.seasonCount)%seasonNames.length]}
+function getFloorDisplayName(floor=run.floor){return floor<0?'B'+Math.abs(floor):floor+'층';}
+function getAdjacentFloor(floor,direction){const order=[-3,-2,-1,1,2,3,4,5,6],i=order.indexOf(Number(floor));return i<0?null:order[i+direction]??null;}
+function showGenericFloorEvent(){
+ const floor=getFloorDisplayName(),up=getAdjacentFloor(run.floor,1),down=getAdjacentFloor(run.floor,-1);
+ run.event={title:floor+' 에스컬레이터',text:floor+'의 복도에는 아직 별다른 시설이 갖춰져 있지 않다.\\n\\n르카키 직원 한 명이 에스컬레이터 앞을 지키고 있다.\\n\\n"어... 어디로 가시나요? 위층으로 가시려는 건가요, 아래층으로 가시려는 건가요?"',actions:[
+  ...(up!==null?[{name:getFloorDisplayName(up)+'으로 올라간다.',desc:'에스컬레이터를 이용해 위층으로 이동한다.',kind:'floorTravel',destination:up}]:[]),
+  ...(down!==null?[{name:getFloorDisplayName(down)+'으로 내려간다.',desc:'에스컬레이터를 이용해 아래층으로 이동한다.',kind:'floorTravel',destination:down}]:[]),
+  {name:'이번에는 이동하지 않는다.',desc:'현재 층에 남는다.',kind:'pass'}
+ ]};
+}
 const seasonWeatherData={mannequinCurtain:{name:'마네킹 가림막',message:'마네킹과의 잦은 접촉으로 인해 잠시 쇼윈도에 가림막을 설치할 예정입니다. 쇼핑 및 관람에 참고 부탁드립니다.'},mannequinOutfit:{name:'마네킹 착장 교체',message:'보다 나은 전시를 위해 일부 마네킹의 착장을 교체 중입니다. 작업 중에는 마네킹의 행동이 제한되니 양해 바랍니다.'},mannequinCrowding:{name:'마네킹 과다 충돌',message:'현재 해당 층이 혼잡하여, 마네킹과의 충돌이 잦습니다. 원활한 이동을 위해 복도에 오래 머무르지 않도록 협조를 부탁드립니다.'},strongSun:{name:'강한 햇살',message:'복도에 햇볕이 강하게 내리쬐고 있습니다. 양산을 준비하지 못하신 고객님은 잠시 매장에 머물러주시길 바라며, 마네킹들과의 신체 접촉은 상호 간 허가되어있음을 다시 한번 말씀드립니다.'},escalatorJam:{name:'에스컬레이터 정체',message:'현재 대기 중인 고객이 많아, 에스컬레이터 내 정체가 발생하고 있습니다.'}};
 function initializeSeasonWeather(){const key=`${run.floor}-${run.seasonCount||0}-${run.season}`;if(run.weatherKey===key)return;run.weatherKey=key;run.weather=null;if(Math.random()>=.15)return;const keys=Object.keys(seasonWeatherData),chosen=keys[Math.floor(Math.random()*keys.length)];run.weather=chosen;const data=seasonWeatherData[chosen];if(chosen==='escalatorJam')run.length=Math.max(1,run.length-3);run.logs=run.logs||[];run.logs.push(`시즌 특수 현상 · ${data.name}`);showAnnouncement(data.message);}
 function consumeSeasonMental(amount=1){const spent=amount+(run.weather==='strongSun'?1:0);if(Number.isFinite(Number(run.mental)))run.mental=Math.max(0,Number(run.mental)-spent);return spent;}
@@ -995,6 +1005,11 @@ function nextExploreEvent(){
 
  
  if(run.floor===3){run.event=getFloor3LocationEvent();return;}
+ if(![1,2,3].includes(Number(run.floor))){
+  if(Math.random()<.35)run.event={combat:true,title:'르카키 직원의 접근',text:'아직 정돈되지 않은 층의 복도에서 르카키 직원이 다가온다.',actions:[{name:'르카키와 전투한다.',desc:'복도를 막아선 르카키를 상대한다.',kind:'combat',enemy:'rukaki'},{name:'지나친다.',desc:'아무 일도 하지 않고 이동한다.',kind:'pass'}]};
+  else{const floor=getFloorDisplayName();run.event={title:floor+' 복도',text:'아직 구현되지 않은 층이다.\\n\\n르카키 직원이 주변을 정리하고 있다.\\n\\n"아, 아직 준비가 덜 끝났어요. 그래도 둘러보시는 건 괜찮아요."',actions:[{name:'계속 둘러본다.',desc:'탐색을 이어간다.',kind:'continue'}]};}
+  return;
+ }
  if(run.floor===1){
   const fixedLocation=run.location||'beautyCorridor';
   const fixedTurnSerial=Number(run.turnSerial)||0;
@@ -1322,6 +1337,18 @@ if(a.kind==='outdatedAsk'){
  if(a.kind==='factionPick'){chooseFaction(a.faction);return;}if(a.kind==='factionMenu'){const acts=$('exploreActions');acts.innerHTML='<div class="unit"><strong>진영 선택</strong><div class="meta">선택 후에는 진영을 바꿀 수 없습니다.</div></div><button class="card" id="chooseRenoir"><h3>르누아르</h3><p>진영: 르누아르 · 직급: SPA관 점원 · 패시브: 보존, 르누아르 원단</p></button><button class="card" id="chooseRouge"><h3>르루주</h3><p>진영: 르루주 · 직급: SPA관 점원 · 패시브: 맥동, 대사작용</p></button><button class="secondary" id="cancelFaction">돌아가기</button>';$('chooseRenoir').onclick=()=>chooseFaction('르누아르');$('chooseRouge').onclick=()=>chooseFaction('르루주');$('cancelFaction').onclick=()=>renderExplore();return;}
  if(a.kind==='vending'){if(!run.items.includes('energyDrink')){run.items.push('energyDrink');applyItemStats();run.logs.push('자판기에서 에너지 음료 획득 · 최종 위력 +1');}else{run.logs.push('자판기에서 에너지 음료를 발견했지만 이미 보유 중이라 지나쳤다.');}advanceExploreTurn();return;}
  if(a.kind==='announcement'){nextExploreEvent();renderExplore();return;}
+ if(a.kind==='floorTravel'){
+  const destination=Number(a.destination);
+  if(![-3,-2,-1,1,2,3,4,5,6].includes(destination))return;
+  run.floor=destination;run.season=1;run.turn=1;run.length=5+Math.floor(Math.random()*3);
+  run.seasonShops={};run.location=destination===3?'corridor':destination===1?'beautyLobby':'corridor';
+  run.locationEntryPending=false;run.floor3MovementUnlocked=destination===3;
+  if(destination===3){run.locationLastVisitedTurn={corridor:Number(run.turnSerial)||0};run.floor3EventSeen={};}
+  run.logs.push(`— 에스컬레이터를 통해 ${getFloorDisplayName(destination)} 이동 —`);
+  if(destination===2)run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 르카키 직원이 공사 구역을 정리하고 있다.',actions:[{name:'공사 구역을 빠져나간다.',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'},{name:'주변을 둘러본다.',desc:'2층을 더 탐색한다.',kind:'pass'}]};
+  else nextExploreEvent();
+  renderExplore();return;
+ }
  if(a.kind==='continueFloor'){ run.floor=3;run.season=1;run.turn=1;run.turnSerial=Number(run.turnSerial)||0;run.locationLastVisitedTurn={corridor:run.turnSerial};run.length=5+Math.floor(Math.random()*3);run.seasonShops={};run.location='corridor';run.locationEnteredAtTurnKey=`${run.seasonCount||0}-1-1`;run.locationEntryPending=false;run.floor3MovementUnlocked=true;run.floor3EventSeen={};run.logs.push('무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자');run.logs.push('— 3층 진입 —');nextExploreEvent();renderExplore();return;}
  if(a.kind==='pass'||a.kind==='continue'){run.logs.push(`${run.seasonName} 시즌 — ${ev.title}: ${a.name}`);if(run.floor===3&&['안건','회의가 끝나지 않아!','펠트와 플라넬','르누아르 메종'].includes(ev.title)){run.floor3MovementUnlocked=true;renderFloorLocation();}advanceExploreTurn();return;}
  if(a.kind==='hermitCombat'){run.hermitEncounterResolved=true;startNamedCombat('hermit',true);return;}if(a.kind==='hermitAccept'){run.hermitEncounterResolved=true;run.affiliations=Array.isArray(run.affiliations)?run.affiliations:[];const existing=run.affiliations.length?run.affiliations.join('/'):(run.factionChoice||'무소속');run.affiliations=[existing+'/르네앙'];run.renaeangJoined=true;if(!run.items.includes('pahaha')){run.items.push('pahaha');applyItemStats();}run.event={title:'르네앙',text:'"햇살이 내리쬔다."\n\n당신은 르네앙의 일원이 되었다. 파하하!',actions:[{name:'계속한다.',desc:'탐색을 이어간다.',kind:'continue'}]};renderExplore();return;}if(a.kind==='hermitFlee'){run.hermitEncounterResolved=true;if(!run.items.includes('pahaha')){run.items.push('pahaha');applyItemStats();}run.event={title:'파하하',text:'은둔자는 웃으며 당신을 보내주었다.\n\n"햇살이 내리쬔다."\n\n파하하를 얻었다.',actions:[{name:'계속한다.',desc:'탐색을 이어간다.',kind:'continue'}]};renderExplore();return;}if(a.kind==='randomReaderCombat'){if(run.readerDefeated)return;run.randomReaderEncounter=true;startNamedCombat('endlessReader',true);return;}if(a.kind==='randomLinaCombat'){run.randomLinaEncounter=true;startNamedCombat('linaMovible',true);return;}if(a.kind==='renoirLinaCombat'){run.renoirLinaEncounter=true;startNamedCombat('linaMovible',true);return;}
@@ -1397,7 +1424,15 @@ function advanceExploreTurn(){
    if(eligible&&run.weather!=='escalatorJam')$('nextFloor').onclick=()=>{run.floor=2;run.season=1;run.turn=1;run.length=7+Math.floor(Math.random()*4);run.seasonShops={};run.logs.push('— 2층 진입 —');run.event={title:'공사 중인 2층',text:'무언가 대규모의 공사 중인 것 같다. 에스컬레이터가 멈추기 전 빨리 올라가자.',actions:[{name:'조금 더 깊이 들어가본다',desc:'공사 중인 르루주 명품관 안쪽으로 향한다.',kind:'rougeBoutique'},{name:'공사 구역을 빠져나간다',desc:'에스컬레이터를 타고 3층으로 향한다.',kind:'continueFloor'}]};renderExplore();};
    $('exploreProgress').textContent=`등급 ${run.rank} · 아이템 ${run.items.length}/5`;return;
   }
-  if(run.season>5){run.season=1;}
+  if(run.season>5){
+   run.season=1;
+   if(![1,-2,4].includes(Number(run.floor))){
+    run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonName=getSeasonName();
+    if(run.floor===3)run.floor3EventSeen={};
+    run.logs.push(`— ${getFloorDisplayName()}의 5시즌 주기 종료 · 에스컬레이터 운행 —`);
+    showGenericFloorEvent();renderExplore();return;
+   }
+  }
   run.turn=1;run.length=5+Math.floor(Math.random()*3);run.seasonName=getSeasonName();if(run.floor===3)run.floor3EventSeen={};
   if(run.floor===1){run.logs.push(`곧 ${previous} 시즌이 마감됩니다. 이번 시즌은 ${run.seasonName}입니다.`);run.logs.push(`— ${run.seasonName} 시즌 시작 (${run.length}턴) —`);showAnnouncement(`고객 여러분께 안내드립니다. ${previous} 시즌이 방금 마감되었습니다. 이번 유행은 ${run.seasonName}입니다. 이번 시즌도 즐거운 쇼핑 되시길 바랍니다.`);nextExploreEvent();}
   else {nextExploreEvent();}
