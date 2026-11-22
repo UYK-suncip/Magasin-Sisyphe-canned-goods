@@ -1190,9 +1190,9 @@ function resolveExploreAction(i){
  if(a.kind==='maisonRougeReveal'){
   run.maisonConflictRoute='rouge';
   run.event={title:'르누아르 메종',text:`"르루주라고? 하필이면 너희가..."
-점원의 표정이 굳었다. 안쪽에서 플라넬이 걸어 나온다.`,actions:[{name:'펠트와 전투한다.',desc:'르누아르 메종의 직원을 상대한다.',kind:'maisonFeltBattle'}]};renderExplore();return;
+점원의 표정이 굳었다. 안쪽에서 플라넬이 걸어 나온다.`,actions:[{name:'플라넬과 전투한다.',desc:'르누아르 메종의 플라넬과 전투한다.',kind:'maisonFlanelBattle'}]};renderExplore();return;
  }
- if(a.kind==='maisonFeltBattle'){startNamedCombat('flanel',true);return;}
+ if(a.kind==='maisonFlanelBattle'){startNamedCombat('flanel',true);return;}
  if(a.kind==='maisonRenoirWelcome'){
   run.event={title:'환대',text:`"아, 르누아르 소속이군."
 "최근 르루주가 조급해 보이던데, 혹시 그 이유를 알겠나?"
