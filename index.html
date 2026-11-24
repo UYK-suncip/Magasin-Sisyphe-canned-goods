@@ -799,9 +799,9 @@ async function redGodCompanionAction(){
  if(Math.random()<.2){
   skill='힘내';$('arenaName').textContent='붉은 신의 지원';$('arenaCaption').textContent=skill;
   $('attackSkillName').textContent=skill;$('attackLabel').textContent='비공격 스킬';
-  $('attackDie').textContent='—';$('defenseDie').textContent='—';
+  $('attackDie').textContent='—';$('defenseDie').textContent='—';render();
   const attackLevelGain=Math.min(5,life);state.p.attackPower=(Number(state.p.attackPower)||0)+attackLevelGain;
-  applyKw(state.p,{공격위력증가:1});action='힘내 · 아군 공격력 +'+attackLevelGain+', 공격 위력 +1';await wait(350);
+  applyKw(state.p,{공격위력증가:1});action='힘내 · 아군 공격력 +'+attackLevelGain+', 공격 위력 +1';render();await wait(350);
  }else if(state.p.hp<state.p.max*.6&&Math.random()<.5){
   skill='아프지마';const result=await showDie(skill,4,1,false),die=result.die;
   const power=3+die+baseBonus,lifeHeal=1+Math.min(10,pulse)*.1,rageHeal=berserk>0?1+Math.min(10,Math.floor((Number(rg.kw.출혈)||0)/3))*.1:1;
