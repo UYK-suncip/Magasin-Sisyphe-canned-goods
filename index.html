@@ -1550,6 +1550,10 @@ function advanceExploreTurn(){
  if(run.floor===3){if(run.location==='sewing'){run.sewingRoomTurns=(Number(run.sewingRoomTurns)||0)+1;if(run.sewingRoomTurns>=9&&!run.items.includes('wiltedFlowerPot')){run.items.push('wiltedFlowerPot');applyItemStats();run.logs.push('수선실에서 9턴 연속 머문 보상 · 시든 꽃 화분 획득');run.pendingSpecialEvent={title:'부서진 화분',text:'여러 가위들과 실, 옷감이 엉켜있는 수선실 벽의 작은 틈 안에서 무언가를 발견했다.\n\n이건 부서진 화분이다. 꽃은 시든 채로 그곳에 햇빛이라도 비치는지, 벽의 깊은 안쪽으로 그 머리를 들이대고 있다.\n\n화분을 꺼냈다.\n\n시든 꽃 화분 획득.',actions:[{name:'화분을 챙긴다.',desc:'시든 꽃 화분 · 빛 최대치 +1, 햇살 피해 감소',kind:'pass'}]};}}else run.sewingRoomTurns=0;}
  run.turnSerial=(Number(run.turnSerial)||0)+1;
  run.turn++;
+ if(run.floor===3&&run.location==='rouge'&&run.broadcastQuestState!=='complete'&&Math.random()<0.2){
+  const redGodWhispers=['...욕망하라. 그리하면 걸쳐질 것이다.','욕망하여라... 걸친 만큼, 그대는 그 이상이 되리니.','욕망하라. 욕망은 그대를 이롭게 바꾼다.'];
+  showRedGodVoice(redGodWhispers[Math.floor(Math.random()*redGodWhispers.length)],null,3000);
+ }
  if(state?.p&&state.p.hp>0){const symbolicRegen=Math.floor(Math.max(0,state.p.max-state.p.hp)*0.15);if(symbolicRegen>0){const recovered=heal(state.p,symbolicRegen,250);if(recovered)run.logs.push(`상징계 자연회복 · 잃은 체력의 15%, 체력 ${recovered} 회복`);}}
  if(run.turn>run.length){
   const previous=run.seasonName;run.seasonCount++;run.season++;
